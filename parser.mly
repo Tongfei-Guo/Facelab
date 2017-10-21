@@ -12,6 +12,7 @@ open Ast
 %token FILTER
 %token <int> INT_LITERAL
 %token <float> DOUBLE_LITERAL
+%tokan <string> STRING_LITERAL
 %token <string> ID
 %token EOF
 
