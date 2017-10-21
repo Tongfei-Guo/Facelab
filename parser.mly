@@ -63,13 +63,10 @@ typ: (*type*)
   | IMAGE {Image}
   | MATRIX {Matrix}
 
-vdecl_list:
-    /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 }
-
 vdecl:
-   typ ID SEMI { ($1, $2) }
-
+   INT ID ASSIGN INI_LITERAL SEMI { ($1, $2, $4) }
+   STRING ID ASSIGN STRING_LITERAL SEMI { ($1, $2, $4) }
+   DOUBLE ID ASSIGN DOUBLE_LITERAL SEMI { ($1, $2, $4) }
 stmt_list:
     /* nothing */  { [] }
   | stmt_list stmt { $2 :: $1 }
@@ -79,18 +76,22 @@ stmt:
   | RETURN SEMI { Return Noexpr }
   | RETURN expr SEMI { Return $2 }
   | LBRACE stmt_list RBRACE { Block(List.rev $2) }
-  | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
+  | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } 
+  /* elseif */
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
 
+    
 expr_opt:
     /* nothing */ { Noexpr }
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1) }
+    INT_LITERAL      { IntLit($1) }
+  | STRIN_LITERAL    { StringLit($1) }
+  | DOUBLE_LITERAL   { DoubleLit($1) }
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | ID               { Id($1) }
@@ -98,6 +99,7 @@ expr:
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
+  | expr REMAINDER expr{ Binop($1, Rmdr, $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
   | expr NEQ    expr { Binop($1, Neq,   $3) }
   | expr LT     expr { Binop($1, Less,  $3) }
