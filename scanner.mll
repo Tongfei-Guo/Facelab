@@ -60,4 +60,4 @@ and comment = parse
 
 and quote = parse
   ['\n' '\r'] { token lexbuf }
-| _    { comment lexbuf }
+| _    { quote lexbuf }
