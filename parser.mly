@@ -42,9 +42,8 @@ decls:
  | decls fdecl { fst $1, ($2 :: snd $1) }
 
 fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-     { { typ = $1;
-	 fname = $2;
+   FUNCTION ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { {fname = $2;
 	 formals = $4;
 	 locals = List.rev $7;
 	 body = List.rev $8 } }
@@ -57,10 +56,12 @@ formal_list:
     typ ID                   { [($1,$2)] }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-typ:
+typ: (*type*)
     INT { Int }
+  | DOUBLE { Double }
   | BOOL { Bool }
-  | VOID { Void }
+  | IMAGE {Image}
+  | MATRIX {Matrix}
 
 vdecl_list:
     /* nothing */    { [] }
