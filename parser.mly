@@ -90,7 +90,7 @@ expr_opt:
 
 expr:
     INT_LITERAL      { IntLit($1) }
-  | STRIN_LITERAL    { StringLit($1) }
+  | STRING_LITERAL   { StringLit($1) }
   | DOUBLE_LITERAL   { DoubleLit($1) }
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }

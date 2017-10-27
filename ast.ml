@@ -5,12 +5,14 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Image | Double | Matrix
+type typ = Int | Bool | Image | Double | Matrix 
 
 type bind = typ * string
 
 type expr =
-    Literal of int
+    IntLit of int
+  | StringLit of string
+  | DoubleLit of float
   | BoolLit of bool
   | Id of string
   | Binop of expr * op * expr
