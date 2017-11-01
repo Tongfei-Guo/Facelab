@@ -12,11 +12,11 @@ open Ast
 %token FILTER
 %token <int> INT_LITERAL
 %token <float> DOUBLE_LITERAL
-%tokan <string> STRING_LITERAL
+%token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
 
-%nonassoc ELSE
+%nonassoc ELSE NEG
 %nonassoc ELSEIF
 %right ASSIGN
 %left OR
@@ -56,17 +56,16 @@ formal_list:
     typ ID                   { [($1,$2)] }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-typ: (*type*)
+typ:
     INT { Int }
   | DOUBLE { Double }
-  | BOOL { Bool }
-  | IMAGE {Image}
-  | MATRIX {Matrix}
-
+  | BOOL { Bool } 
+vdecl_list:
+    vdecl vdecl_list{$1 :: $2}
 vdecl:
-   INT ID ASSIGN INI_LITERAL SEMI { ($1, $2, $4) }
-   STRING ID ASSIGN STRING_LITERAL SEMI { ($1, $2, $4) }
-   DOUBLE ID ASSIGN DOUBLE_LITERAL SEMI { ($1, $2, $4) }
+   typ ID ASSIGN INT_LITERAL SEMI { ($1, $2, $4) }
+   |typ ID ASSIGN STRING_LITERAL SEMI { ($1, $2, $4) }
+   |typ ID ASSIGN DOUBLE_LITERAL SEMI { ($1, $2, $4) }
 stmt_list:
     /* nothing */  { [] }
   | stmt_list stmt { $2 :: $1 }
@@ -76,12 +75,11 @@ stmt:
   | RETURN SEMI { Return Noexpr }
   | RETURN expr SEMI { Return $2 }
   | LBRACE stmt_list RBRACE { Block(List.rev $2) }
-  | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } 
-  /* elseif */
+  /*| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } 
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
-  | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+  | WHILE LPAREN expr RPAREN stmt { While($3, $5) }*/
 
     
 expr_opt:

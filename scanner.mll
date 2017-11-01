@@ -42,6 +42,7 @@ rule token = parse
 | "func"   { FUNCTION }
 | "matrix" { MATRIX }
 | "image"  { IMAGE }
+| "string" { STRING }
 | "int"    { INT }
 | "double" { DOUBLE }
 | "bool"   { BOOL }
