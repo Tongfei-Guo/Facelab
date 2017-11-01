@@ -83,9 +83,9 @@ stmt:
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }*/
 
     
-expr_opt:
-    /* nothing */ { Noexpr }
-  | expr          { $1 }
+/*expr_opt:
+     nothing  { Noexpr }
+  | expr          { $1 }*/
 
 expr:
     INT_LITERAL      { IntLit($1) }

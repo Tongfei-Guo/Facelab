@@ -36,8 +36,7 @@ type func_decl = {
     locals : bind list;
     body : stmt list;
   }
-
-type program = bind list * func_decl list
+(* type = program = bind list * func_decl list *)
 
 (* Pretty-printing functions *)
 (*
