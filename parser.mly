@@ -61,8 +61,10 @@ typ:
   | DOUBLE { Double }
   | BOOL { Bool } 
   | STRING { String }
+
 vdecl_list:
     vdecl vdecl_list{$1 :: $2}
+    
 vdecl:
    typ ID ASSIGN INT_LITERAL SEMI { ($1, $2, $4) }
    |typ ID ASSIGN STRING_LITERAL SEMI { ($1, $2, $4) }
