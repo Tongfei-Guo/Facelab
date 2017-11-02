@@ -20,11 +20,6 @@ let check (globals, functions) =
     in helper (List.sort compare list)
   in
 
-  (* Raise an exception if a given binding is to a void type *)
-  let check_not_void exceptf = function
-      (Void, n) -> raise (Failure (exceptf n))
-    | _ -> ()
-  in
   
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
@@ -34,7 +29,6 @@ let check (globals, functions) =
    
   (**** Checking Global Variables ****)
 
-  List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
    
   report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals);
 
@@ -48,11 +42,11 @@ let check (globals, functions) =
 
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
-     { typ = Void; fname = "print"; formals = [(String, "x")];
+     { fname = "print"; formals = [(String, "x")];
        locals = []; body = [] } (StringMap.add "printf"
-     { typ = Void; fname = "printf"; formals = [(String, "x")];
+     { fname = "printf"; formals = [(String, "x")];
        locals = []; body = [] } (StringMap.singleton "printbig"
-     { typ = Void; fname = "printbig"; formals = [(Int, "x")];
+     { fname = "printbig"; formals = [(Int, "x")];
        locals = []; body = [] }))
    in
      
@@ -68,14 +62,8 @@ let check (globals, functions) =
 
   let check_function func =
 
-    List.iter (check_not_void (fun n -> "illegal void formal " ^ n ^
-      " in " ^ func.fname)) func.formals;
-
     report_duplicate (fun n -> "duplicate formal " ^ n ^ " in " ^ func.fname)
       (List.map snd func.formals);
-
-    List.iter (check_not_void (fun n -> "illegal void local " ^ n ^
-      " in " ^ func.fname)) func.locals;
 
     report_duplicate (fun n -> "duplicate local " ^ n ^ " in " ^ func.fname)
       (List.map snd func.locals);
@@ -92,7 +80,7 @@ let check (globals, functions) =
 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
-	Literal _ -> Int
+	IntLit _ -> Int
       | BoolLit _ -> Bool
       | StringLit _ -> String
       | Id s -> type_of_identifier s
@@ -159,3 +147,4 @@ let check (globals, functions) =
    
   in
   List.iter check_function functions
+
