@@ -33,24 +33,18 @@ File "codegen.ml", line 28, characters 21-171:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a value that is not matched:
 (Image|Double|Matrix)
-File "codegen.ml", line 99, characters 3-459:
+File "codegen.ml", line 88, characters 3-459:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a value that is not matched:
 Rmdr
-File "codegen.ml", line 90, characters 27-1738:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a value that is not matched:
-DoubleLit _
-File "codegen.ml", line 222, characters 3-459:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a value that is not matched:
-Rmdr
-File "codegen.ml", line 213, characters 32-1818:
+File "codegen.ml", line 79, characters 27-1770:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a value that is not matched:
 DoubleLit _
 File "codegen.ml", line 32, characters 6-14:
 Warning 11: this match case is unused.
+File "codegen.ml", line 47, characters 6-16:
+Warning 26: unused variable printint_t.
 # Target: scanner.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:scanner.cmo, file:scanner.ml, implem, ocaml, package(llvm), package(llvm.analysis), quiet }
 ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmo scanner.ml
 # Target: microc.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:microc.cmo, file:microc.ml, implem, ocaml, package(llvm), package(llvm.analysis), quiet }
@@ -77,24 +71,18 @@ File "codegen.ml", line 28, characters 21-171:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a value that is not matched:
 (Image|Double|Matrix)
-File "codegen.ml", line 99, characters 3-459:
+File "codegen.ml", line 88, characters 3-459:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a value that is not matched:
 Rmdr
-File "codegen.ml", line 90, characters 27-1738:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a value that is not matched:
-DoubleLit _
-File "codegen.ml", line 222, characters 3-459:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a value that is not matched:
-Rmdr
-File "codegen.ml", line 213, characters 32-1818:
+File "codegen.ml", line 79, characters 27-1770:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a value that is not matched:
 DoubleLit _
 File "codegen.ml", line 32, characters 6-14:
 Warning 11: this match case is unused.
+File "codegen.ml", line 47, characters 6-16:
+Warning 26: unused variable printint_t.
 # Target: scanner.cmx, tags: { compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, package(llvm), package(llvm.analysis), quiet }
 ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmx scanner.ml
 # Target: microc.cmx, tags: { compile, extension:cmx, extension:ml, file:microc.cmx, file:microc.ml, implem, native, ocaml, package(llvm), package(llvm.analysis), quiet }

@@ -1,0 +1,21 @@
+printf("hello, this is the 2nd test program for remove int main restriction.\n");
+int i;
+print_int(i);
+i = 0;
+i = i + 3;
+print_int(i);
+int j;
+j = i + 5;
+print_int(j);
+bool b;
+b = true;
+while (b)
+{
+    if (j > 3)
+    {
+        j = j - 1;
+    }
+    b = (j != 3);
+}
+print_int(j);
+print_int(j + 5);
