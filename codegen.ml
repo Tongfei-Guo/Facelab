@@ -223,5 +223,5 @@ let translate (main_stmt, globals, functions) =
 
     add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
 
-  List.iter build_function_body functions; build_main main_stmt;
+  List.iter build_function_body functions; build_main main_stmt; 
   the_module

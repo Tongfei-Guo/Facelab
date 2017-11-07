@@ -28,6 +28,7 @@ open Ast
 %left TIMES DIVIDE REMAINDER
 %left FILTER 
 %right NOT NEG
+%left SEMI
 
 %start program
 %type <Ast.program> program
@@ -39,7 +40,7 @@ program:
 
 decls:
    /* nothing */ { [], [], [] }
- | decls stmt  { let (fst, snd, thd) = $1 in ($2 :: fst), snd, thd }
+ | decls stmt  { let (fst, snd, thd) = $1 in ($2 :: fst), snd, thd } /* the first entry of decls is a stmt list in reverse order, later in codegen we need to reverse it */
  | decls vdecl { let (fst, snd, thd) = $1 in fst, ($2 :: snd), thd }
  | decls fdecl { let (fst, snd, thd) = $1 in fst, snd, ($2 :: thd) }
 
