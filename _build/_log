@@ -1,6 +1,6 @@
 ### Starting build.
-# Target: microc.ml.depends, tags: { extension:ml, file:microc.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), quiet }
-ocamlfind ocamldep -package llvm.analysis -package llvm -modules microc.ml > microc.ml.depends
+# Target: facelab.ml.depends, tags: { extension:ml, file:facelab.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules facelab.ml > facelab.ml.depends
 # Target: codegen.ml.depends, tags: { extension:ml, file:codegen.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), quiet }
 ocamlfind ocamldep -package llvm.analysis -package llvm -modules codegen.ml > codegen.ml.depends
 # Target: ast.ml.depends, tags: { extension:ml, file:ast.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), quiet }
@@ -47,8 +47,8 @@ File "codegen.ml", line 47, characters 6-16:
 Warning 26: unused variable printint_t.
 # Target: scanner.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:scanner.cmo, file:scanner.ml, implem, ocaml, package(llvm), package(llvm.analysis), quiet }
 ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmo scanner.ml
-# Target: microc.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:microc.cmo, file:microc.ml, implem, ocaml, package(llvm), package(llvm.analysis), quiet }
-ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o microc.cmo microc.ml
+# Target: facelab.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:facelab.cmo, file:facelab.ml, implem, ocaml, package(llvm), package(llvm.analysis), quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o facelab.cmo facelab.ml
 # Target: ast.cmx, tags: { compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, package(llvm), package(llvm.analysis), quiet }
 ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmx ast.ml
 + ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmx ast.ml
@@ -85,8 +85,8 @@ File "codegen.ml", line 47, characters 6-16:
 Warning 26: unused variable printint_t.
 # Target: scanner.cmx, tags: { compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, package(llvm), package(llvm.analysis), quiet }
 ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmx scanner.ml
-# Target: microc.cmx, tags: { compile, extension:cmx, extension:ml, file:microc.cmx, file:microc.ml, implem, native, ocaml, package(llvm), package(llvm.analysis), quiet }
-ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o microc.cmx microc.ml
-# Target: microc.native, tags: { dont_link_with, extension:native, file:microc.native, link, native, ocaml, package(llvm), package(llvm.analysis), program, quiet }
-ocamlfind ocamlopt -linkpkg -package llvm.analysis -package llvm ast.cmx codegen.cmx parser.cmx scanner.cmx microc.cmx -o microc.native
+# Target: facelab.cmx, tags: { compile, extension:cmx, extension:ml, file:facelab.cmx, file:facelab.ml, implem, native, ocaml, package(llvm), package(llvm.analysis), quiet }
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o facelab.cmx facelab.ml
+# Target: facelab.native, tags: { dont_link_with, extension:native, file:facelab.native, link, native, ocaml, package(llvm), package(llvm.analysis), program, quiet }
+ocamlfind ocamlopt -linkpkg -package llvm.analysis -package llvm ast.cmx codegen.cmx parser.cmx scanner.cmx facelab.cmx -o facelab.native
 # Compilation successful.
