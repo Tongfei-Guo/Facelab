@@ -1,5 +1,66 @@
 	.text
 	.file	"MicroC"
+	.globl	f1                      # -- Begin function f1
+	.p2align	4, 0x90
+	.type	f1,@function
+f1:                                     # @f1
+	.cfi_startproc
+# BB#0:                                 # %entry
+	pushq	%rax
+.Lcfi0:
+	.cfi_def_cfa_offset 16
+	movl	$.Lfmt_int.2, %edi
+	movl	$1, %esi
+	xorl	%eax, %eax
+	callq	printf
+	movl	$5, %eax
+	popq	%rcx
+	retq
+.Lfunc_end0:
+	.size	f1, .Lfunc_end0-f1
+	.cfi_endproc
+                                        # -- End function
+	.globl	f2                      # -- Begin function f2
+	.p2align	4, 0x90
+	.type	f2,@function
+f2:                                     # @f2
+	.cfi_startproc
+# BB#0:                                 # %entry
+	pushq	%rax
+.Lcfi1:
+	.cfi_def_cfa_offset 16
+	callq	f1
+	movl	%eax, %ecx
+	movl	$.Lfmt_int.8, %edi
+	xorl	%eax, %eax
+	movl	%ecx, %esi
+	callq	printf
+	movb	$1, %al
+	popq	%rcx
+	retq
+.Lfunc_end1:
+	.size	f2, .Lfunc_end1-f2
+	.cfi_endproc
+                                        # -- End function
+	.globl	f3                      # -- Begin function f3
+	.p2align	4, 0x90
+	.type	f3,@function
+f3:                                     # @f3
+	.cfi_startproc
+# BB#0:                                 # %entry
+	pushq	%rax
+.Lcfi2:
+	.cfi_def_cfa_offset 16
+	movl	$.Lfmt_str.13, %edi
+	movl	$.Lsystem_string, %esi
+	xorl	%eax, %eax
+	callq	printf
+	popq	%rax
+	retq
+.Lfunc_end2:
+	.size	f3, .Lfunc_end2-f3
+	.cfi_endproc
+                                        # -- End function
 	.globl	main                    # -- Begin function main
 	.p2align	4, 0x90
 	.type	main,@function
@@ -7,61 +68,34 @@ main:                                   # @main
 	.cfi_startproc
 # BB#0:                                 # %entry
 	pushq	%rax
-.Lcfi0:
+.Lcfi3:
 	.cfi_def_cfa_offset 16
-	movl	$.Lfmt_str.1, %edi
-	movl	$.Lsystem_string, %esi
+	movl	$0, i(%rip)
+	movl	$.Lfmt_int.22, %edi
+	xorl	%esi, %esi
 	xorl	%eax, %eax
 	callq	printf
-	movl	i(%rip), %esi
-	movl	$.Lfmt_int.4, %edi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$3, i(%rip)
-	movl	$.Lfmt_int.10, %edi
-	movl	$3, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	i(%rip), %esi
-	addl	$5, %esi
-	movl	%esi, j(%rip)
-	movl	$.Lfmt_int.14, %edi
-	xorl	%eax, %eax
-	callq	printf
-	movb	$1, b(%rip)
-	cmpb	$1, b(%rip)
-	je	.LBB0_2
-	jmp	.LBB0_5
-	.p2align	4, 0x90
-.LBB0_3:                                # %merge
-                                        #   in Loop: Header=BB0_2 Depth=1
-	cmpl	$3, j(%rip)
-	setne	b(%rip)
-	cmpb	$1, b(%rip)
-	jne	.LBB0_5
-.LBB0_2:                                # %while_body
-                                        # =>This Inner Loop Header: Depth=1
-	cmpl	$3, j(%rip)
-	jle	.LBB0_3
-# BB#4:                                 # %then
-                                        #   in Loop: Header=BB0_2 Depth=1
-	decl	j(%rip)
-	jmp	.LBB0_3
-.LBB0_5:                                # %merge13
-	movl	j(%rip), %esi
-	movl	$.Lfmt_int.32, %edi
+	callq	f1
+	movl	%eax, j(%rip)
+	movl	$.Lfmt_str.25, %edi
+	movl	$.Lsystem_string.27, %esi
 	xorl	%eax, %eax
 	callq	printf
 	movl	j(%rip), %esi
-	addl	$5, %esi
-	movl	$.Lfmt_int.34, %edi
+	movl	$.Lfmt_int.29, %edi
 	xorl	%eax, %eax
 	callq	printf
+	callq	f2
+	testb	$1, %al
+	je	.LBB3_2
+# BB#1:                                 # %then
+	callq	f3
+.LBB3_2:                                # %merge
 	xorl	%eax, %eax
 	popq	%rcx
 	retq
-.Lfunc_end0:
-	.size	main, .Lfunc_end0-main
+.Lfunc_end3:
+	.size	main, .Lfunc_end3-main
 	.cfi_endproc
                                         # -- End function
 	.type	i,@object               # @i
@@ -78,12 +112,6 @@ i:
 j:
 	.long	0                       # 0x0
 	.size	j, 4
-
-	.type	b,@object               # @b
-	.globl	b
-b:
-	.byte	0                       # 0x0
-	.size	b, 1
 
 	.type	.Lfmt_str,@object       # @fmt_str
 	.section	.rodata.str1.1,"aMS",@progbits,1
@@ -106,15 +134,7 @@ b:
 	.asciz	"%d\n"
 	.size	.Lfmt_int.2, 4
 
-	.type	.Lsystem_string,@object # @system_string
-	.section	.rodata.str1.16,"aMS",@progbits,1
-	.p2align	4
-.Lsystem_string:
-	.asciz	"hello, this is the 2nd test program for remove int main restriction.\\n"
-	.size	.Lsystem_string, 71
-
 	.type	.Lfmt_str.3,@object     # @fmt_str.3
-	.section	.rodata.str1.1,"aMS",@progbits,1
 .Lfmt_str.3:
 	.asciz	"%s\n"
 	.size	.Lfmt_str.3, 4
@@ -173,6 +193,11 @@ b:
 .Lfmt_int.14:
 	.asciz	"%d\n"
 	.size	.Lfmt_int.14, 4
+
+	.type	.Lsystem_string,@object # @system_string
+.Lsystem_string:
+	.asciz	"success"
+	.size	.Lsystem_string, 8
 
 	.type	.Lfmt_str.15,@object    # @fmt_str.15
 .Lfmt_str.15:
@@ -234,45 +259,60 @@ b:
 	.asciz	"%d\n"
 	.size	.Lfmt_int.26, 4
 
-	.type	.Lfmt_str.27,@object    # @fmt_str.27
-.Lfmt_str.27:
+	.type	.Lsystem_string.27,@object # @system_string.27
+.Lsystem_string.27:
+	.asciz	"now j is :"
+	.size	.Lsystem_string.27, 11
+
+	.type	.Lfmt_str.28,@object    # @fmt_str.28
+.Lfmt_str.28:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.27, 4
+	.size	.Lfmt_str.28, 4
 
-	.type	.Lfmt_int.28,@object    # @fmt_int.28
-.Lfmt_int.28:
+	.type	.Lfmt_int.29,@object    # @fmt_int.29
+.Lfmt_int.29:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.28, 4
+	.size	.Lfmt_int.29, 4
 
-	.type	.Lfmt_str.29,@object    # @fmt_str.29
-.Lfmt_str.29:
+	.type	.Lfmt_str.30,@object    # @fmt_str.30
+.Lfmt_str.30:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.29, 4
+	.size	.Lfmt_str.30, 4
 
-	.type	.Lfmt_int.30,@object    # @fmt_int.30
-.Lfmt_int.30:
+	.type	.Lfmt_int.31,@object    # @fmt_int.31
+.Lfmt_int.31:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.30, 4
+	.size	.Lfmt_int.31, 4
 
-	.type	.Lfmt_str.31,@object    # @fmt_str.31
-.Lfmt_str.31:
+	.type	.Lfmt_str.32,@object    # @fmt_str.32
+.Lfmt_str.32:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.31, 4
+	.size	.Lfmt_str.32, 4
 
-	.type	.Lfmt_int.32,@object    # @fmt_int.32
-.Lfmt_int.32:
+	.type	.Lfmt_int.33,@object    # @fmt_int.33
+.Lfmt_int.33:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.32, 4
+	.size	.Lfmt_int.33, 4
 
-	.type	.Lfmt_str.33,@object    # @fmt_str.33
-.Lfmt_str.33:
+	.type	.Lfmt_str.34,@object    # @fmt_str.34
+.Lfmt_str.34:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.33, 4
+	.size	.Lfmt_str.34, 4
 
-	.type	.Lfmt_int.34,@object    # @fmt_int.34
-.Lfmt_int.34:
+	.type	.Lfmt_int.35,@object    # @fmt_int.35
+.Lfmt_int.35:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.34, 4
+	.size	.Lfmt_int.35, 4
+
+	.type	.Lfmt_str.36,@object    # @fmt_str.36
+.Lfmt_str.36:
+	.asciz	"%s\n"
+	.size	.Lfmt_str.36, 4
+
+	.type	.Lfmt_int.37,@object    # @fmt_int.37
+.Lfmt_int.37:
+	.asciz	"%d\n"
+	.size	.Lfmt_int.37, 4
 
 
 	.section	".note.GNU-stack","",@progbits

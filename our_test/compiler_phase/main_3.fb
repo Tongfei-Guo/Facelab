@@ -1,0 +1,14 @@
+f1() {print_int(1); return 5;} // int type
+f2() {print_int(f1()); return true;} // bool type
+f3() {printf("success"); return;} // void type
+int i;
+int j;
+i = 0;
+print_int(i);
+j = f1();
+printf("now j is :");
+print_int(j);
+if(f2())
+{
+    f3();
+}

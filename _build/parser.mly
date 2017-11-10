@@ -36,7 +36,7 @@ open Ast
 %%
 
 program:
-  decls EOF { $1 }
+  decls EOF { let (fst, snd, thd) = $1 in (List.rev fst, List.rev snd, List.rev thd) }
 
 decls:
    /* nothing */ { [], [], [] }
@@ -45,12 +45,12 @@ decls:
  | decls fdecl { let (fst, snd, thd) = $1 in fst, snd, ($2 :: thd) }
 
 fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-     { { typ = $1;
-      fname = $2;
-	 formals = $4;
-	 locals = List.rev $7;
-	 body = List.rev $8 } }
+   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { { typ = Void;
+      fname = $1;
+	 formals = $3;
+	 locals = List.rev $6;
+	 body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }

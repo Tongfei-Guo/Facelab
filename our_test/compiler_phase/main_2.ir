@@ -1,8 +1,9 @@
 ; ModuleID = 'MicroC'
+source_filename = "MicroC"
 
-@b = global i1 false
-@j = global i32 0
 @i = global i32 0
+@j = global i32 0
+@b = global i1 false
 @fmt_str = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @fmt_int = private unnamed_addr constant [4 x i8] c"%d\0A\00"
 @fmt_str.1 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
@@ -68,19 +69,19 @@ while:                                            ; preds = %merge, %entry
 
 while_body:                                       ; preds = %while
   %j7 = load i32, i32* @j
-  %tmp8 = icmp ne i32 %j7, 3
-  store i1 %tmp8, i1* @b
-  %j9 = load i32, i32* @j
-  %tmp10 = icmp sgt i32 %j9, 3
-  br i1 %tmp10, label %then, label %else
+  %tmp8 = icmp sgt i32 %j7, 3
+  br i1 %tmp8, label %then, label %else
 
 merge:                                            ; preds = %else, %then
+  %j11 = load i32, i32* @j
+  %tmp12 = icmp ne i32 %j11, 3
+  store i1 %tmp12, i1* @b
   br label %while
 
 then:                                             ; preds = %while_body
-  %j11 = load i32, i32* @j
-  %tmp12 = sub i32 %j11, 1
-  store i32 %tmp12, i32* @j
+  %j9 = load i32, i32* @j
+  %tmp10 = sub i32 %j9, 1
+  store i32 %tmp10, i32* @j
   br label %merge
 
 else:                                             ; preds = %while_body

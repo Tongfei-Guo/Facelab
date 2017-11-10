@@ -51,10 +51,59 @@ let translate (main_stmt, globals, functions) =
   let function_decls =(* its a map; "functions" is a list of func_decl type in AST *)
     let function_decl m fdecl =
       let name = fdecl.A.fname
-      and formal_types =
-	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.A.formals)
-      in let ftype = L.function_type (ltype_of_typ fdecl.A.typ) formal_types in
-      StringMap.add name (L.define_function name ftype the_module, fdecl) m in
+      and formal_types = 
+	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.A.formals) in
+      (* this part does with type inference from the type of the return expression *)
+      let global_vars_typ_table = 
+        let global_var m (t, n) = StringMap.add n t m in
+        List.fold_left global_var StringMap.empty globals in
+      let local_vars_typ_table =
+        let add_formal m (t, n) = StringMap.add n t m in
+        let add_local m (t, n) = StringMap.add n t m in
+        let formals = List.fold_left add_formal StringMap.empty fdecl.A.formals in
+        List.fold_left add_local formals fdecl.A.locals in
+      let lookup n = try StringMap.find n local_vars_typ_table
+                   with Not_found -> StringMap.find n global_vars_typ_table
+      in
+      let type_infer_aux1 expr = match expr with  
+	  A.IntLit i -> A.Int
+        | A.StringLit s -> A.String
+        | A.BoolLit b -> A.Bool
+        | A.Noexpr -> A.Void (* void type return *)
+        | A.Id s -> lookup s 
+        | A.Binop (e1, op, e2) ->
+	    (match op with
+	      A.Add     -> A.Int
+	    | A.Sub     -> A.Int
+	    | A.Mult    -> A.Int
+            | A.Div     -> A.Int
+	    | A.And     -> A.Bool
+	    | A.Or      -> A.Bool
+	    | A.Equal   -> A.Bool
+	    | A.Neq     -> A.Bool
+	    | A.Less    -> A.Bool
+	    | A.Leq     -> A.Bool
+	    | A.Geq     -> A.Bool
+	    ) 
+        | A.Unop(op, e) ->
+	    (match op with
+	      A.Neg     -> A.Int
+            | A.Not     -> A.Bool)
+        | A.Assign (s, e) -> lookup s
+        | A.Call ("printf", [e]) -> A.Int
+        | A.Call ("print_int", [e]) -> A.Int
+        | A.Call (f, act) ->
+           let (fdef, fdecl) = StringMap.find f m in
+           fdecl.A.typ
+      in
+      let rec type_infer_aux2 ret_typ stmt = match stmt with (* find return stmt in the function body and infer on its type *)
+	  A.Block sl -> List.fold_left type_infer_aux2 ret_typ sl
+        | A.Return e -> (type_infer_aux1 e)::ret_typ
+        | _ -> ret_typ
+      in
+      let return_type = List.hd (type_infer_aux2 [] (A.Block fdecl.A.body)) in 
+      let ftype = L.function_type (ltype_of_typ return_type) formal_types in
+      ignore(fdecl.A.typ <- return_type); StringMap.add name (L.define_function name ftype the_module, fdecl) m in
     List.fold_left function_decl StringMap.empty functions in
   
   (* Invoke "f builder" if the current block doesn't already
@@ -124,7 +173,7 @@ let translate (main_stmt, globals, functions) =
 	
     (* Build the code for the given statement; return the builder for
        the statement's successor *)
-	A.Block sl -> List.fold_left (build_stmt (fdecl, function_ptr) local_vars) builder (List.rev sl)
+	A.Block sl -> List.fold_left (build_stmt (fdecl, function_ptr) local_vars) builder sl
       | A.Expr e -> ignore (expr builder e); builder
       | A.Return e -> ignore (match fdecl.A.typ with
 	  A.Void -> L.build_ret_void builder

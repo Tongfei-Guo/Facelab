@@ -1,0 +1,13 @@
+f1() {print_int(1); return 5;}
+//f2() {print_int(f1()); string st; st = "abc";return st;}
+int i;
+int j;
+i = 0;
+print_int(i);
+j = f1();
+printf("now j is :");
+print_int(j);
+string s;
+s = "haha";
+/*printf("now s is :");
+printf(s);*/
