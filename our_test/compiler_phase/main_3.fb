@@ -1,6 +1,6 @@
-f1() {print_int(1); return 5;} // int type
-f2() {print_int(f1()); return true;} // bool type
-f3() {printf("success"); return;} // void type
+func f1() {print_int(1); return 5;} // int type
+func f2() {print_int(f1()); return true;} // bool type
+func f3() {printf("success"); return;} // void type
 int i;
 int j;
 i = 0;

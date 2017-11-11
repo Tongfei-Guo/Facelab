@@ -37,7 +37,7 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = stmt list * bind list * func_decl list
+type program = bind list * func_decl list * bind list * stmt list
 
 (* Pretty-printing functions *)
 

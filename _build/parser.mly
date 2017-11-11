@@ -14,7 +14,7 @@ open Ast
 %token <float> DOUBLE_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
-%token EOF
+%token GLOBAL EOF
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -36,21 +36,25 @@ open Ast
 %%
 
 program:
-  decls EOF { let (fst, snd, thd) = $1 in (List.rev fst, List.rev snd, List.rev thd) }
+  globals_opt decls EOF { let glb = $1 and (fst, snd, thd) = $2 in (glb, List.rev fst, List.rev snd, List.rev thd) }
 
+globals_opt:
+   /* nothing */ { [] }
+ | GLOBAL LBRACE vdecl_list RBRACE { $3 }
+ 
 decls:
    /* nothing */ { [], [], [] }
- | decls stmt  { let (fst, snd, thd) = $1 in ($2 :: fst), snd, thd } /* the first entry of decls is a stmt list in reverse order, later in codegen we need to reverse it */
+ | decls fdecl { let (fst, snd, thd) = $1 in ($2 :: fst), snd, thd }
  | decls vdecl { let (fst, snd, thd) = $1 in fst, ($2 :: snd), thd }
- | decls fdecl { let (fst, snd, thd) = $1 in fst, snd, ($2 :: thd) }
+ | decls stmt  { let (fst, snd, thd) = $1 in fst, snd, ($2 :: thd) } 
 
 fdecl:
-   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   FUNCTION ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { typ = Void;
-      fname = $1;
-	 formals = $3;
-	 locals = List.rev $6;
-	 body = List.rev $7 } }
+      fname = $2;
+	 formals = $4;
+	 locals = List.rev $7;
+	 body = List.rev $8 } }
 
 formals_opt:
     /* nothing */ { [] }

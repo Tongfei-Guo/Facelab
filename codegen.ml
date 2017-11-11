@@ -15,19 +15,20 @@ module L = Llvm
 module A = Ast
 
 module StringMap = Map.Make(String)
-
-let translate (main_stmt, globals, functions) =
+(* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication *)
+let translate (globals, functions, main_locals, main_stmt) =
   let context = L.global_context () in
   let the_module = L.create_module context "MicroC"
   and i32_t  = L.i32_type  context
-  and i8_t   = L.i8_type   context
+  and i8_t   = L.i8_type   context in
+  let str_t  = L.pointer_type i8_t 
   and i1_t   = L.i1_type   context
   and void_t = L.void_type context in
   let str_t = L.pointer_type i8_t in
 
   let ltype_of_typ = function
       A.Int -> i32_t
-    | A.String -> i8_t (* pointer to store string *)
+    | A.String -> str_t (* pointer to store string *)
     | A.Bool -> i1_t
     | A.String -> str_t
     | A.Void -> void_t in
@@ -257,15 +258,21 @@ let translate (main_stmt, globals, functions) =
 
     let main_builder = (*  main_builder the "builder" equivalent of main function *) 
       L.builder_at_end context (L.entry_block main_define) in
+      
     let main_fdecl = {
       A.typ = A.Int;
       A.fname = main_name;
       A.formals = [];
-      A.locals = [];
+      A.locals = main_locals;
       A.body = main_body;
       } in
-    (* There is no "locals" *)
-    let local_vars = StringMap.empty in
+      
+    let local_vars =
+      let add_local m (t, n) =
+	    let local_var = L.build_alloca (ltype_of_typ t) n main_builder	
+	    in StringMap.add n local_var m in
+      List.fold_left add_local StringMap.empty main_fdecl.A.locals in
+      
     let main_builder = build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body) in
 
     (* Add a return if the last block falls off the end *)

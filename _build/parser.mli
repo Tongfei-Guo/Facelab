@@ -46,6 +46,7 @@ type token =
   | DOUBLE_LITERAL of (float)
   | STRING_LITERAL of (string)
   | ID of (string)
+  | GLOBAL
   | EOF
 
 val program :
