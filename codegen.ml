@@ -117,6 +117,7 @@ let translate (globals, functions, main_locals, main_stmt) =
   let rec build_stmt (fdecl, function_ptr) local_vars builder stmt=
   (* format_string for printing str *)
     let string_format_str = L.build_global_stringptr "%s\n" "fmt_str" builder in
+    let double_format_str = L.build_global_stringptr "%f\n" "fmt_double" builder in
   (* format_string for printing str *)
     let int_format_str = L.build_global_stringptr "%d\n" "fmt_int" builder in
   (* Return the value for a variable or formal argument *)
@@ -168,9 +169,17 @@ let translate (globals, functions, main_locals, main_stmt) =
           | A.Not     -> L.build_not) e' "tmp" builder
       | A.Assign (s, e) -> let e' = expr builder e in
 	                   ignore (L.build_store e' (lookup s) builder); e'
-      | A.Call ("printf", [e]) ->
-	  L.build_call printf_func [| string_format_str ; (expr builder e) |]
-	    "printf" builder
+      | A.Call ("printf", [e]) -> 
+      let exp1 = expr builder e in 
+      let typ1 = L.string_of_lltype (L.type_of exp1) in
+      (match typ1 with
+        "double" -> L.build_call printf_func [| double_format_str ; 
+                    (expr builder e) |] "printf" builder
+      |  "i32" -> L.build_call printf_func [| int_format_str ; 
+                   (expr builder e) |] "print_f" builder
+      | _ -> L.build_call printf_func [| string_format_str ; 
+                    (expr builder e) |] "printf" builder
+      )
       | A.Call ("print_int", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |] 
             "print_int" builder

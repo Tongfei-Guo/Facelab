@@ -1,4 +1,8 @@
 double i;
-double j;
+int j;
 i = 1.2;
-j = 1 + i;
+j = 1;
+printf(j);
+i = i + j;
+printf(i);
+printf("Hello");
