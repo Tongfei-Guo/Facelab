@@ -70,18 +70,18 @@ main:                                   # @main
 	pushq	%rax
 .Lcfi3:
 	.cfi_def_cfa_offset 16
-	movl	$0, i(%rip)
+	movl	$0, 4(%rsp)
 	movl	$.Lfmt_int.22, %edi
 	xorl	%esi, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	f1
-	movl	%eax, j(%rip)
+	movl	%eax, (%rsp)
 	movl	$.Lfmt_str.25, %edi
 	movl	$.Lsystem_string.27, %esi
 	xorl	%eax, %eax
 	callq	printf
-	movl	j(%rip), %esi
+	movl	(%rsp), %esi
 	movl	$.Lfmt_int.29, %edi
 	xorl	%eax, %eax
 	callq	printf
@@ -98,21 +98,6 @@ main:                                   # @main
 	.size	main, .Lfunc_end3-main
 	.cfi_endproc
                                         # -- End function
-	.type	i,@object               # @i
-	.bss
-	.globl	i
-	.p2align	2
-i:
-	.long	0                       # 0x0
-	.size	i, 4
-
-	.type	j,@object               # @j
-	.globl	j
-	.p2align	2
-j:
-	.long	0                       # 0x0
-	.size	j, 4
-
 	.type	.Lfmt_str,@object       # @fmt_str
 	.section	.rodata.str1.1,"aMS",@progbits,1
 .Lfmt_str:
