@@ -44,10 +44,6 @@ let translate (globals, functions, main_locals, main_stmt) =
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
-  (* Declare the built-in printbig() function | difference between var_arg_fun and fun? *)
-  let printint_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
-  let printint_func = L.declare_function "printf" printf_t the_module in
-
   (* Define each function (arguments and return type) so we can call it *)
   let function_decls =(* its a map; "functions" is a list of func_decl type in AST *)
     let function_decl m fdecl =
@@ -160,7 +156,7 @@ let translate (globals, functions, main_locals, main_stmt) =
 	  L.build_call printf_func [| string_format_str ; (expr builder e) |]
 	    "printf" builder
       | A.Call ("print_int", [e]) ->
-	  L.build_call printint_func [| int_format_str ; (expr builder e) |] 
+	  L.build_call printf_func [| int_format_str ; (expr builder e) |] 
             "print_int" builder
       | A.Call (f, act) ->
          let (fdef, fdecl) = StringMap.find f function_decls in

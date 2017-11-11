@@ -1,16 +1,20 @@
 ; ModuleID = 'MicroC'
+source_filename = "MicroC"
 
-@i = global i32 0
-@smt = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt_str = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt_int = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@fmt_str.1 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt_int.2 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@fmt_str.3 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt_int.4 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
 @system_string = private unnamed_addr constant [13 x i8] c"Hello world!\00"
 
 declare i32 @printf(i8*, ...)
 
-declare i32 @printbig(i32)
-
 define i32 @main() {
 entry:
-  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @smt, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @system_string, i32 0, i32 0))
-  store i32 2, i32* @i
+  %i = alloca i32
+  store i32 2, i32* %i
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt_str.3, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @system_string, i32 0, i32 0))
   ret i32 0
 }
