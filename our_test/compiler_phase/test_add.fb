@@ -1,0 +1,4 @@
+double i;
+double j;
+i = 1.2;
+j = 1 + i;

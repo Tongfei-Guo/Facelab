@@ -61,6 +61,7 @@ let string_of_uop = function
 
 let rec string_of_expr = function
     IntLit(l) -> string_of_int l
+  | DoubleLit(l) -> string_of_float l
   | StringLit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
@@ -94,6 +95,7 @@ let string_of_typ = function
   | Image -> "image"
   | Matrix -> "matrix"
   | String -> "string"
+
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
