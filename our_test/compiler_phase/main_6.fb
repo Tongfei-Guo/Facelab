@@ -1,7 +1,7 @@
 func f1() {printf(1); return 5;}
 func f2() { string st; printf(f1()); st = "abc";return st;}
-int i=3;
-int j=2;
+int i=2;
+int j=3;
 printf(i); printf(j);
 i = 0;
 printf(i);

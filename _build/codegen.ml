@@ -21,7 +21,9 @@ module StringMap = Map.Make(String)
 let translate (globals, functions, main_stmt) =
 
 
-(* 1. auxiliary definitions *)
+
+
+(* 1. Auxiliary definitions *)
   let context = L.global_context () in
   let the_module = L.create_module context "MicroC"
   and double_t = L.double_type context
@@ -39,9 +41,22 @@ let translate (globals, functions, main_stmt) =
     | A.Bool -> i1_t
     | A.Void -> void_t in
   
+  (* Declare printf(), which the print built-in function will call *)
+  let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_func = L.declare_function "printf" printf_t the_module in
+
+  (* Invoke "f builder" if the current block doesn't already
+       have a terminal (e.g., a branch). *)
+  let add_terminal builder f =
+    match L.block_terminator (L.insertion_block builder) with (* block terminator is one of the following in a block : ret, br, switch, indirectbr, invoke, unwind, unreachable*)
+      Some _ -> () (* Some a ocaml construct matching with a not null set, None match a null set *)
+    | None -> ignore (f builder) 
+  in   
 
 
-(* 2. type inference *)
+
+
+(* 2. Type inference *)
   let type_infer globals fdecl fdecl_m expression = (* takes an expression and return its type *)
     (* build global and local variable type table, so in case there are variables in the return statement, we can infer on return type by infer on the type of those variables*)
     let global_vars_typ_table = 
@@ -99,7 +114,8 @@ let translate (globals, functions, main_stmt) =
 
 
 
-(* 3. Declare each global variable; remember its value in a map *)
+
+(* 3. Global variable declarations *)
   let global_vars = 
     let global_var m (t, n, v) =
       let init typ value = (* init for globals *)
@@ -124,10 +140,10 @@ let translate (globals, functions, main_stmt) =
       H.add m n (L.define_global n (init t v) the_module);m in
     List.fold_left global_var (H.create (List.length globals)) globals in
 
-  (* Declare printf(), which the print built-in function will call *)
-  let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
-  let printf_func = L.declare_function "printf" printf_t the_module in
 
+
+
+(* 4. User-defined function declarations *)
   (* Define each function (arguments and return type) so we can call it *)
   let function_decls =(* its a map; "functions" is a list of func_decl type in AST *)
     let function_decl m fdecl =
@@ -146,14 +162,10 @@ let translate (globals, functions, main_stmt) =
       ignore(fdecl.A.typ <- return_type); H.add m name (L.define_function name ftype the_module, fdecl);m in
     List.fold_left function_decl (H.create (List.length functions)) functions in
   
-  (* Invoke "f builder" if the current block doesn't already
-       have a terminal (e.g., a branch). *)
-  let add_terminal builder f =
-    match L.block_terminator (L.insertion_block builder) with (* block terminator is one of the following in a block : ret, br, switch, indirectbr, invoke, unwind, unreachable*)
-      Some _ -> () (* Some a ocaml construct matching with a not null set, None match a null set *)
-    | None -> ignore (f builder) 
-  in   
 
+
+
+(* 5. Statement construction *)
   (* part of code for generating statement, which used both in main function and function definition *)
   let rec build_stmt (fdecl, function_ptr) local_vars builder stmt=
   (* format strings *)
@@ -222,15 +234,12 @@ let translate (globals, functions, main_stmt) =
         let typ1 = L.string_of_lltype (L.type_of exp1) in
         (match typ1 with
           "double" -> L.build_call printf_func [| double_format_str ; 
-                      (expr builder e) |] "printf" builder
+                      (exp1) |] "printf" builder
         |  "i32" -> L.build_call printf_func [| int_format_str ; 
-                     (expr builder e) |] "printf" builder
+                     (exp1) |] "printf" builder
         | _ -> L.build_call printf_func [| string_format_str ; 
-                      (expr builder e) |] "printf" builder
+                      (exp1) |] "printf" builder
         )
-      | A.Call ("print_int", [e]) ->
-	  L.build_call printf_func [| int_format_str ; (expr builder e) |] 
-            "print_int" builder
       | A.Call (f, act) ->
          let (fdef, fdecl) = H.find function_decls f in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
@@ -309,6 +318,8 @@ let translate (globals, functions, main_stmt) =
 
 
 
+(* 6. User-defined function body construction *)
+
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
     let (the_function, _) = H.find function_decls fdecl.A.fname in (*the_function corresponds to L.define_function return value in line 60, presumably is a pointer or something like that *)
@@ -335,6 +346,8 @@ let translate (globals, functions, main_stmt) =
       | t -> L.build_ret (L.const_int (ltype_of_typ t) 0)) in
 
 
+
+(* 7. Main function body construction *)
   (* build main function *)
   let build_main main_body =
     let main_name = "main" in
@@ -361,5 +374,8 @@ let translate (globals, functions, main_stmt) =
 
     add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
 
+
+
+(* 8. Combine all *)
   List.iter build_function_body functions; build_main main_stmt; 
   the_module
