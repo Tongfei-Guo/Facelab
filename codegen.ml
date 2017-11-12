@@ -20,7 +20,20 @@ module StringMap = Map.Make(String)
 (* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication, and we force globals to be either uninitilized or initialized with literals *)
 let translate (globals, functions, main_stmt) =
 
+(* sample code structure *)
+(*
+global int g1 = 2;
+global double g2; //default value 0.
 
+func f1(...) { return;}
+func f2(...) { return;}
+
+int l1 = 4;
+string l2; //default value empty string.
+printf(l1);
+printf(l2);
+
+*)
 
 
 (* 1. Auxiliary definitions *)
@@ -169,9 +182,9 @@ let translate (globals, functions, main_stmt) =
   (* part of code for generating statement, which used both in main function and function definition *)
   let rec build_stmt (fdecl, function_ptr) local_vars builder stmt=
   (* format strings *)
-    let string_format_str = L.build_global_stringptr "%s\n" "fmt_str" builder in
-    let double_format_str = L.build_global_stringptr "%f\n" "fmt_double" builder in
-    let int_format_str = L.build_global_stringptr "%d\n" "fmt_int" builder in
+    let string_format_str = L.build_global_stringptr "%s" "fmt_str" builder in
+    let double_format_str = L.build_global_stringptr "%f" "fmt_double" builder in
+    let int_format_str = L.build_global_stringptr "%d" "fmt_int" builder in
   (* Return the value for a variable or formal argument *)
     let lookup n = try H.find local_vars n
                    with Not_found -> H.find global_vars n 

@@ -104,78 +104,78 @@ main:                                   # @main
 	.type	.Lfmt_str,@object       # @fmt_str
 	.section	.rodata.str1.1,"aMS",@progbits,1
 .Lfmt_str:
-	.asciz	"%s\n"
-	.size	.Lfmt_str, 4
+	.asciz	"%s"
+	.size	.Lfmt_str, 3
 
 	.type	.Lfmt_double,@object    # @fmt_double
 .Lfmt_double:
-	.asciz	"%f\n"
-	.size	.Lfmt_double, 4
+	.asciz	"%f"
+	.size	.Lfmt_double, 3
 
 	.type	.Lfmt_int,@object       # @fmt_int
 .Lfmt_int:
-	.asciz	"%d\n"
-	.size	.Lfmt_int, 4
+	.asciz	"%d"
+	.size	.Lfmt_int, 3
 
 	.type	.Lfmt_str.1,@object     # @fmt_str.1
 .Lfmt_str.1:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.1, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.1, 3
 
 	.type	.Lfmt_double.2,@object  # @fmt_double.2
 .Lfmt_double.2:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.2, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.2, 3
 
 	.type	.Lfmt_int.3,@object     # @fmt_int.3
 .Lfmt_int.3:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.3, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.3, 3
 
 	.type	.Lfmt_str.4,@object     # @fmt_str.4
 .Lfmt_str.4:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.4, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.4, 3
 
 	.type	.Lfmt_double.5,@object  # @fmt_double.5
 .Lfmt_double.5:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.5, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.5, 3
 
 	.type	.Lfmt_int.6,@object     # @fmt_int.6
 .Lfmt_int.6:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.6, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.6, 3
 
 	.type	.Lfmt_str.7,@object     # @fmt_str.7
 .Lfmt_str.7:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.7, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.7, 3
 
 	.type	.Lfmt_double.8,@object  # @fmt_double.8
 .Lfmt_double.8:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.8, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.8, 3
 
 	.type	.Lfmt_int.9,@object     # @fmt_int.9
 .Lfmt_int.9:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.9, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.9, 3
 
 	.type	.Lfmt_str.10,@object    # @fmt_str.10
 .Lfmt_str.10:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.10, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.10, 3
 
 	.type	.Lfmt_double.11,@object # @fmt_double.11
 .Lfmt_double.11:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.11, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.11, 3
 
 	.type	.Lfmt_int.12,@object    # @fmt_int.12
 .Lfmt_int.12:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.12, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.12, 3
 
 	.type	.Lsystem_string,@object # @system_string
 .Lsystem_string:
@@ -184,33 +184,33 @@ main:                                   # @main
 
 	.type	.Lfmt_str.13,@object    # @fmt_str.13
 .Lfmt_str.13:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.13, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.13, 3
 
 	.type	.Lfmt_double.14,@object # @fmt_double.14
 .Lfmt_double.14:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.14, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.14, 3
 
 	.type	.Lfmt_int.15,@object    # @fmt_int.15
 .Lfmt_int.15:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.15, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.15, 3
 
 	.type	.Lfmt_str.16,@object    # @fmt_str.16
 .Lfmt_str.16:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.16, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.16, 3
 
 	.type	.Lfmt_double.17,@object # @fmt_double.17
 .Lfmt_double.17:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.17, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.17, 3
 
 	.type	.Lfmt_int.18,@object    # @fmt_int.18
 .Lfmt_int.18:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.18, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.18, 3
 
 	.type	.Lsystem_string.19,@object # @system_string.19
 .Lsystem_string.19:
@@ -219,153 +219,153 @@ main:                                   # @main
 
 	.type	.Lfmt_str.20,@object    # @fmt_str.20
 .Lfmt_str.20:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.20, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.20, 3
 
 	.type	.Lfmt_double.21,@object # @fmt_double.21
 .Lfmt_double.21:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.21, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.21, 3
 
 	.type	.Lfmt_int.22,@object    # @fmt_int.22
 .Lfmt_int.22:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.22, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.22, 3
 
 	.type	.Lfmt_str.23,@object    # @fmt_str.23
 .Lfmt_str.23:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.23, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.23, 3
 
 	.type	.Lfmt_double.24,@object # @fmt_double.24
 .Lfmt_double.24:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.24, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.24, 3
 
 	.type	.Lfmt_int.25,@object    # @fmt_int.25
 .Lfmt_int.25:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.25, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.25, 3
 
 	.type	.Lfmt_str.26,@object    # @fmt_str.26
 .Lfmt_str.26:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.26, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.26, 3
 
 	.type	.Lfmt_double.27,@object # @fmt_double.27
 .Lfmt_double.27:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.27, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.27, 3
 
 	.type	.Lfmt_int.28,@object    # @fmt_int.28
 .Lfmt_int.28:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.28, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.28, 3
 
 	.type	.Lfmt_str.29,@object    # @fmt_str.29
 .Lfmt_str.29:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.29, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.29, 3
 
 	.type	.Lfmt_double.30,@object # @fmt_double.30
 .Lfmt_double.30:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.30, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.30, 3
 
 	.type	.Lfmt_int.31,@object    # @fmt_int.31
 .Lfmt_int.31:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.31, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.31, 3
 
 	.type	.Lfmt_str.32,@object    # @fmt_str.32
 .Lfmt_str.32:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.32, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.32, 3
 
 	.type	.Lfmt_double.33,@object # @fmt_double.33
 .Lfmt_double.33:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.33, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.33, 3
 
 	.type	.Lfmt_int.34,@object    # @fmt_int.34
 .Lfmt_int.34:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.34, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.34, 3
 
 	.type	.Lfmt_str.35,@object    # @fmt_str.35
 .Lfmt_str.35:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.35, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.35, 3
 
 	.type	.Lfmt_double.36,@object # @fmt_double.36
 .Lfmt_double.36:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.36, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.36, 3
 
 	.type	.Lfmt_int.37,@object    # @fmt_int.37
 .Lfmt_int.37:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.37, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.37, 3
 
 	.type	.Lfmt_str.38,@object    # @fmt_str.38
 .Lfmt_str.38:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.38, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.38, 3
 
 	.type	.Lfmt_double.39,@object # @fmt_double.39
 .Lfmt_double.39:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.39, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.39, 3
 
 	.type	.Lfmt_int.40,@object    # @fmt_int.40
 .Lfmt_int.40:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.40, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.40, 3
 
 	.type	.Lfmt_str.41,@object    # @fmt_str.41
 .Lfmt_str.41:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.41, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.41, 3
 
 	.type	.Lfmt_double.42,@object # @fmt_double.42
 .Lfmt_double.42:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.42, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.42, 3
 
 	.type	.Lfmt_int.43,@object    # @fmt_int.43
 .Lfmt_int.43:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.43, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.43, 3
 
 	.type	.Lfmt_str.44,@object    # @fmt_str.44
 .Lfmt_str.44:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.44, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.44, 3
 
 	.type	.Lfmt_double.45,@object # @fmt_double.45
 .Lfmt_double.45:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.45, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.45, 3
 
 	.type	.Lfmt_int.46,@object    # @fmt_int.46
 .Lfmt_int.46:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.46, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.46, 3
 
 	.type	.Lfmt_str.47,@object    # @fmt_str.47
 .Lfmt_str.47:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.47, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.47, 3
 
 	.type	.Lfmt_double.48,@object # @fmt_double.48
 .Lfmt_double.48:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.48, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.48, 3
 
 	.type	.Lfmt_int.49,@object    # @fmt_int.49
 .Lfmt_int.49:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.49, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.49, 3
 
 	.type	.Lsystem_string.50,@object # @system_string.50
 .Lsystem_string.50:
@@ -374,33 +374,33 @@ main:                                   # @main
 
 	.type	.Lfmt_str.51,@object    # @fmt_str.51
 .Lfmt_str.51:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.51, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.51, 3
 
 	.type	.Lfmt_double.52,@object # @fmt_double.52
 .Lfmt_double.52:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.52, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.52, 3
 
 	.type	.Lfmt_int.53,@object    # @fmt_int.53
 .Lfmt_int.53:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.53, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.53, 3
 
 	.type	.Lfmt_str.54,@object    # @fmt_str.54
 .Lfmt_str.54:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.54, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.54, 3
 
 	.type	.Lfmt_double.55,@object # @fmt_double.55
 .Lfmt_double.55:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.55, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.55, 3
 
 	.type	.Lfmt_int.56,@object    # @fmt_int.56
 .Lfmt_int.56:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.56, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.56, 3
 
 	.type	.Lsystem_string.57,@object # @system_string.57
 .Lsystem_string.57:
@@ -409,18 +409,18 @@ main:                                   # @main
 
 	.type	.Lfmt_str.58,@object    # @fmt_str.58
 .Lfmt_str.58:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.58, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.58, 3
 
 	.type	.Lfmt_double.59,@object # @fmt_double.59
 .Lfmt_double.59:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.59, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.59, 3
 
 	.type	.Lfmt_int.60,@object    # @fmt_int.60
 .Lfmt_int.60:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.60, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.60, 3
 
 	.type	.Lsystem_string.61,@object # @system_string.61
 .Lsystem_string.61:
@@ -429,33 +429,33 @@ main:                                   # @main
 
 	.type	.Lfmt_str.62,@object    # @fmt_str.62
 .Lfmt_str.62:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.62, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.62, 3
 
 	.type	.Lfmt_double.63,@object # @fmt_double.63
 .Lfmt_double.63:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.63, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.63, 3
 
 	.type	.Lfmt_int.64,@object    # @fmt_int.64
 .Lfmt_int.64:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.64, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.64, 3
 
 	.type	.Lfmt_str.65,@object    # @fmt_str.65
 .Lfmt_str.65:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.65, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.65, 3
 
 	.type	.Lfmt_double.66,@object # @fmt_double.66
 .Lfmt_double.66:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.66, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.66, 3
 
 	.type	.Lfmt_int.67,@object    # @fmt_int.67
 .Lfmt_int.67:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.67, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.67, 3
 
 	.type	.Lsystem_string.68,@object # @system_string.68
 .Lsystem_string.68:
@@ -464,33 +464,33 @@ main:                                   # @main
 
 	.type	.Lfmt_str.69,@object    # @fmt_str.69
 .Lfmt_str.69:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.69, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.69, 3
 
 	.type	.Lfmt_double.70,@object # @fmt_double.70
 .Lfmt_double.70:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.70, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.70, 3
 
 	.type	.Lfmt_int.71,@object    # @fmt_int.71
 .Lfmt_int.71:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.71, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.71, 3
 
 	.type	.Lfmt_str.72,@object    # @fmt_str.72
 .Lfmt_str.72:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.72, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.72, 3
 
 	.type	.Lfmt_double.73,@object # @fmt_double.73
 .Lfmt_double.73:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.73, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.73, 3
 
 	.type	.Lfmt_int.74,@object    # @fmt_int.74
 .Lfmt_int.74:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.74, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.74, 3
 
 	.type	.Lsystem_string.75,@object # @system_string.75
 .Lsystem_string.75:
@@ -499,18 +499,18 @@ main:                                   # @main
 
 	.type	.Lfmt_str.76,@object    # @fmt_str.76
 .Lfmt_str.76:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.76, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.76, 3
 
 	.type	.Lfmt_double.77,@object # @fmt_double.77
 .Lfmt_double.77:
-	.asciz	"%f\n"
-	.size	.Lfmt_double.77, 4
+	.asciz	"%f"
+	.size	.Lfmt_double.77, 3
 
 	.type	.Lfmt_int.78,@object    # @fmt_int.78
 .Lfmt_int.78:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.78, 4
+	.asciz	"%d"
+	.size	.Lfmt_int.78, 3
 
 
 	.section	".note.GNU-stack","",@progbits
