@@ -15,10 +15,13 @@ http://llvm.moe/ocaml/
 module L = Llvm
 module A = Ast
 module M = Matrix
-
+module H = Hashtbl
 module StringMap = Map.Make(String)
-(* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication *)
-let translate (globals, functions, main_locals, main_stmt) =
+(* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication, and we force globals to be either uninitilized or initialized with literals *)
+let translate (globals, functions, main_stmt) =
+
+
+(* 1. auxiliary definitions *)
   let context = L.global_context () in
   let the_module = L.create_module context "MicroC"
   and double_t = L.double_type context
@@ -34,21 +37,31 @@ let translate (globals, functions, main_locals, main_stmt) =
     | A.Double -> double_t
     | A.String -> str_t (* pointer to store string *)
     | A.Bool -> i1_t
-    | A.String -> str_t
     | A.Void -> void_t in
   
-  (* this part does with type inference from the type of the return expression *)
+
+
+(* 2. type inference *)
   let type_infer globals fdecl fdecl_m expression = (* takes an expression and return its type *)
+    (* build global and local variable type table, so in case there are variables in the return statement, we can infer on return type by infer on the type of those variables*)
     let global_vars_typ_table = 
-      let global_var m (t, n) = StringMap.add n t m in
-      List.fold_left global_var StringMap.empty globals in
+      let global_var m (t, n, v) = H.add m n t;m in
+      List.fold_left global_var (H.create (List.length globals)) globals in
     let local_vars_typ_table =
-      let add_formal m (t, n) = StringMap.add n t m in
-      let add_local m (t, n) = StringMap.add n t m in
-      let formals = List.fold_left add_formal StringMap.empty fdecl.A.formals in
-      List.fold_left add_local formals fdecl.A.locals in
-    let lookup n = try StringMap.find n local_vars_typ_table
-                   with Not_found -> StringMap.find n global_vars_typ_table
+      let add_formal m (t, n) = H.add m n t;m in
+      let add_local m (t, n) = H.add m n t;m in
+      let rec local_stmt_finder local_expr stmt = match stmt with (* find return stmt in the function body and give back the expr that's being returned*)
+	  A.Block sl -> List.fold_left local_stmt_finder local_expr sl
+        | A.Local (t, n, v) -> (t, n)::local_expr
+        | _ -> local_expr
+      in
+      let local_list = local_stmt_finder [] (A.Block fdecl.A.body) in
+      let formals = List.fold_left add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals in
+      List.fold_left add_local formals local_list 
+    in
+    
+    let lookup n = try H.find local_vars_typ_table n
+                   with Not_found -> H.find global_vars_typ_table n
     in
     let type_infer_aux1 expr = match expr with  
         A.IntLit i -> A.Int
@@ -78,17 +91,38 @@ let translate (globals, functions, main_locals, main_stmt) =
       | A.Call ("printf", [e]) -> A.Int
       | A.Call ("print_int", [e]) -> A.Int
       | A.Call (f, act) ->
-          let (fdef, fdecl) = StringMap.find f fdecl_m in
+          let (fdef, fdecl) = H.find fdecl_m f in
           fdecl.A.typ
     in 
     type_infer_aux1 expression
   in
-  (* Declare each global variable; remember its value in a map *)
-  let global_vars =
-    let global_var m (t, n) =
-      let init = L.const_int (ltype_of_typ t) 0
-      in StringMap.add n (L.define_global n init the_module) m in
-    List.fold_left global_var StringMap.empty globals in
+
+
+
+(* 3. Declare each global variable; remember its value in a map *)
+  let global_vars = 
+    let global_var m (t, n, v) =
+      let init typ value = (* init for globals *)
+        match value with 
+          A.Noassign -> 
+            (match typ with
+              A.Int -> L.const_int i32_t 0
+            | A.Double -> L.const_float double_t 0.
+            (* no global string as mentioned earlier *)
+            | A.Bool -> L.const_int i1_t 0)
+        | A.IntLit i -> L.const_int i32_t i
+        | A.DoubleLit d -> L.const_float double_t d
+        | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
+        | A.MatrixLit (m, (r, c)) -> 
+            let element_type = L.double_type context in
+            let row_type = L.array_type element_type c in
+            let matrix_type = L.array_type row_type r in (* matrix is represented as arrays of arrays of double in LLVM *) 
+            let add_element row element = Array.append row [|(L.const_float element_type element)|] in
+            let add_row rows row = Array.append rows [|(L.const_array row_type (Array.fold_left add_element [| |] row))|] in
+            L.const_array matrix_type (Array.fold_left add_row [| |] m)
+      in
+      H.add m n (L.define_global n (init t v) the_module);m in
+    List.fold_left global_var (H.create (List.length globals)) globals in
 
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -101,16 +135,16 @@ let translate (globals, functions, main_locals, main_stmt) =
       and formal_types = 
 	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.A.formals) in
 
-      let rec return_expr_finder ret_expr stmt = match stmt with (* find return stmt in the function body and give back the expr that's being returned*)
-	  A.Block sl -> List.fold_left return_expr_finder ret_expr sl
+      let rec return_stmt_finder ret_expr stmt = match stmt with (* find return stmt in the function body and give back the expr that's being returned*)
+	  A.Block sl -> List.fold_left return_stmt_finder ret_expr sl
         | A.Return e -> e::ret_expr
         | _ -> ret_expr
       in
-      let return_expr = List.hd (return_expr_finder [] (A.Block fdecl.A.body)) in
+      let return_expr = List.hd (return_stmt_finder [] (A.Block fdecl.A.body)) in
       let return_type = type_infer globals fdecl m return_expr in
       let ftype = L.function_type (ltype_of_typ return_type) formal_types in
-      ignore(fdecl.A.typ <- return_type); StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    List.fold_left function_decl StringMap.empty functions in
+      ignore(fdecl.A.typ <- return_type); H.add m name (L.define_function name ftype the_module, fdecl);m in
+    List.fold_left function_decl (H.create (List.length functions)) functions in
   
   (* Invoke "f builder" if the current block doesn't already
        have a terminal (e.g., a branch). *)
@@ -122,14 +156,13 @@ let translate (globals, functions, main_locals, main_stmt) =
 
   (* part of code for generating statement, which used both in main function and function definition *)
   let rec build_stmt (fdecl, function_ptr) local_vars builder stmt=
-  (* format_string for printing str *)
+  (* format strings *)
     let string_format_str = L.build_global_stringptr "%s\n" "fmt_str" builder in
     let double_format_str = L.build_global_stringptr "%f\n" "fmt_double" builder in
-  (* format_string for printing str *)
     let int_format_str = L.build_global_stringptr "%d\n" "fmt_int" builder in
   (* Return the value for a variable or formal argument *)
-    let lookup n = try StringMap.find n local_vars
-                   with Not_found -> StringMap.find n global_vars
+    let lookup n = try H.find local_vars n
+                   with Not_found -> H.find global_vars n 
     in
   (* Construct code for an expression; return its value *)
     let rec expr builder = function 
@@ -185,21 +218,21 @@ let translate (globals, functions, main_locals, main_stmt) =
       | A.Assign (s, e) -> let e' = expr builder e in
 	                   ignore (L.build_store e' (lookup s) builder); e'
       | A.Call ("printf", [e]) -> 
-      let exp1 = expr builder e in 
-      let typ1 = L.string_of_lltype (L.type_of exp1) in
-      (match typ1 with
-        "double" -> L.build_call printf_func [| double_format_str ; 
-                    (expr builder e) |] "printf" builder
-      |  "i32" -> L.build_call printf_func [| int_format_str ; 
-                   (expr builder e) |] "print_f" builder
-      | _ -> L.build_call printf_func [| string_format_str ; 
-                    (expr builder e) |] "printf" builder
-      )
+        let exp1 = expr builder e in 
+        let typ1 = L.string_of_lltype (L.type_of exp1) in
+        (match typ1 with
+          "double" -> L.build_call printf_func [| double_format_str ; 
+                      (expr builder e) |] "printf" builder
+        |  "i32" -> L.build_call printf_func [| int_format_str ; 
+                     (expr builder e) |] "printf" builder
+        | _ -> L.build_call printf_func [| string_format_str ; 
+                      (expr builder e) |] "printf" builder
+        )
       | A.Call ("print_int", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |] 
             "print_int" builder
       | A.Call (f, act) ->
-         let (fdef, fdecl) = StringMap.find f function_decls in
+         let (fdef, fdecl) = H.find function_decls f in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
 	 let result = (match fdecl.A.typ with A.Void -> ""
                                             | _ -> f ^ "_result") in
@@ -245,7 +278,32 @@ let translate (globals, functions, main_locals, main_stmt) =
 	  ignore (L.build_cond_br bool_val body_bb merge_bb pred_builder);
 	  L.builder_at_end context merge_bb
 
-      | A.For (e1, e2, e3, body) -> build_stmt (fdecl, function_ptr) local_vars builder ( A.Block [A.Expr e1 ; A.While (e2, A.Block [body ; A.Expr e3]) ] ))
+      | A.For (e1, e2, e3, body) -> build_stmt (fdecl, function_ptr) local_vars builder ( A.Block [A.Expr e1 ; A.While (e2, A.Block [body ; A.Expr e3]) ] )
+      | A.Local (t, n, v) -> let local = L.build_alloca (ltype_of_typ t) n builder in 
+                            let init typ value = (* init for globals *)
+                              (match value with 
+                                A.Noassign -> 
+                                  (match typ with
+                                    A.Int -> L.const_int i32_t 0
+                                  | A.Double -> L.const_float double_t 0.
+                                  | A.String -> L.build_global_stringptr "" "system_string" builder  (*empty string*)
+                                  | A.Bool -> L.const_int i1_t 0)
+                              | A.IntLit i -> L.const_int i32_t i
+                              | A.DoubleLit d -> L.const_float double_t d
+                              | A.StringLit s -> L.build_global_stringptr s "system_string" builder
+                              | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
+                              | A.MatrixLit (m, (r, c)) -> 
+                                  let element_type = L.double_type context in
+                                  let row_type = L.array_type element_type c in
+                                  let matrix_type = L.array_type row_type r in (* matrix is represented as arrays of arrays of double in LLVM *) 
+                                  let add_element row element = Array.append row [|(L.const_float element_type element)|] in
+                                  let add_row rows row = Array.append rows [|(L.const_array row_type (Array.fold_left add_element [| |] row))|] in
+                                  L.const_array matrix_type (Array.fold_left add_row [| |] m)
+                              )
+                            in  
+                            H.add local_vars n local;
+                            ignore(L.build_store (init t v) local builder);
+                            builder)
   in
 
 
@@ -253,7 +311,7 @@ let translate (globals, functions, main_locals, main_stmt) =
 
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
-    let (the_function, _) = StringMap.find fdecl.A.fname function_decls in (*the_function corresponds to L.define_function return value in line 60, presumably is a pointer or something like that *)
+    let (the_function, _) = H.find function_decls fdecl.A.fname in (*the_function corresponds to L.define_function return value in line 60, presumably is a pointer or something like that *)
     let builder = L.builder_at_end context (L.entry_block the_function) in
     (* imagine entry_block returns a block (i.e. {block} ), and builder_at_end enables adding instructions at the end of the block??*)
     
@@ -264,15 +322,8 @@ let translate (globals, functions, main_locals, main_stmt) =
       let add_formal m (t, n) p = L.set_value_name n p;(* p is a value not a ptr? *) (*!! set_value_name returns () *)
 	let local = L.build_alloca (ltype_of_typ t) n builder in
 	ignore (L.build_store p local builder);(* local is a ptr? *)
-	StringMap.add n local m in
-	
-      let add_local m (t, n) =
-	let local_var = L.build_alloca (ltype_of_typ t) n builder	
-	in StringMap.add n local_var m in
-
-      let formals = List.fold_left2 add_formal StringMap.empty fdecl.A.formals
-          (Array.to_list (L.params the_function)) in
-      List.fold_left add_local formals fdecl.A.locals in
+	H.add m n local;m in
+      List.fold_left2 add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals (Array.to_list (L.params the_function)) in
 
     (* Build the code for each statement in the function *)
     let builder = build_stmt (fdecl, the_function) local_vars builder (A.Block fdecl.A.body) in
@@ -299,15 +350,10 @@ let translate (globals, functions, main_locals, main_stmt) =
       A.typ = A.Int;
       A.fname = main_name;
       A.formals = [];
-      A.locals = main_locals;
       A.body = main_body;
       } in
       
-    let local_vars =
-      let add_local m (t, n) =
-	    let local_var = L.build_alloca (ltype_of_typ t) n main_builder	
-	    in StringMap.add n local_var m in
-      List.fold_left add_local StringMap.empty main_fdecl.A.locals in
+    let local_vars = H.create 1000 in
       
     let main_builder = build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body) in
 

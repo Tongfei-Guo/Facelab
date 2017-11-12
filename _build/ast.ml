@@ -21,6 +21,7 @@ type expr =
   | Assign of string * expr
   | Call of string * expr list
   | Noexpr
+  | Noassign
 
 type stmt =
     Block of stmt list
@@ -29,16 +30,17 @@ type stmt =
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
   | While of expr * stmt
+  | Local of typ * string * expr
 
 type func_decl = {
     mutable typ : typ;
     fname : string;
     formals : bind list;
-    locals : bind list;
     body : stmt list;
   }
 
-type program = bind list * func_decl list * bind list * stmt list
+ 
+type program = (typ * string * expr) list * func_decl list *  stmt list
 
 (* Pretty-printing functions *)
 
@@ -104,7 +106,7 @@ let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
+  (*String.concat "" (List.map string_of_vdecl fdecl.locals) ^*)
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 

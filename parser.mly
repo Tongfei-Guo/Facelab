@@ -36,25 +36,23 @@ open Ast
 %%
 
 program:
-  globals_opt decls EOF { let glb = $1 and (fst, snd, thd) = $2 in (glb, List.rev fst, List.rev snd, List.rev thd) }
+  globals_opt decls EOF { let glb = $1 and (fst, snd) = $2 in (List.rev glb, List.rev fst, List.rev snd) }
 
 globals_opt:
    /* nothing */ { [] }
- | GLOBAL LBRACE vdecl_list RBRACE { $3 }
- 
+ | globals_opt GLOBAL typ ID SEMI { ($3, $4, Noassign) :: $1 }
+ | globals_opt GLOBAL typ ID ASSIGN expr SEMI { ($3, $4, $6) :: $1 }
 decls:
-   /* nothing */ { [], [], [] }
- | decls fdecl { let (fst, snd, thd) = $1 in ($2 :: fst), snd, thd }
- | decls vdecl { let (fst, snd, thd) = $1 in fst, ($2 :: snd), thd }
- | decls stmt  { let (fst, snd, thd) = $1 in fst, snd, ($2 :: thd) } 
+   /* nothing */ { [], [] }
+ | decls fdecl {  ($2 :: fst $1), snd $1 }
+ | decls stmt  {  fst $1, ($2 :: snd $1) } 
 
 fdecl:
-   FUNCTION ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   FUNCTION ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { typ = Void;
       fname = $2;
 	 formals = $4;
-	 locals = List.rev $7;
-	 body = List.rev $8 } }
+	 body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }
@@ -73,15 +71,8 @@ typ:
   | MATRIX {Matrix}
   | STRING {String}
 
-vdecl:
-  typ ID SEMI { ($1, $2) }
-
-vdecl_list:
-    /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 }
-
 stmt_list:
-    /* nothing */  { [] }
+    /* nothing */  { [] }  
   | stmt_list stmt { $2 :: $1 }
 
 stmt:
@@ -95,6 +86,8 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+  | typ ID SEMI { Local($1, $2, Noassign) }
+  | typ ID ASSIGN expr SEMI { Local($1, $2, $4) }
 
     
 expr_opt:
@@ -128,11 +121,13 @@ expr:
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
 
+
 double_mat_literal: /* matrix parsing */
-    LBRACKET double_mat_rows RBRACKET { $2 }
+    LBRACKET RBRACKET { [|[| |]|], (0, 0) } /* empty matrix */
+  | LBRACKET double_mat_rows RBRACKET { $2 }
 
 double_mat_rows: /* double_mat_rows is a tuple, its first element is an array of arrays, and its second element is an tuple representing its dimensions */ 
-    double_mat_row { [| fst $1 |], (0, snd $1) }
+    double_mat_row { [| fst $1 |], (1, snd $1) }
   | double_mat_rows SEMI double_mat_row { Array.append (fst $1) [| fst $3 |], (fst (snd $1) + 1,snd (snd $1)) } 
 
 double_mat_row:

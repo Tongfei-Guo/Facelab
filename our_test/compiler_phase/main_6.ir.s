@@ -31,6 +31,7 @@ f2:                                     # @f2
 	.cfi_def_cfa_offset 16
 	movq	$.Lsystem_string, (%rsp)
 	callq	f1
+	callq	f1
 	movl	%eax, %ecx
 	movl	$.Lfmt_int.15, %edi
 	xorl	%eax, %eax
@@ -50,43 +51,52 @@ f2:                                     # @f2
 main:                                   # @main
 	.cfi_startproc
 # BB#0:                                 # %entry
-	subq	$40, %rsp
+	subq	$24, %rsp
 .Lcfi2:
-	.cfi_def_cfa_offset 48
-	movl	$0, 28(%rsp)
-	movl	$0, 12(%rsp)
+	.cfi_def_cfa_offset 32
+	movl	$3, 4(%rsp)
+	movl	$2, (%rsp)
+	movl	$.Lfmt_int.34, %edi
+	movl	$3, %esi
+	xorl	%eax, %eax
+	callq	printf
+	movl	(%rsp), %esi
 	movl	$.Lfmt_int.37, %edi
+	xorl	%eax, %eax
+	callq	printf
+	movl	$0, 4(%rsp)
+	movl	$.Lfmt_int.43, %edi
 	xorl	%esi, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	f1
-	movl	%eax, 12(%rsp)
-	movl	$.Lfmt_str.41, %edi
-	movl	$.Lsystem_string.45, %esi
+	movl	%eax, (%rsp)
+	movl	$.Lfmt_str.47, %edi
+	movl	$.Lsystem_string.51, %esi
 	xorl	%eax, %eax
 	callq	printf
-	movl	12(%rsp), %esi
-	movl	$.Lfmt_int.48, %edi
+	movl	(%rsp), %esi
+	movl	$.Lfmt_int.54, %edi
 	xorl	%eax, %eax
 	callq	printf
-	movq	$.Lsystem_string.56, 32(%rsp)
-	movl	$.Lfmt_str.57, %edi
-	movl	$.Lsystem_string.56, %esi
+	movq	$.Lsystem_string.62, 16(%rsp)
+	movl	$.Lfmt_str.63, %edi
+	movl	$.Lsystem_string.62, %esi
 	xorl	%eax, %eax
 	callq	printf
-	movq	$.Lsystem_string.63, 16(%rsp)
+	movq	$.Lsystem_string.69, 8(%rsp)
 	callq	f2
-	movq	%rax, 16(%rsp)
-	movl	$.Lfmt_str.67, %edi
-	movl	$.Lsystem_string.71, %esi
+	movq	%rax, 8(%rsp)
+	movl	$.Lfmt_str.73, %edi
+	movl	$.Lsystem_string.77, %esi
 	xorl	%eax, %eax
 	callq	printf
-	movq	16(%rsp), %rsi
-	movl	$.Lfmt_str.72, %edi
+	movq	8(%rsp), %rsi
+	movl	$.Lfmt_str.78, %edi
 	xorl	%eax, %eax
 	callq	printf
 	xorl	%eax, %eax
-	addq	$40, %rsp
+	addq	$24, %rsp
 	retq
 .Lfunc_end2:
 	.size	main, .Lfunc_end2-main
@@ -328,160 +338,190 @@ main:                                   # @main
 	.asciz	"%d\n"
 	.size	.Lfmt_int.43, 4
 
-	.type	.Lsystem_string.44,@object # @system_string.44
-.Lsystem_string.44:
-	.asciz	"now j is :"
-	.size	.Lsystem_string.44, 11
-
-	.type	.Lsystem_string.45,@object # @system_string.45
-.Lsystem_string.45:
-	.asciz	"now j is :"
-	.size	.Lsystem_string.45, 11
-
-	.type	.Lfmt_str.46,@object    # @fmt_str.46
-.Lfmt_str.46:
+	.type	.Lfmt_str.44,@object    # @fmt_str.44
+.Lfmt_str.44:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.46, 4
+	.size	.Lfmt_str.44, 4
 
-	.type	.Lfmt_double.47,@object # @fmt_double.47
-.Lfmt_double.47:
+	.type	.Lfmt_double.45,@object # @fmt_double.45
+.Lfmt_double.45:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.47, 4
+	.size	.Lfmt_double.45, 4
 
-	.type	.Lfmt_int.48,@object    # @fmt_int.48
-.Lfmt_int.48:
+	.type	.Lfmt_int.46,@object    # @fmt_int.46
+.Lfmt_int.46:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.48, 4
+	.size	.Lfmt_int.46, 4
 
-	.type	.Lfmt_str.49,@object    # @fmt_str.49
-.Lfmt_str.49:
+	.type	.Lfmt_str.47,@object    # @fmt_str.47
+.Lfmt_str.47:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.49, 4
+	.size	.Lfmt_str.47, 4
 
-	.type	.Lfmt_double.50,@object # @fmt_double.50
-.Lfmt_double.50:
+	.type	.Lfmt_double.48,@object # @fmt_double.48
+.Lfmt_double.48:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.50, 4
+	.size	.Lfmt_double.48, 4
 
-	.type	.Lfmt_int.51,@object    # @fmt_int.51
-.Lfmt_int.51:
+	.type	.Lfmt_int.49,@object    # @fmt_int.49
+.Lfmt_int.49:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.51, 4
+	.size	.Lfmt_int.49, 4
 
-	.type	.Lsystem_string.52,@object # @system_string.52
-.Lsystem_string.52:
+	.type	.Lsystem_string.50,@object # @system_string.50
+.Lsystem_string.50:
+	.asciz	"now j is :"
+	.size	.Lsystem_string.50, 11
+
+	.type	.Lsystem_string.51,@object # @system_string.51
+.Lsystem_string.51:
+	.asciz	"now j is :"
+	.size	.Lsystem_string.51, 11
+
+	.type	.Lfmt_str.52,@object    # @fmt_str.52
+.Lfmt_str.52:
+	.asciz	"%s\n"
+	.size	.Lfmt_str.52, 4
+
+	.type	.Lfmt_double.53,@object # @fmt_double.53
+.Lfmt_double.53:
+	.asciz	"%f\n"
+	.size	.Lfmt_double.53, 4
+
+	.type	.Lfmt_int.54,@object    # @fmt_int.54
+.Lfmt_int.54:
+	.asciz	"%d\n"
+	.size	.Lfmt_int.54, 4
+
+	.type	.Lfmt_str.55,@object    # @fmt_str.55
+.Lfmt_str.55:
+	.asciz	"%s\n"
+	.size	.Lfmt_str.55, 4
+
+	.type	.Lfmt_double.56,@object # @fmt_double.56
+.Lfmt_double.56:
+	.asciz	"%f\n"
+	.size	.Lfmt_double.56, 4
+
+	.type	.Lfmt_int.57,@object    # @fmt_int.57
+.Lfmt_int.57:
+	.asciz	"%d\n"
+	.size	.Lfmt_int.57, 4
+
+	.type	.Lsystem_string.58,@object # @system_string.58
+.Lsystem_string.58:
 	.zero	1
-	.size	.Lsystem_string.52, 1
+	.size	.Lsystem_string.58, 1
 
-	.type	.Lfmt_str.53,@object    # @fmt_str.53
-.Lfmt_str.53:
+	.type	.Lfmt_str.59,@object    # @fmt_str.59
+.Lfmt_str.59:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.53, 4
+	.size	.Lfmt_str.59, 4
 
-	.type	.Lfmt_double.54,@object # @fmt_double.54
-.Lfmt_double.54:
+	.type	.Lfmt_double.60,@object # @fmt_double.60
+.Lfmt_double.60:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.54, 4
+	.size	.Lfmt_double.60, 4
 
-	.type	.Lfmt_int.55,@object    # @fmt_int.55
-.Lfmt_int.55:
+	.type	.Lfmt_int.61,@object    # @fmt_int.61
+.Lfmt_int.61:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.55, 4
+	.size	.Lfmt_int.61, 4
 
-	.type	.Lsystem_string.56,@object # @system_string.56
-.Lsystem_string.56:
+	.type	.Lsystem_string.62,@object # @system_string.62
+.Lsystem_string.62:
 	.asciz	"hahaha"
-	.size	.Lsystem_string.56, 7
+	.size	.Lsystem_string.62, 7
 
-	.type	.Lfmt_str.57,@object    # @fmt_str.57
-.Lfmt_str.57:
+	.type	.Lfmt_str.63,@object    # @fmt_str.63
+.Lfmt_str.63:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.57, 4
+	.size	.Lfmt_str.63, 4
 
-	.type	.Lfmt_double.58,@object # @fmt_double.58
-.Lfmt_double.58:
+	.type	.Lfmt_double.64,@object # @fmt_double.64
+.Lfmt_double.64:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.58, 4
+	.size	.Lfmt_double.64, 4
 
-	.type	.Lfmt_int.59,@object    # @fmt_int.59
-.Lfmt_int.59:
+	.type	.Lfmt_int.65,@object    # @fmt_int.65
+.Lfmt_int.65:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.59, 4
+	.size	.Lfmt_int.65, 4
 
-	.type	.Lfmt_str.60,@object    # @fmt_str.60
-.Lfmt_str.60:
+	.type	.Lfmt_str.66,@object    # @fmt_str.66
+.Lfmt_str.66:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.60, 4
+	.size	.Lfmt_str.66, 4
 
-	.type	.Lfmt_double.61,@object # @fmt_double.61
-.Lfmt_double.61:
+	.type	.Lfmt_double.67,@object # @fmt_double.67
+.Lfmt_double.67:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.61, 4
+	.size	.Lfmt_double.67, 4
 
-	.type	.Lfmt_int.62,@object    # @fmt_int.62
-.Lfmt_int.62:
+	.type	.Lfmt_int.68,@object    # @fmt_int.68
+.Lfmt_int.68:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.62, 4
+	.size	.Lfmt_int.68, 4
 
-	.type	.Lsystem_string.63,@object # @system_string.63
-.Lsystem_string.63:
+	.type	.Lsystem_string.69,@object # @system_string.69
+.Lsystem_string.69:
 	.zero	1
-	.size	.Lsystem_string.63, 1
+	.size	.Lsystem_string.69, 1
 
-	.type	.Lfmt_str.64,@object    # @fmt_str.64
-.Lfmt_str.64:
+	.type	.Lfmt_str.70,@object    # @fmt_str.70
+.Lfmt_str.70:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.64, 4
+	.size	.Lfmt_str.70, 4
 
-	.type	.Lfmt_double.65,@object # @fmt_double.65
-.Lfmt_double.65:
+	.type	.Lfmt_double.71,@object # @fmt_double.71
+.Lfmt_double.71:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.65, 4
+	.size	.Lfmt_double.71, 4
 
-	.type	.Lfmt_int.66,@object    # @fmt_int.66
-.Lfmt_int.66:
+	.type	.Lfmt_int.72,@object    # @fmt_int.72
+.Lfmt_int.72:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.66, 4
+	.size	.Lfmt_int.72, 4
 
-	.type	.Lfmt_str.67,@object    # @fmt_str.67
-.Lfmt_str.67:
+	.type	.Lfmt_str.73,@object    # @fmt_str.73
+.Lfmt_str.73:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.67, 4
+	.size	.Lfmt_str.73, 4
 
-	.type	.Lfmt_double.68,@object # @fmt_double.68
-.Lfmt_double.68:
+	.type	.Lfmt_double.74,@object # @fmt_double.74
+.Lfmt_double.74:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.68, 4
+	.size	.Lfmt_double.74, 4
 
-	.type	.Lfmt_int.69,@object    # @fmt_int.69
-.Lfmt_int.69:
+	.type	.Lfmt_int.75,@object    # @fmt_int.75
+.Lfmt_int.75:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.69, 4
+	.size	.Lfmt_int.75, 4
 
-	.type	.Lsystem_string.70,@object # @system_string.70
-.Lsystem_string.70:
+	.type	.Lsystem_string.76,@object # @system_string.76
+.Lsystem_string.76:
 	.asciz	"now s is :"
-	.size	.Lsystem_string.70, 11
+	.size	.Lsystem_string.76, 11
 
-	.type	.Lsystem_string.71,@object # @system_string.71
-.Lsystem_string.71:
+	.type	.Lsystem_string.77,@object # @system_string.77
+.Lsystem_string.77:
 	.asciz	"now s is :"
-	.size	.Lsystem_string.71, 11
+	.size	.Lsystem_string.77, 11
 
-	.type	.Lfmt_str.72,@object    # @fmt_str.72
-.Lfmt_str.72:
+	.type	.Lfmt_str.78,@object    # @fmt_str.78
+.Lfmt_str.78:
 	.asciz	"%s\n"
-	.size	.Lfmt_str.72, 4
+	.size	.Lfmt_str.78, 4
 
-	.type	.Lfmt_double.73,@object # @fmt_double.73
-.Lfmt_double.73:
+	.type	.Lfmt_double.79,@object # @fmt_double.79
+.Lfmt_double.79:
 	.asciz	"%f\n"
-	.size	.Lfmt_double.73, 4
+	.size	.Lfmt_double.79, 4
 
-	.type	.Lfmt_int.74,@object    # @fmt_int.74
-.Lfmt_int.74:
+	.type	.Lfmt_int.80,@object    # @fmt_int.80
+.Lfmt_int.80:
 	.asciz	"%d\n"
-	.size	.Lfmt_int.74, 4
+	.size	.Lfmt_int.80, 4
 
 
 	.section	".note.GNU-stack","",@progbits

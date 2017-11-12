@@ -1,0 +1,17 @@
+func f1() {printf(1); return 5;}
+func f2() { string st; printf(f1()); st = "abc";return st;}
+int i=3;
+int j=2;
+printf(i); printf(j);
+i = 0;
+printf(i);
+j = f1();
+printf("now j is :");
+printf(j);
+string my_str;
+my_str = "hahaha";
+printf(my_str);
+string s;
+s = f2();
+printf("now s is :");
+printf(s);
