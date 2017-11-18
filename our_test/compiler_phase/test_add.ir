@@ -1,49 +1,60 @@
 ; ModuleID = 'MicroC'
 source_filename = "MicroC"
 
-@fmt_str = private unnamed_addr constant [4 x i8] c"%s\0A\00"
-@fmt_double = private unnamed_addr constant [4 x i8] c"%f\0A\00"
-@fmt_int = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@fmt_str.1 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
-@fmt_double.2 = private unnamed_addr constant [4 x i8] c"%f\0A\00"
-@fmt_int.3 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@fmt_str.4 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
-@fmt_double.5 = private unnamed_addr constant [4 x i8] c"%f\0A\00"
-@fmt_int.6 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@fmt_str.7 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
-@fmt_double.8 = private unnamed_addr constant [4 x i8] c"%f\0A\00"
-@fmt_int.9 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@fmt_str.10 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
-@fmt_double.11 = private unnamed_addr constant [4 x i8] c"%f\0A\00"
-@fmt_int.12 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@fmt_str.13 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
-@fmt_double.14 = private unnamed_addr constant [4 x i8] c"%f\0A\00"
-@fmt_int.15 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@fmt_str.16 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
-@fmt_double.17 = private unnamed_addr constant [4 x i8] c"%f\0A\00"
-@fmt_int.18 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.1 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.2 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.3 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.4 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.5 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.6 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.7 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.8 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.9 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.10 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.11 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.12 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.13 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.14 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.15 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.16 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.17 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.18 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.19 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.20 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.21 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.22 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.23 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.24 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.25 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.26 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.27 = private unnamed_addr constant [3 x i8] c"%d\00"
 @system_string = private unnamed_addr constant [6 x i8] c"Hello\00"
-@system_string.19 = private unnamed_addr constant [6 x i8] c"Hello\00"
 
 declare i32 @printf(i8*, ...)
 
 define i32 @main() {
 entry:
   %i = alloca double
+  store double 0.000000e+00, double* %i
   %j = alloca i32
+  store i32 0, i32* %j
   store double 1.200000e+00, double* %i
-  store i32 1, i32* %j
+  store i32 2, i32* %j
   %j1 = load i32, i32* %j
+  %tmp = srem i32 4, %j1
+  store i32 %tmp, i32* %j
   %j2 = load i32, i32* %j
-  %print_f = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt_int.9, i32 0, i32 0), i32 %j2)
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.18, i32 0, i32 0), i32 %j2)
   %i3 = load double, double* %i
   %j4 = load i32, i32* %j
-  %tmp = sitofp i32 %j4 to double
-  %tmp5 = fadd double %i3, %tmp
-  store double %tmp5, double* %i
-  %i6 = load double, double* %i
+  %tmp5 = sitofp i32 %j4 to double
+  %tmp6 = fadd double %i3, %tmp5
+  store double %tmp6, double* %i
   %i7 = load double, double* %i
-  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt_double.14, i32 0, i32 0), double %i7)
-  %printf8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt_str.16, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @system_string.19, i32 0, i32 0))
+  %printf8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double.23, i32 0, i32 0), double %i7)
+  %printf9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str.25, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @system_string, i32 0, i32 0))
   ret i32 0
 }
