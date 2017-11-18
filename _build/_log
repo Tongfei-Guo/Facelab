@@ -41,65 +41,73 @@ File "codegen.ml", line 50, characters 21-175:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix)
-File "codegen.ml", line 101, characters 10-307:
+File "codegen.ml", line 100, characters 10-307:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Greater|Rmdr)
-File "codegen.ml", line 94, characters 31-877:
+File "codegen.ml", line 93, characters 31-877:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noassign|DoubleLit _|MatrixLit (_, _))
-File "codegen.ml", line 137, characters 12-222:
+File "codegen.ml", line 136, characters 12-222:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix|Void|String)
-File "codegen.ml", line 135, characters 8-1008:
+File "codegen.ml", line 134, characters 8-885:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|StringLit _|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|
 Call (_, _))
-File "codegen.ml", line 224, characters 3-579:
+File "codegen.ml", line 221, characters 3-579:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Rmdr
-File "codegen.ml", line 193, characters 27-3465:
+File "codegen.ml", line 191, characters 27-3410:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Noassign
-File "codegen.ml", line 308, characters 34-372:
+File "codegen.ml", line 305, characters 35-377:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix|Void)
-File "codegen.ml", line 306, characters 30-1555:
+File "codegen.ml", line 303, characters 31-1432:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|Call (_, _))
-File "codegen.ml", line 76, characters 30-31:
+File "codegen.ml", line 75, characters 30-31:
 Warning 27: unused variable v.
-File "codegen.ml", line 83, characters 25-26:
+File "codegen.ml", line 82, characters 25-26:
 Warning 27: unused variable v.
-File "codegen.ml", line 95, characters 17-18:
+File "codegen.ml", line 94, characters 17-18:
 Warning 27: unused variable i.
-File "codegen.ml", line 96, characters 20-21:
+File "codegen.ml", line 95, characters 20-21:
 Warning 27: unused variable s.
-File "codegen.ml", line 97, characters 18-19:
+File "codegen.ml", line 96, characters 18-19:
 Warning 27: unused variable b.
-File "codegen.ml", line 100, characters 17-19:
+File "codegen.ml", line 99, characters 17-19:
 Warning 27: unused variable e1.
-File "codegen.ml", line 100, characters 25-27:
+File "codegen.ml", line 99, characters 25-27:
 Warning 27: unused variable e2.
-File "codegen.ml", line 114, characters 19-20:
+File "codegen.ml", line 113, characters 19-20:
 Warning 27: unused variable e.
-File "codegen.ml", line 118, characters 21-22:
+File "codegen.ml", line 117, characters 21-22:
 Warning 27: unused variable e.
-File "codegen.ml", line 119, characters 27-28:
+File "codegen.ml", line 118, characters 27-28:
 Warning 27: unused variable e.
-File "codegen.ml", line 120, characters 30-31:
+File "codegen.ml", line 119, characters 30-31:
 Warning 27: unused variable e.
-File "codegen.ml", line 121, characters 19-22:
+File "codegen.ml", line 120, characters 19-22:
 Warning 27: unused variable act.
-File "codegen.ml", line 122, characters 15-19:
+File "codegen.ml", line 121, characters 15-19:
 Warning 27: unused variable fdef.
+File "codegen.ml", line 144, characters 27-28:
+Warning 27: unused variable r.
+File "codegen.ml", line 196, characters 25-26:
+Warning 27: unused variable r.
+File "codegen.ml", line 314, characters 46-47:
+Warning 27: unused variable m.
+File "codegen.ml", line 314, characters 50-51:
+Warning 27: unused variable r.
 # Target: scanner.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:scanner.cmo, file:scanner.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmo scanner.ml
 # Target: facelab.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:facelab.cmo, file:facelab.ml, implem, ocaml, quiet }
@@ -132,65 +140,73 @@ File "codegen.ml", line 50, characters 21-175:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix)
-File "codegen.ml", line 101, characters 10-307:
+File "codegen.ml", line 100, characters 10-307:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Greater|Rmdr)
-File "codegen.ml", line 94, characters 31-877:
+File "codegen.ml", line 93, characters 31-877:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noassign|DoubleLit _|MatrixLit (_, _))
-File "codegen.ml", line 137, characters 12-222:
+File "codegen.ml", line 136, characters 12-222:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix|Void|String)
-File "codegen.ml", line 135, characters 8-1008:
+File "codegen.ml", line 134, characters 8-885:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|StringLit _|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|
 Call (_, _))
-File "codegen.ml", line 224, characters 3-579:
+File "codegen.ml", line 221, characters 3-579:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Rmdr
-File "codegen.ml", line 193, characters 27-3465:
+File "codegen.ml", line 191, characters 27-3410:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Noassign
-File "codegen.ml", line 308, characters 34-372:
+File "codegen.ml", line 305, characters 35-377:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix|Void)
-File "codegen.ml", line 306, characters 30-1555:
+File "codegen.ml", line 303, characters 31-1432:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|Call (_, _))
-File "codegen.ml", line 76, characters 30-31:
+File "codegen.ml", line 75, characters 30-31:
 Warning 27: unused variable v.
-File "codegen.ml", line 83, characters 25-26:
+File "codegen.ml", line 82, characters 25-26:
 Warning 27: unused variable v.
-File "codegen.ml", line 95, characters 17-18:
+File "codegen.ml", line 94, characters 17-18:
 Warning 27: unused variable i.
-File "codegen.ml", line 96, characters 20-21:
+File "codegen.ml", line 95, characters 20-21:
 Warning 27: unused variable s.
-File "codegen.ml", line 97, characters 18-19:
+File "codegen.ml", line 96, characters 18-19:
 Warning 27: unused variable b.
-File "codegen.ml", line 100, characters 17-19:
+File "codegen.ml", line 99, characters 17-19:
 Warning 27: unused variable e1.
-File "codegen.ml", line 100, characters 25-27:
+File "codegen.ml", line 99, characters 25-27:
 Warning 27: unused variable e2.
-File "codegen.ml", line 114, characters 19-20:
+File "codegen.ml", line 113, characters 19-20:
 Warning 27: unused variable e.
-File "codegen.ml", line 118, characters 21-22:
+File "codegen.ml", line 117, characters 21-22:
 Warning 27: unused variable e.
-File "codegen.ml", line 119, characters 27-28:
+File "codegen.ml", line 118, characters 27-28:
 Warning 27: unused variable e.
-File "codegen.ml", line 120, characters 30-31:
+File "codegen.ml", line 119, characters 30-31:
 Warning 27: unused variable e.
-File "codegen.ml", line 121, characters 19-22:
+File "codegen.ml", line 120, characters 19-22:
 Warning 27: unused variable act.
-File "codegen.ml", line 122, characters 15-19:
+File "codegen.ml", line 121, characters 15-19:
 Warning 27: unused variable fdef.
+File "codegen.ml", line 144, characters 27-28:
+Warning 27: unused variable r.
+File "codegen.ml", line 196, characters 25-26:
+Warning 27: unused variable r.
+File "codegen.ml", line 314, characters 46-47:
+Warning 27: unused variable m.
+File "codegen.ml", line 314, characters 50-51:
+Warning 27: unused variable r.
 # Target: scanner.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, quiet }
 ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmx scanner.ml
 # Target: facelab.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:facelab.cmx, file:facelab.ml, implem, native, ocaml, quiet }

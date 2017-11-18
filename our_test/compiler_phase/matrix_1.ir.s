@@ -15,23 +15,33 @@ main:                                   # @main
 	.type	.Lfmt_str,@object       # @fmt_str
 	.section	.rodata.str1.1,"aMS",@progbits,1
 .Lfmt_str:
-	.asciz	"%s\n"
-	.size	.Lfmt_str, 4
+	.asciz	"%s"
+	.size	.Lfmt_str, 3
+
+	.type	.Lfmt_double,@object    # @fmt_double
+.Lfmt_double:
+	.asciz	"%f"
+	.size	.Lfmt_double, 3
 
 	.type	.Lfmt_int,@object       # @fmt_int
 .Lfmt_int:
-	.asciz	"%d\n"
-	.size	.Lfmt_int, 4
+	.asciz	"%d"
+	.size	.Lfmt_int, 3
 
 	.type	.Lfmt_str.1,@object     # @fmt_str.1
 .Lfmt_str.1:
-	.asciz	"%s\n"
-	.size	.Lfmt_str.1, 4
+	.asciz	"%s"
+	.size	.Lfmt_str.1, 3
 
-	.type	.Lfmt_int.2,@object     # @fmt_int.2
-.Lfmt_int.2:
-	.asciz	"%d\n"
-	.size	.Lfmt_int.2, 4
+	.type	.Lfmt_double.2,@object  # @fmt_double.2
+.Lfmt_double.2:
+	.asciz	"%f"
+	.size	.Lfmt_double.2, 3
+
+	.type	.Lfmt_int.3,@object     # @fmt_int.3
+.Lfmt_int.3:
+	.asciz	"%d"
+	.size	.Lfmt_int.3, 3
 
 
 	.section	".note.GNU-stack","",@progbits
