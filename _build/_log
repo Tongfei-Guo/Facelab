@@ -25,11 +25,11 @@ Local (_, _, _)
 # Target: matrix.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:matrix.cmo, file:matrix.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o matrix.cmo matrix.ml
 # Target: parser.mly, tags: { package(llvm), package(llvm.analysis), extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, parser, quiet }
-/home/glen/.opam/4.04.0/bin/ocamlyacc parser.mly
+ocamlyacc parser.mly
 # Target: parser.mli.depends, tags: { package(llvm), package(llvm.analysis), extension:mli, file:parser.mli, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -package llvm.analysis -package llvm -modules parser.mli > parser.mli.depends
 # Target: scanner.mll, tags: { package(llvm), package(llvm.analysis), extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, quiet }
-/home/glen/.opam/4.04.0/bin/ocamllex.opt -q scanner.mll
+ocamllex.opt -q scanner.mll
 # Target: scanner.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:scanner.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -package llvm.analysis -package llvm -modules scanner.ml > scanner.ml.depends
 # Target: parser.cmi, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:mli, file:parser.mli, interf, ocaml, quiet }

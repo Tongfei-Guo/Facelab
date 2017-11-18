@@ -1,0 +1,2 @@
+double d = 3.0;
+printf(d);

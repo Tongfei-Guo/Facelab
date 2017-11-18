@@ -1,0 +1,8 @@
+func try() {
+	int i = 3;
+	int j = 5;
+	return i + j;
+}
+int d;
+d = try();
+printf(d);

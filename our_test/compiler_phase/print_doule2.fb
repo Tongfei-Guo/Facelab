@@ -1,0 +1,5 @@
+double d = 3.1;
+int i = 2;
+double j;
+j = i + d;
+prinf(j);
