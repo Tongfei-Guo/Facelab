@@ -1,39 +1,26 @@
 ### Starting build.
 # Target: facelab.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:facelab.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.analysis -package llvm -modules facelab.ml > facelab.ml.depends
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules facelab.ml > facelab.ml.depends # cached
 # Target: codegen.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:codegen.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -package llvm.analysis -package llvm -modules codegen.ml > codegen.ml.depends
 # Target: ast.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends
-# Target: matrix.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:matrix.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.analysis -package llvm -modules matrix.ml > matrix.ml.depends
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends # cached
 # Target: ast.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmo ast.ml
-+ ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmo ast.ml
-File "ast.ml", line 47, characters 19-220:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Rmdr
-File "ast.ml", line 65, characters 25-504:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-(Noassign|MatrixLit (_, _))
-File "ast.ml", line 80, characters 25-649:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Local (_, _, _)
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmo ast.ml # cached
+# Target: matrix.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:matrix.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules matrix.ml > matrix.ml.depends # cached
 # Target: matrix.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:matrix.cmo, file:matrix.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o matrix.cmo matrix.ml
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o matrix.cmo matrix.ml # cached
 # Target: parser.mly, tags: { package(llvm), package(llvm.analysis), extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, parser, quiet }
-/home/glen/.opam/4.04.0/bin/ocamlyacc parser.mly
+ocamlyacc parser.mly # cached
 # Target: parser.mli.depends, tags: { package(llvm), package(llvm.analysis), extension:mli, file:parser.mli, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.analysis -package llvm -modules parser.mli > parser.mli.depends
-# Target: scanner.mll, tags: { package(llvm), package(llvm.analysis), extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, quiet }
-/home/glen/.opam/4.04.0/bin/ocamllex.opt -q scanner.mll
-# Target: scanner.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:scanner.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -package llvm.analysis -package llvm -modules scanner.ml > scanner.ml.depends
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules parser.mli > parser.mli.depends # cached
 # Target: parser.cmi, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:mli, file:parser.mli, interf, ocaml, quiet }
-ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o parser.cmi parser.mli
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o parser.cmi parser.mli # cached
+# Target: scanner.mll, tags: { package(llvm), package(llvm.analysis), extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, quiet }
+ocamllex.opt -q scanner.mll # cached
+# Target: scanner.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:scanner.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules scanner.ml > scanner.ml.depends # cached
 # Target: codegen.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:codegen.cmo, file:codegen.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
 + ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
@@ -58,19 +45,15 @@ Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|StringLit _|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|
 Call (_, _))
-File "codegen.ml", line 224, characters 3-579:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Rmdr
-File "codegen.ml", line 193, characters 27-3465:
+File "codegen.ml", line 193, characters 27-3491:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Noassign
-File "codegen.ml", line 308, characters 34-372:
+File "codegen.ml", line 309, characters 34-372:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix|Void)
-File "codegen.ml", line 306, characters 30-1555:
+File "codegen.ml", line 307, characters 30-1555:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|Call (_, _))
@@ -149,19 +132,15 @@ Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|StringLit _|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|
 Call (_, _))
-File "codegen.ml", line 224, characters 3-579:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Rmdr
-File "codegen.ml", line 193, characters 27-3465:
+File "codegen.ml", line 193, characters 27-3491:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Noassign
-File "codegen.ml", line 308, characters 34-372:
+File "codegen.ml", line 309, characters 34-372:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Image|Matrix|Void)
-File "codegen.ml", line 306, characters 30-1555:
+File "codegen.ml", line 307, characters 30-1555:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Noexpr|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|Call (_, _))
