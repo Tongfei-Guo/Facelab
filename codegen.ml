@@ -53,7 +53,6 @@ printf(l2);
     | A.String -> str_t (* pointer to store string *)
     | A.Bool -> i1_t
     | A.Void -> void_t in
-  
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
@@ -145,10 +144,9 @@ printf(l2);
         | A.MatrixLit (m, (r, c)) -> 
             let element_type = L.double_type context in
             let row_type = L.array_type element_type c in
-            let matrix_type = L.array_type row_type r in (* matrix is represented as arrays of arrays of double in LLVM *) 
             let add_element row element = Array.append row [|(L.const_float element_type element)|] in
-            let add_row rows row = Array.append rows [|(L.const_array row_type (Array.fold_left add_element [| |] row))|] in
-            L.const_array matrix_type (Array.fold_left add_row [| |] m)
+            let add_row rows row = Array.append rows [|(L.const_array element_type (Array.fold_left add_element [| |] row))|] in
+            L.const_array row_type (Array.fold_left add_row [| |] m)
       in
       H.add m n (L.define_global n (init t v) the_module);m in
     List.fold_left global_var (H.create (List.length globals)) globals in
@@ -195,13 +193,12 @@ printf(l2);
       | A.DoubleLit d -> L.const_float double_t d
       | A.StringLit s -> L.build_global_stringptr s "system_string" builder
       | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
-      | A.MatrixLit (m, (r, c)) -> 
+      | A.MatrixLit (m, (r, c)) -> (* matrix is represented as arrays of arrays of double in LLVM *) 
           let element_type = L.double_type context in
           let row_type = L.array_type element_type c in
-          let matrix_type = L.array_type row_type r in (* matrix is represented as arrays of arrays of double in LLVM *) 
           let add_element row element = Array.append row [|(L.const_float element_type element)|] in
-          let add_row rows row = Array.append rows [|(L.const_array row_type (Array.fold_left add_element [| |] row))|] in
-          L.const_array matrix_type (Array.fold_left add_row [| |] m)
+          let add_row rows row = Array.append rows [|(L.const_array element_type (Array.fold_left add_element [| |] row))|] in
+          L.const_array row_type (Array.fold_left add_row [| |] m)
       | A.Noexpr -> L.const_int i32_t 0
       | A.Id s -> L.build_load (lookup s) s builder
       | A.Binop (e1, op, e2) -> 
@@ -303,30 +300,29 @@ printf(l2);
 
       | A.For (e1, e2, e3, body) -> build_stmt (fdecl, function_ptr) local_vars builder ( A.Block [A.Expr e1 ; A.While (e2, A.Block [body ; A.Expr e3]) ] )
       | A.Local (t, n, v) -> let local = L.build_alloca (ltype_of_typ t) n builder in 
-                            let init typ value = (* init for globals *)
-                              (match value with 
-                                A.Noassign -> 
-                                  (match typ with
-                                    A.Int -> L.const_int i32_t 0
-                                  | A.Double -> L.const_float double_t 0.
-                                  | A.String -> L.build_global_stringptr "" "system_string" builder  (*empty string*)
-                                  | A.Bool -> L.const_int i1_t 0)
-                              | A.IntLit i -> L.const_int i32_t i
-                              | A.DoubleLit d -> L.const_float double_t d
-                              | A.StringLit s -> L.build_global_stringptr s "system_string" builder
-                              | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
-                              | A.MatrixLit (m, (r, c)) -> 
-                                  let element_type = L.double_type context in
-                                  let row_type = L.array_type element_type c in
-                                  let matrix_type = L.array_type row_type r in (* matrix is represented as arrays of arrays of double in LLVM *) 
-                                  let add_element row element = Array.append row [|(L.const_float element_type element)|] in
-                                  let add_row rows row = Array.append rows [|(L.const_array row_type (Array.fold_left add_element [| |] row))|] in
-                                  L.const_array matrix_type (Array.fold_left add_row [| |] m)
-                              )
-                            in  
-                            H.add local_vars n local;
-                            ignore(L.build_store (init t v) local builder);
-                            builder)
+                             let init typ value = (* init for globals *)
+                               (match value with 
+                                 A.Noassign -> 
+                                   (match typ with
+                                     A.Int -> L.const_int i32_t 0
+                                   | A.Double -> L.const_float double_t 0.
+                                   | A.String -> L.build_global_stringptr "" "system_string" builder  (*empty string*)
+                                   | A.Bool -> L.const_int i1_t 0)
+                               | A.IntLit i -> L.const_int i32_t i
+                               | A.DoubleLit d -> L.const_float double_t d
+                               | A.StringLit s -> L.build_global_stringptr s "system_string" builder
+                               | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
+                               | A.MatrixLit (m, (r, c)) -> 
+                                   let element_type = L.double_type context in
+                                   let row_type = L.array_type element_type c in
+                                   let add_element row element = Array.append row [|(L.const_float element_type element)|] in
+                                   let add_row rows row = Array.append rows [|(L.const_array element_type (Array.fold_left add_element [| |] row))|] in
+                                   L.const_array row_type (Array.fold_left add_row [| |] [| |])
+                               )
+                             in  
+                             H.add local_vars n local;
+                             ignore(L.build_store (init t v) local builder);
+                             builder)
   in
 
 
