@@ -5,7 +5,9 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Image | Double | Matrix | Void | String
+type typ = Int | Bool | Image | Double | Matrix | Void | String |
+           (* below are auxiliary or debug entities, not for other use *)
+           Sizedmat of int * int | Bug
 
 type bind = typ * string
 

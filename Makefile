@@ -7,7 +7,7 @@
 all : facelab.native
 
 facelab.native :
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis,str -cflags -w,+a-4 \
 		facelab.native
 
 # "make clean" removes all generated files
