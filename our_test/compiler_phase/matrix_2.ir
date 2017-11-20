@@ -1,0 +1,22 @@
+; ModuleID = 'MicroC'
+source_filename = "MicroC"
+
+@fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_int.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_int.2 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.3 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.4 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.5 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_int.6 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_int.7 = private unnamed_addr constant [3 x i8] c"  \00"
+
+declare i32 @printf(i8*, ...)
+
+define i32 @main() {
+entry:
+  %m = alloca [4 x [3 x double]], i32 16
+  store [4 x [3 x double]] [[3 x double] [double 1.000000e+00, double 2.000000e+00, double 3.000000e+00], [3 x double] [double 4.000000e+00, double 5.000000e+00, double 6.000000e+00], [3 x double] [double 7.000000e+00, double 8.000000e+00, double 9.000000e+00], [3 x double] [double 1.000000e+01, double 1.100000e+01, double 1.200000e+01]], [4 x [3 x double]]* %m
+  ret i32 0
+}

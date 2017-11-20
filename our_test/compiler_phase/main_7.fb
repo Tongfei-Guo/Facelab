@@ -1,0 +1,4 @@
+int i = 3;
+int j = 3+4;
+int k = i+j+2;
+printf(k);

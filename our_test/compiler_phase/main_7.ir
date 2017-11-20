@@ -1,0 +1,47 @@
+; ModuleID = 'MicroC'
+source_filename = "MicroC"
+
+@fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_int.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_int.2 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.3 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.4 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.5 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_int.6 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_int.7 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.8 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.9 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.10 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_int.11 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_int.12 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.13 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.14 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.15 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_int.16 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_int.17 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.18 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.19 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.20 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_int.21 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_int.22 = private unnamed_addr constant [3 x i8] c"  \00"
+
+declare i32 @printf(i8*, ...)
+
+define i32 @main() {
+entry:
+  %i = alloca i32
+  store i32 3, i32* %i
+  %j = alloca i32
+  store i32 7, i32* %j
+  %i1 = load i32, i32* %i
+  %j2 = load i32, i32* %j
+  %tmp = add i32 %i1, %j2
+  %tmp3 = add i32 %tmp, 2
+  %k = alloca i32
+  store i32 %tmp3, i32* %k
+  %k4 = load i32, i32* %k
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.20, i32 0, i32 0), i32 %k4)
+  ret i32 0
+}
