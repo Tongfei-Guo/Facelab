@@ -270,8 +270,7 @@ printf(l2);
 	    A.Add     -> build_op_by_type L.build_fadd L.build_add
 	  | A.Sub     -> build_op_by_type L.build_fsub L.build_sub
 	  | A.Mult    -> build_op_by_type L.build_fmul L.build_mul
-    | A.Div     -> build_op_by_type L.build_fdiv L.build_sdiv
-    | A.Rmdr    -> L.build_srem
+          | A.Div     -> build_op_by_type L.build_fdiv L.build_sdiv
 	  | A.And     -> L.build_and
 	  | A.Or      -> L.build_or
 	  | A.Equal   -> L.build_icmp L.Icmp.Eq

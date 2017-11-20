@@ -1,0 +1,207 @@
+### Starting build.
+# Target: facelab.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:facelab.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules facelab.ml > facelab.ml.depends # cached
+# Target: codegen.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:codegen.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules codegen.ml > codegen.ml.depends
+# Target: ast.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends # cached
+# Target: ast.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmo ast.ml # cached
+# Target: matrix.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:matrix.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules matrix.ml > matrix.ml.depends # cached
+# Target: matrix.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:matrix.cmo, file:matrix.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o matrix.cmo matrix.ml # cached
+# Target: parser.mly, tags: { package(llvm), package(llvm.analysis), extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, parser, quiet }
+/home/glen/.opam/4.04.0/bin/ocamlyacc parser.mly # cached
+# Target: parser.mli.depends, tags: { package(llvm), package(llvm.analysis), extension:mli, file:parser.mli, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules parser.mli > parser.mli.depends # cached
+# Target: parser.cmi, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:mli, file:parser.mli, interf, ocaml, quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o parser.cmi parser.mli # cached
+# Target: scanner.mll, tags: { package(llvm), package(llvm.analysis), extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, quiet }
+/home/glen/.opam/4.04.0/bin/ocamllex.opt -q scanner.mll # cached
+# Target: scanner.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:scanner.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules scanner.ml > scanner.ml.depends # cached
+# Target: codegen.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:codegen.cmo, file:codegen.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
++ ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
+File "codegen.ml", line 51, characters 21-175:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Image|Matrix)
+File "codegen.ml", line 148, characters 10-307:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Greater|Rmdr)
+File "codegen.ml", line 141, characters 31-877:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Noassign|DoubleLit _|MatrixLit (_, _))
+File "codegen.ml", line 184, characters 12-222:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Image|Matrix|Void|String)
+File "codegen.ml", line 182, characters 8-885:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Noexpr|StringLit _|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|
+Call (_, _))
+File "codegen.ml", line 269, characters 3-579:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Rmdr
+File "codegen.ml", line 239, characters 29-3412:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Noassign
+File "codegen.ml", line 353, characters 35-374:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Image|Matrix|Void)
+File "codegen.ml", line 351, characters 31-1463:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Noexpr|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|Call (_, _))
+File "codegen.ml", line 19, characters 0-8:
+Warning 33: unused open Str.
+File "codegen.ml", line 123, characters 30-31:
+Warning 27: unused variable v.
+File "codegen.ml", line 130, characters 25-26:
+Warning 27: unused variable v.
+File "codegen.ml", line 142, characters 17-18:
+Warning 27: unused variable i.
+File "codegen.ml", line 143, characters 20-21:
+Warning 27: unused variable s.
+File "codegen.ml", line 144, characters 18-19:
+Warning 27: unused variable b.
+File "codegen.ml", line 147, characters 17-19:
+Warning 27: unused variable e1.
+File "codegen.ml", line 147, characters 25-27:
+Warning 27: unused variable e2.
+File "codegen.ml", line 161, characters 19-20:
+Warning 27: unused variable e.
+File "codegen.ml", line 165, characters 21-22:
+Warning 27: unused variable e.
+File "codegen.ml", line 166, characters 27-28:
+Warning 27: unused variable e.
+File "codegen.ml", line 167, characters 30-31:
+Warning 27: unused variable e.
+File "codegen.ml", line 168, characters 19-22:
+Warning 27: unused variable act.
+File "codegen.ml", line 169, characters 15-19:
+Warning 27: unused variable fdef.
+File "codegen.ml", line 192, characters 27-28:
+Warning 27: unused variable r.
+File "codegen.ml", line 244, characters 25-26:
+Warning 27: unused variable r.
+File "codegen.ml", line 362, characters 46-47:
+Warning 27: unused variable m.
+File "codegen.ml", line 362, characters 50-51:
+Warning 27: unused variable r.
+# Target: scanner.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:scanner.cmo, file:scanner.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmo scanner.ml
+# Target: facelab.cmo, tags: { package(llvm), package(llvm.analysis), byte, compile, extension:cmo, extension:ml, file:facelab.cmo, file:facelab.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o facelab.cmo facelab.ml
+# Target: ast.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, quiet }
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmx ast.ml
++ ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmx ast.ml
+File "ast.ml", line 47, characters 19-220:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Rmdr
+File "ast.ml", line 65, characters 25-504:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Noassign|MatrixLit (_, _))
+File "ast.ml", line 80, characters 25-649:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Local (_, _, _)
+# Target: matrix.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:matrix.cmx, file:matrix.ml, implem, native, ocaml, quiet }
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o matrix.cmx matrix.ml
+# Target: parser.ml.depends, tags: { package(llvm), package(llvm.analysis), extension:ml, file:parser.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules parser.ml > parser.ml.depends
+# Target: parser.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:parser.cmx, file:parser.ml, implem, native, ocaml, quiet }
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o parser.cmx parser.ml
+# Target: codegen.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:codegen.cmx, file:codegen.ml, implem, native, ocaml, quiet }
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmx codegen.ml
++ ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmx codegen.ml
+File "codegen.ml", line 51, characters 21-175:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Image|Matrix)
+File "codegen.ml", line 148, characters 10-307:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Greater|Rmdr)
+File "codegen.ml", line 141, characters 31-877:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Noassign|DoubleLit _|MatrixLit (_, _))
+File "codegen.ml", line 184, characters 12-222:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Image|Matrix|Void|String)
+File "codegen.ml", line 182, characters 8-885:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Noexpr|StringLit _|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|
+Call (_, _))
+File "codegen.ml", line 269, characters 3-579:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Rmdr
+File "codegen.ml", line 239, characters 29-3412:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Noassign
+File "codegen.ml", line 353, characters 35-374:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Image|Matrix|Void)
+File "codegen.ml", line 351, characters 31-1463:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Noexpr|Id _|Binop (_, _, _)|Unop (_, _)|Assign (_, _)|Call (_, _))
+File "codegen.ml", line 19, characters 0-8:
+Warning 33: unused open Str.
+File "codegen.ml", line 123, characters 30-31:
+Warning 27: unused variable v.
+File "codegen.ml", line 130, characters 25-26:
+Warning 27: unused variable v.
+File "codegen.ml", line 142, characters 17-18:
+Warning 27: unused variable i.
+File "codegen.ml", line 143, characters 20-21:
+Warning 27: unused variable s.
+File "codegen.ml", line 144, characters 18-19:
+Warning 27: unused variable b.
+File "codegen.ml", line 147, characters 17-19:
+Warning 27: unused variable e1.
+File "codegen.ml", line 147, characters 25-27:
+Warning 27: unused variable e2.
+File "codegen.ml", line 161, characters 19-20:
+Warning 27: unused variable e.
+File "codegen.ml", line 165, characters 21-22:
+Warning 27: unused variable e.
+File "codegen.ml", line 166, characters 27-28:
+Warning 27: unused variable e.
+File "codegen.ml", line 167, characters 30-31:
+Warning 27: unused variable e.
+File "codegen.ml", line 168, characters 19-22:
+Warning 27: unused variable act.
+File "codegen.ml", line 169, characters 15-19:
+Warning 27: unused variable fdef.
+File "codegen.ml", line 192, characters 27-28:
+Warning 27: unused variable r.
+File "codegen.ml", line 244, characters 25-26:
+Warning 27: unused variable r.
+File "codegen.ml", line 362, characters 46-47:
+Warning 27: unused variable m.
+File "codegen.ml", line 362, characters 50-51:
+Warning 27: unused variable r.
+# Target: scanner.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, quiet }
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmx scanner.ml
+# Target: facelab.cmx, tags: { package(llvm), package(llvm.analysis), compile, extension:cmx, extension:ml, file:facelab.cmx, file:facelab.ml, implem, native, ocaml, quiet }
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o facelab.cmx facelab.ml
+# Target: facelab.native, tags: { package(llvm), package(llvm.analysis), dont_link_with, extension:native, file:facelab.native, link, native, ocaml, program, quiet }
+ocamlfind ocamlopt -linkpkg -package llvm.analysis -package llvm ast.cmx matrix.cmx codegen.cmx parser.cmx scanner.cmx facelab.cmx -o facelab.native
+# Compilation successful.

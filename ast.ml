@@ -22,6 +22,7 @@ type expr =
   | Call of string * expr list
   | Noexpr
   | Noassign
+  | Bug (* debug entity, not for other use *)
 
 type stmt =
     Block of stmt list
