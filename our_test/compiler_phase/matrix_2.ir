@@ -6,17 +6,191 @@ source_filename = "MicroC"
 @fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
 @fmt_int.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
 @fmt_int.2 = private unnamed_addr constant [3 x i8] c"  \00"
-@fmt_str.3 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.4 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.5 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_int.6 = private unnamed_addr constant [2 x i8] c"\0A\00"
-@fmt_int.7 = private unnamed_addr constant [3 x i8] c"  \00"
-
-declare i32 @printf(i8*, ...)
+@fmt_int.3 = private unnamed_addr constant [1 x i8] zeroinitializer
 
 define i32 @main() {
 entry:
-  %m = alloca [4 x [3 x double]], i32 16
-  store [4 x [3 x double]] [[3 x double] [double 1.000000e+00, double 2.000000e+00, double 3.000000e+00], [3 x double] [double 4.000000e+00, double 5.000000e+00, double 6.000000e+00], [3 x double] [double 7.000000e+00, double 8.000000e+00, double 9.000000e+00], [3 x double] [double 1.000000e+01, double 1.100000e+01, double 1.200000e+01]], [4 x [3 x double]]* %m
+  %system_mat = alloca [3 x double], i32 4
+  %element_ptr = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 0
+  store double 1.000000e+00, double* %element_ptr
+  %element_ptr1 = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 1
+  store double 2.000000e+00, double* %element_ptr1
+  %element_ptr2 = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 2
+  store double 3.000000e+00, double* %element_ptr2
+  %element_ptr3 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 0
+  store double 4.000000e+00, double* %element_ptr3
+  %element_ptr4 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 1
+  store double 5.000000e+00, double* %element_ptr4
+  %element_ptr5 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 2
+  store double 6.000000e+00, double* %element_ptr5
+  %element_ptr6 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 0
+  store double 7.000000e+00, double* %element_ptr6
+  %element_ptr7 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 1
+  store double 8.000000e+00, double* %element_ptr7
+  %element_ptr8 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 2
+  store double 9.000000e+00, double* %element_ptr8
+  %element_ptr9 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 0
+  store double 1.000000e+01, double* %element_ptr9
+  %element_ptr10 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 1
+  store double 1.100000e+01, double* %element_ptr10
+  %element_ptr11 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 2
+  store double 1.200000e+01, double* %element_ptr11
+  %m = alloca [3 x double], i32 4
+  %mat_element_ptr = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 0
+  %tmp_element = load double, double* %mat_element_ptr
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element)
+  %printf12 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr13 = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 1
+  %tmp_element14 = load double, double* %mat_element_ptr13
+  %printf15 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element14)
+  %printf16 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr17 = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 2
+  %tmp_element18 = load double, double* %mat_element_ptr17
+  %printf19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element18)
+  %printf20 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf21 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %mat_element_ptr22 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 0
+  %tmp_element23 = load double, double* %mat_element_ptr22
+  %printf24 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element23)
+  %printf25 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr26 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 1
+  %tmp_element27 = load double, double* %mat_element_ptr26
+  %printf28 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element27)
+  %printf29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr30 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 2
+  %tmp_element31 = load double, double* %mat_element_ptr30
+  %printf32 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element31)
+  %printf33 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf34 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %mat_element_ptr35 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 0
+  %tmp_element36 = load double, double* %mat_element_ptr35
+  %printf37 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element36)
+  %printf38 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr39 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 1
+  %tmp_element40 = load double, double* %mat_element_ptr39
+  %printf41 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element40)
+  %printf42 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr43 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 2
+  %tmp_element44 = load double, double* %mat_element_ptr43
+  %printf45 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element44)
+  %printf46 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf47 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %mat_element_ptr48 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 0
+  %tmp_element49 = load double, double* %mat_element_ptr48
+  %printf50 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element49)
+  %printf51 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr52 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 1
+  %tmp_element53 = load double, double* %mat_element_ptr52
+  %printf54 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element53)
+  %printf55 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr56 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 2
+  %tmp_element57 = load double, double* %mat_element_ptr56
+  %printf58 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element57)
+  %printf59 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf60 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %printf61 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @fmt_int.3, i32 0, i32 0))
+  %mat_ptr_element = getelementptr [3 x double], [3 x double]* %m, i32 0, i32 0
+  %v_element_ptr = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 0
+  %tmp_element62 = load double, double* %v_element_ptr
+  store double %tmp_element62, double* %mat_ptr_element
+  %mat_ptr_element63 = getelementptr [3 x double], [3 x double]* %m, i32 0, i32 1
+  %v_element_ptr64 = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 1
+  %tmp_element65 = load double, double* %v_element_ptr64
+  store double %tmp_element65, double* %mat_ptr_element63
+  %mat_ptr_element66 = getelementptr [3 x double], [3 x double]* %m, i32 0, i32 2
+  %v_element_ptr67 = getelementptr [3 x double], [3 x double]* %system_mat, i32 0, i32 2
+  %tmp_element68 = load double, double* %v_element_ptr67
+  store double %tmp_element68, double* %mat_ptr_element66
+  %mat_ptr_element69 = getelementptr [3 x double], [3 x double]* %m, i32 1, i32 0
+  %v_element_ptr70 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 0
+  %tmp_element71 = load double, double* %v_element_ptr70
+  store double %tmp_element71, double* %mat_ptr_element69
+  %mat_ptr_element72 = getelementptr [3 x double], [3 x double]* %m, i32 1, i32 1
+  %v_element_ptr73 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 1
+  %tmp_element74 = load double, double* %v_element_ptr73
+  store double %tmp_element74, double* %mat_ptr_element72
+  %mat_ptr_element75 = getelementptr [3 x double], [3 x double]* %m, i32 1, i32 2
+  %v_element_ptr76 = getelementptr [3 x double], [3 x double]* %system_mat, i32 1, i32 2
+  %tmp_element77 = load double, double* %v_element_ptr76
+  store double %tmp_element77, double* %mat_ptr_element75
+  %mat_ptr_element78 = getelementptr [3 x double], [3 x double]* %m, i32 2, i32 0
+  %v_element_ptr79 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 0
+  %tmp_element80 = load double, double* %v_element_ptr79
+  store double %tmp_element80, double* %mat_ptr_element78
+  %mat_ptr_element81 = getelementptr [3 x double], [3 x double]* %m, i32 2, i32 1
+  %v_element_ptr82 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 1
+  %tmp_element83 = load double, double* %v_element_ptr82
+  store double %tmp_element83, double* %mat_ptr_element81
+  %mat_ptr_element84 = getelementptr [3 x double], [3 x double]* %m, i32 2, i32 2
+  %v_element_ptr85 = getelementptr [3 x double], [3 x double]* %system_mat, i32 2, i32 2
+  %tmp_element86 = load double, double* %v_element_ptr85
+  store double %tmp_element86, double* %mat_ptr_element84
+  %mat_ptr_element87 = getelementptr [3 x double], [3 x double]* %m, i32 3, i32 0
+  %v_element_ptr88 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 0
+  %tmp_element89 = load double, double* %v_element_ptr88
+  store double %tmp_element89, double* %mat_ptr_element87
+  %mat_ptr_element90 = getelementptr [3 x double], [3 x double]* %m, i32 3, i32 1
+  %v_element_ptr91 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 1
+  %tmp_element92 = load double, double* %v_element_ptr91
+  store double %tmp_element92, double* %mat_ptr_element90
+  %mat_ptr_element93 = getelementptr [3 x double], [3 x double]* %m, i32 3, i32 2
+  %v_element_ptr94 = getelementptr [3 x double], [3 x double]* %system_mat, i32 3, i32 2
+  %tmp_element95 = load double, double* %v_element_ptr94
+  store double %tmp_element95, double* %mat_ptr_element93
+  %mat_element_ptr96 = getelementptr [3 x double], [3 x double]* %m, i32 0, i32 0
+  %tmp_element97 = load double, double* %mat_element_ptr96
+  %printf98 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element97)
+  %printf99 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr100 = getelementptr [3 x double], [3 x double]* %m, i32 0, i32 1
+  %tmp_element101 = load double, double* %mat_element_ptr100
+  %printf102 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element101)
+  %printf103 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr104 = getelementptr [3 x double], [3 x double]* %m, i32 0, i32 2
+  %tmp_element105 = load double, double* %mat_element_ptr104
+  %printf106 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element105)
+  %printf107 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf108 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %mat_element_ptr109 = getelementptr [3 x double], [3 x double]* %m, i32 1, i32 0
+  %tmp_element110 = load double, double* %mat_element_ptr109
+  %printf111 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element110)
+  %printf112 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr113 = getelementptr [3 x double], [3 x double]* %m, i32 1, i32 1
+  %tmp_element114 = load double, double* %mat_element_ptr113
+  %printf115 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element114)
+  %printf116 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr117 = getelementptr [3 x double], [3 x double]* %m, i32 1, i32 2
+  %tmp_element118 = load double, double* %mat_element_ptr117
+  %printf119 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element118)
+  %printf120 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf121 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %mat_element_ptr122 = getelementptr [3 x double], [3 x double]* %m, i32 2, i32 0
+  %tmp_element123 = load double, double* %mat_element_ptr122
+  %printf124 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element123)
+  %printf125 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr126 = getelementptr [3 x double], [3 x double]* %m, i32 2, i32 1
+  %tmp_element127 = load double, double* %mat_element_ptr126
+  %printf128 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element127)
+  %printf129 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr130 = getelementptr [3 x double], [3 x double]* %m, i32 2, i32 2
+  %tmp_element131 = load double, double* %mat_element_ptr130
+  %printf132 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element131)
+  %printf133 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf134 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %mat_element_ptr135 = getelementptr [3 x double], [3 x double]* %m, i32 3, i32 0
+  %tmp_element136 = load double, double* %mat_element_ptr135
+  %printf137 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element136)
+  %printf138 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr139 = getelementptr [3 x double], [3 x double]* %m, i32 3, i32 1
+  %tmp_element140 = load double, double* %mat_element_ptr139
+  %printf141 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element140)
+  %printf142 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %mat_element_ptr143 = getelementptr [3 x double], [3 x double]* %m, i32 3, i32 2
+  %tmp_element144 = load double, double* %mat_element_ptr143
+  %printf145 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element144)
+  %printf146 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.2, i32 0, i32 0))
+  %printf147 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_int.1, i32 0, i32 0))
+  %printf148 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @fmt_int.3, i32 0, i32 0))
   ret i32 0
 }
+
+declare i32 @printf(i8*, ...)

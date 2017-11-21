@@ -5,7 +5,11 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Image | Double | Matrix | Void | String |
+type index = Beg | End | IntInd of int
+
+type index_range = Range of index * index
+
+type typ = Int | Bool | Image | Double | Matrix | Void | String | Noassign |
            (* below are auxiliary or debug entities, not for other use *)
            Sizedmat of int * int | Bug
 
@@ -20,10 +24,11 @@ type expr =
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
-  | Assign of string * expr
+  | Assign of expr * expr
+  | Index of string * (index_range * index_range)
   | Call of string * expr list
   | Noexpr
-  | Noassign
+  | NoassignExpr
   | Bug (* debug entity, not for other use *)
 
 type stmt =
@@ -75,7 +80,7 @@ let rec string_of_expr = function
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""

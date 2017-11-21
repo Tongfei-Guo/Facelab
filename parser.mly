@@ -4,7 +4,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACKET RBRACKET
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACKET RBRACKET COLON
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT REMAINDER INNERPRODUCT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN IF ELSE FOR WHILE INT DOUBLE BOOL STRING ELIF BREAK CONTINUE VOID
@@ -19,6 +19,7 @@ open Ast
 %nonassoc NOELSE
 %nonassoc ELSE
 %nonassoc ELSEIF
+%nonassoc COLON
 %right ASSIGN
 %left OR
 %left AND
@@ -40,7 +41,7 @@ program:
 
 globals_opt:
    /* nothing */ { [] }
- | globals_opt GLOBAL typ ID SEMI { ($3, $4, Noassign) :: $1 }
+ | globals_opt GLOBAL typ ID SEMI { ($3, $4, NoassignExpr) :: $1 }
  | globals_opt GLOBAL typ ID ASSIGN expr SEMI { ($3, $4, $6) :: $1 }
 decls:
    /* nothing */ { [], [] }
@@ -86,7 +87,7 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
-  | typ ID SEMI { Local($1, $2, Noassign) }
+  | typ ID SEMI { Local($1, $2, NoassignExpr) }
   | typ ID ASSIGN expr SEMI { Local($1, $2, $4) }
 
     
@@ -117,10 +118,20 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | NOT expr         { Unop(Not, $2) }
-  | ID ASSIGN expr   { Assign($1, $3) }
+  | expr ASSIGN expr   { Assign($1, $3) } /*add to semant, check here only id and matrix indexing can be assigned to */
+  | ID LBRACKET index_pair RBRACKET { Index($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
-  | LPAREN expr RPAREN { $2 }
+  | LPAREN expr RPAREN { $2 } 
 
+index_pair: 
+    index_ran COMMA index_ran { ($1, $3) }
+
+index_ran:
+    INT_LITERAL                   { Range(IntInd($1), IntInd($1)) }
+  | INT_LITERAL COLON             { Range(IntInd($1), End) }
+  | INT_LITERAL COLON INT_LITERAL { Range(IntInd($1), IntInd($3)) }
+  | COLON INT_LITERAL             { Range(Beg, IntInd($2)) }
+  | COLON                         { Range(Beg, End) }
 
 double_mat_literal: /* matrix parsing */
     LBRACKET RBRACKET { [|[| |]|], (0, 0) } /* empty matrix */

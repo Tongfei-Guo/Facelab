@@ -40,14 +40,27 @@ printf(l2);
 
 (* 1. Auxiliary definitions *)
   let context = L.global_context () in
-  let the_module = L.create_module context "MicroC"
+  let the_module = L.create_module context "MicroC" 
   and double_t = L.double_type context
   and i32_t  = L.i32_type  context 
   and i8_t   = L.i8_type   context in
   let str_t  = L.pointer_type i8_t 
   and i1_t   = L.i1_type   context
   and void_t = L.void_type context
+  and noassign_t  = L.i16_type context (* this type corresponding to A.Noassign reserved for this use only *)
   in
+
+(* declare main first, so that some of the global variables can be stored in the stack of main. Its body will be populated in later section *)
+
+  let main_name = "main" in
+  let main_define = (* main_define the "the_function" equivalent of main function *)
+    let main_formal = [| |] in (* empty array *) 
+    let main_type = L.function_type i32_t main_formal in
+    L.define_function main_name main_type the_module in 
+  let main_builder = (*  main_builder the "builder" equivalent of main function *) 
+    L.builder_at_end context (L.entry_block main_define) in
+
+
   (* AST.expr type to LLVM type conversion *)
   let ltype_of_typ = function
       A.Int -> i32_t
@@ -60,22 +73,27 @@ printf(l2);
   let typ_of_lvalue lv =
     let ltype = L.type_of lv in
     let ltype_string = L.string_of_lltype ltype in
+    let lvalue = L.string_of_llvalue lv in
     let type_len = String.length ltype_string in
     match ltype_string with
       "i32" ->  A.Int
     | "double" -> A.Double
     | "i1" -> A.Bool
-    | _ -> if Str.string_match (Str.regexp "\\[[0-9]+ x i8\\]*") ltype_string 0 
-           then A.String
-           else if Str.string_match (Str.regexp "\\[[0-9]+ x \\[[0-9]+ x double\\]\\]") ltype_string 0
-           then let beg_ind = Str.search_forward (Str.regexp "[0-9]+") ltype_string 0 in
-                let end_ind = match_end() in
-                let r = int_of_string (String.sub ltype_string beg_ind (end_ind-beg_ind)) in
-                let beg_ind = Str.search_forward (Str.regexp "[0-9]+") ltype_string end_ind in
-                let end_ind = match_end() in
-                let c = int_of_string (String.sub ltype_string beg_ind (end_ind-beg_ind)) in
-                A.Sizedmat(r, c)
-           else Bug
+    | "i16"-> A.Noassign
+    | "i8*" -> A.String
+    | _ -> try 
+             let beg_ind = Str.search_forward (Str.regexp "alloca") lvalue 0 in
+             let end_ind = match_end() in
+             let beg_ind = Str.search_forward (Str.regexp "[0-9]+") lvalue end_ind in
+             let end_ind = match_end() in
+             let c = int_of_string (String.sub lvalue beg_ind (end_ind-beg_ind)) in
+             let beg_ind = Str.search_forward (Str.regexp "[0-9]+") lvalue end_ind in
+             let end_ind = match_end() in
+             let beg_ind = Str.search_forward (Str.regexp "[0-9]+") lvalue end_ind in
+             let end_ind = match_end() in
+             let r = int_of_string (String.sub lvalue beg_ind (end_ind-beg_ind)) in
+             A.Sizedmat(r, c)
+           with Not_found -> A.Bug
   in
 (* currently not used 
   (* LLVM value to its corresponding AST.expr Literal type conversion *)
@@ -135,14 +153,63 @@ printf(l2);
     | None -> ignore (f builder) 
   in   
   
+  (* format strings *)
+  let string_format_str = L.build_global_stringptr "%s" "fmt_str" main_builder in
+  let double_format_str = L.build_global_stringptr "%f" "fmt_double" main_builder in
+  let int_format_str = L.build_global_stringptr "%d" "fmt_int" main_builder in
+  let new_line_str = L.build_global_stringptr "\n" "fmt_int" main_builder in
+  let two_space_str = L.build_global_stringptr "  " "fmt_int" main_builder in
+  let empty_str = L.build_global_stringptr "" "fmt_int" main_builder in
+
+  (* matrix auxiliaries *)
   (* matrix literal building helper *)
-  let build_mat_lit (m, (r,c)) = 
-    let element_type = L.double_type context in
-    let row_type = L.array_type element_type c in
-    let add_element row element = Array.append row [|(L.const_float element_type element)|] in
-    let add_row rows row = Array.append rows [|(L.const_array element_type (Array.fold_left add_element [| |] row))|] in
-    L.const_array row_type (Array.fold_left add_row [| |] m)
+  let build_mat_lit (m, (r,c)) builder= 
+    let mat = L.build_array_alloca (L.array_type double_t c) (L.const_int i32_t r) "system_mat" builder in
+    (for i = 0 to (r-1) do
+      for j = 0 to (c-1) do
+        let element_ptr = L.build_gep mat [|L.const_int i32_t i; L.const_int i32_t j|] "element_ptr" builder in
+        ignore(L.build_store (L.const_float double_t m.(i).(j)) element_ptr builder)
+      done
+    done); mat
   in
+
+  (* assign a const_array to an array on the stack *)
+  let mat_assign mat x_low x_high y_low y_high v builder= 
+    match (x_low <= x_high) && (y_low <= y_high) with
+      true ->
+        for i = x_low to x_high do
+          for j = y_low to y_high do
+            let mat_element_ptr = L.build_gep mat [|L.const_int i32_t i; L.const_int i32_t j|] "mat_ptr_element" builder in
+            let v_element_ptr = L.build_gep v [|L.const_int i32_t (i-x_low); L.const_int i32_t (j-y_low)|] "v_element_ptr" builder in
+            let tmp_element = L.build_load v_element_ptr "tmp_element" builder in
+            ignore(L.build_store tmp_element mat_element_ptr builder)
+          done
+        done
+    | false -> ()
+  in 
+  (* print a const_array *)
+  let mat_print mat r c builder=
+    (for i = 0 to (r-1) do
+      (for j = 0 to (c-1) do
+        let mat_element_ptr = L.build_gep mat [|L.const_int i32_t i; L.const_int i32_t j|] "mat_element_ptr" builder in
+        let tmp_element = L.build_load mat_element_ptr "tmp_element" builder in
+        ignore(L.build_call printf_func [| double_format_str ; tmp_element|] "printf" builder);
+        ignore(L.build_call printf_func [| string_format_str ; two_space_str |] "printf" builder)
+      done);
+      ignore(L.build_call printf_func [| string_format_str ; new_line_str |] "printf" builder)
+    done);L.build_call printf_func [| string_format_str ; empty_str |] "printf" builder
+  in
+  (* convert A.index type to corresponding integral index in a matrix of size r by c *)
+  let index_converter d ind r c= 
+    match ind with
+      A.Beg -> 0
+    | A.End -> (match d with
+                 "x" -> r-1
+               | "y" -> c-1)
+    | A.IntInd(i) -> i
+  in
+
+
 
 (* 2. Type inference *)
   let type_infer globals fdecl fdecl_m expression = (* takes an expression and return its type *)
@@ -190,7 +257,6 @@ printf(l2);
 	  (match op with
 	    A.Neg     -> A.Int
           | A.Not     -> A.Bool)
-      | A.Assign (s, e) -> lookup s
       | A.Call ("printf", [e]) -> A.Int
       | A.Call ("print_int", [e]) -> A.Int
       | A.Call (f, act) ->
@@ -202,27 +268,27 @@ printf(l2);
 
 
 
-
-(* 3. Global variable declarations *)
-  let global_vars = 
+(* 3. global variable declarations *)
+  let global_vars =
     let global_var m (t, n, v) =
+      let typ_stored = ref t in
       let init typ value = (* init for globals *)
         match value with 
-          A.Noassign -> 
+          A.NoassignExpr -> 
             (match typ with
               A.Int -> L.const_int i32_t 0
             | A.Double -> L.const_float double_t 0.
             (* no global string as mentioned earlier *)
             | A.Bool -> L.const_int i1_t 0
-            | A.Matrix -> build_mat_lit ([||], (0,0)) )
+            | A.Matrix -> typ_stored := A.Sizedmat(0,0);build_mat_lit ([||], (0,0)) main_builder )
         | A.IntLit i -> L.const_int i32_t i
         | A.DoubleLit d -> L.const_float double_t d
         | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
-        | A.MatrixLit (m, (r, c)) -> build_mat_lit (m, (r,c)) 
+        | A.MatrixLit (m, (r, c)) -> typ_stored := A.Sizedmat(r,c);build_mat_lit (m, (r,c)) main_builder
       in
-      H.add m n (L.define_global n (init t v) the_module);m in
-    List.fold_left global_var (H.create (List.length globals)) globals in
-
+      H.add m n (!typ_stored,(L.define_global n (init t v) the_module));m in
+    List.fold_left global_var (H.create (List.length globals)) globals
+  in
 
 
 
@@ -251,26 +317,26 @@ printf(l2);
 (* 5. Statement construction *)
   (* part of code for generating statement, which used both in main function and function definition *)
   let rec build_stmt (fdecl, function_ptr) local_vars builder stmt=
-  (* format strings *)
-    let string_format_str = L.build_global_stringptr "%s" "fmt_str" builder in
-    let double_format_str = L.build_global_stringptr "%f" "fmt_double" builder in
-    let int_format_str = L.build_global_stringptr "%d" "fmt_int" builder in
-    let new_line_str = L.build_global_stringptr "\n" "fmt_int" builder in
-    let two_space_str = L.build_global_stringptr "  " "fmt_int" builder in
+
   (* Return the value for a variable or formal argument *)
     let lookup n = try H.find local_vars n
                    with Not_found -> H.find global_vars n 
     in
+
   (* Construct code for an expression; return a tuple containing its value in llvm and its value in ocaml (stored in AST.expr type), so that later we can perform matrix arithmetics in ocaml instead of in LLVM which is essential C, and has no support on matrix or matrix arithmetics *)
     let rec expr builder e = match e with
         A.IntLit i -> L.const_int i32_t i
       | A.DoubleLit d -> L.const_float double_t d
-      | A.StringLit s -> L.build_global_string s "system_string" builder
+      | A.StringLit s -> L.build_global_stringptr s "system_string" builder
       | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
-      | A.MatrixLit (m, (r, c)) -> build_mat_lit (m, (r,c)) (* matrix is represented as arrays of arrays of double in LLVM *) 
+      | A.MatrixLit (m, (r, c)) -> build_mat_lit (m, (r,c)) builder(* matrix is represented as arrays of arrays of double in LLVM *) 
       | A.Noexpr -> L.const_int i32_t 0
-      | A.Noassign -> L.const_int i32_t 0
-      | A.Id s -> L.build_load (lookup s) s builder
+      | A.NoassignExpr -> L.const_int noassign_t 0
+      | A.Id s ->
+          let (t, ptr) = lookup s in
+          (match t with
+            A.Sizedmat(r,c) -> ptr
+          | _-> L.build_load ptr s builder)
       | A.Binop (e1, op, e2) -> 
           let exp1 = expr builder e1
           and exp2 = expr builder e2 in
@@ -308,32 +374,31 @@ printf(l2);
 	  (match op with
 	    A.Neg     -> L.build_neg
           | A.Not     -> L.build_not) e' "tmp" builder
-      | A.Assign (s, e) -> let e' = expr builder e in
-	                   ignore (L.build_store e' (lookup s) builder); e'
+      | A.Assign (e1, e2) -> 
+          let value = expr builder e2 in
+          (match e1 with
+            A.Id s -> 
+              let (t, ptr) = lookup s in
+              ignore(L.build_store value ptr builder);
+          | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
+              let (t,ptr) = lookup s in
+              let A.Sizedmat(r, c) = t in
+              mat_assign ptr (index_converter "x" x_low r c) (index_converter "x" x_high r c) 
+                             (index_converter "y" y_low r c) (index_converter "y" y_high r c) value builder
+          );value
+            
+      | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
+          let (t,ptr) = lookup s in
+          let A.Sizedmat(r, c) = t in
+          ptr
       | A.Call ("printf", [e]) -> 
-        let exp1 = expr builder e in 
-        (match (typ_of_lvalue exp1) with
-          A.Double -> L.build_call printf_func [| double_format_str ; 
-                      (exp1) |] "printf" builder
-        | A.Int -> L.build_call printf_func [| int_format_str ; 
-                     (exp1) |] "printf" builder
-        | A.Sizedmat(r, c) -> 
-            let temp_mat = L.build_array_alloca (L.array_type (L.array_type double_t c) r) (L.const_int i32_t 16) "temp_mat" builder in (*this seems to be the only way to get a pointer to mat since there is no address & operator in ocaml LLVM *)
-            let temp_mat_load = L.build_store exp1 temp_mat builder in 
-(for i = 0 to (r-1) do
-              ignore(L.build_call printf_func [| string_format_str ; new_line_str |] "printf" builder);
-              for j = 0 to (c-1) do
-                let tmp_ptr = L.build_gep temp_mat [|L.const_int i32_t i; L.const_int i32_t j|] "tmp_ptr" builder in
-                let tmp_v = L.build_load tmp_ptr "tmp_v" builder in
-                ignore(L.build_call printf_func [| double_format_str ; tmp_v |] "printf" builder);
-                ignore(L.build_call printf_func [| string_format_str ; two_space_str |] "printf" builder);
-              done
-            done);
-
-            L.build_call printf_func [| string_format_str ; new_line_str |] "printf" builder
-        | _ -> L.build_call printf_func [| string_format_str ; 
-                      (exp1) |] "printf" builder
-        )
+          let exp1 = expr builder e in 
+          (match (typ_of_lvalue exp1) with
+            A.Double -> L.build_call printf_func [| double_format_str ; (exp1) |] "printf" builder
+          | A.Int -> L.build_call printf_func [| int_format_str ; (exp1) |] "printf" builder
+          | A.Sizedmat(r, c) -> mat_print exp1 r c builder
+          | _ -> L.build_call printf_func [| string_format_str ; (exp1) |] "printf" builder
+          )
       | A.Call (f, act) ->
          let (fdef, fdecl) = H.find function_decls f in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
@@ -382,36 +447,59 @@ printf(l2);
 	  L.builder_at_end context merge_bb
 
       | A.For (e1, e2, e3, body) -> build_stmt (fdecl, function_ptr) local_vars builder ( A.Block [A.Expr e1 ; A.While (e2, A.Block [body ; A.Expr e3]) ] )
-      | A.Local (t, n, v) ->  let v' = expr builder v in
-                              let init typ value = (* init for globals *)
-                               (match typ with
-                                 A.Matrix ->
-                                   let init_local init_t size init_v = 
-                                     let local = L.build_array_alloca init_t size n builder in   
-                                     H.add local_vars n local;
-                                     ignore(L.build_store init_v local builder)
-                                   in
-                                   (match value with
-                                     A.Noassign -> init_local (L.array_type (L.array_type double_t 0) 0) (L.const_int i32_t 0) (build_mat_lit ([||], (0,0)))
-                                   | A.MatrixLit (m, (r, c)) -> init_local (L.array_type (L.array_type double_t c) r) (L.const_int i32_t 0) (build_mat_lit (m,(r,c))) )
-                               | _ -> 
-                                   let local = L.build_alloca (ltype_of_typ typ) n builder in   
-                                   H.add local_vars n local;
-                                   let init_v = 
-                                     (match value with 
-                                       A.Noassign -> 
-                                         (match typ with
-                                           A.Int -> L.const_int i32_t 0
-                                         | A.Double -> L.const_float double_t 0.
-                                         | A.String -> L.build_global_string "" "system_string" builder (*empty string*)
-                                         | A.Bool -> L.const_int i1_t 0)
-                                     | _ -> v')
-                                   in
-                                   ignore(L.build_store init_v local builder)
-                               );
-                             in init t v; builder)
+      | A.Local (t, n, v) -> let v' = expr builder v in
+                             let typ = typ_of_lvalue v' in
+                             (match t with 
+                               A.Matrix -> 
+                                 let init_mat r c init_v typ= 
+                                   let local = L.build_array_alloca (L.array_type double_t c) (L.const_int i32_t r) n builder in
+                                   mat_print init_v r c builder;mat_assign local 0 (r-1) 0 (c-1) init_v builder;
+                                   H.add local_vars n (typ,local)
+                                 in
+                                 (match typ with
+                                   A.Noassign -> init_mat 0 0 (build_mat_lit ([||],(0,0)) builder) (A.Sizedmat(0,0))
+                                 | A.Sizedmat(r, c) -> init_mat r c v' typ)
+                             | _ -> 
+                                 let local = L.build_alloca (ltype_of_typ t) n builder in   
+                                 H.add local_vars n (t,local);
+                                 let init_v = 
+                                   (match typ with 
+                                     A.Noassign -> 
+                                       (match t with
+                                         A.Int -> L.const_int i32_t 0
+                                       | A.Double -> L.const_float double_t 0.
+                                       | A.String -> L.build_global_stringptr "" "system_string" builder (*empty string*)
+                                       | A.Bool -> L.const_int i1_t 0)
+                                   | _ -> v')
+                                 in
+                                 ignore(L.build_store init_v local builder)
+                             ); builder)
   in
 
+  
+
+(* 7. Main function body construction *)
+
+  (* build main function *)
+  let build_main main_body =
+
+
+
+ (* continue with building main function *)
+    let main_fdecl = {
+      A.typ = A.Int;
+      A.fname = main_name;
+      A.formals = [];
+      A.body = main_body;
+      } in
+      
+    let local_vars = H.create 1000 in
+      
+    let main_builder = build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body) in
+
+    (* Add a return if the last block falls off the end *)
+
+    add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
 
 
 
@@ -430,7 +518,7 @@ printf(l2);
       let add_formal m (t, n) p = L.set_value_name n p;(* p is a value not a ptr? *) (*!! set_value_name returns () *)
 	let local = L.build_alloca (ltype_of_typ t) n builder in
 	ignore (L.build_store p local builder);(* local is a ptr? *)
-	H.add m n local;m in
+	H.add m n (t,local);m in
       List.fold_left2 add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals (Array.to_list (L.params the_function)) in
 
     (* Build the code for each statement in the function *)
@@ -444,35 +532,6 @@ printf(l2);
 
 
 
-(* 7. Main function body construction *)
-  (* build main function *)
-  let build_main main_body =
-    let main_name = "main" in
-    let main_define = (* main_define the "the_function" equivalent of main function *)
-      let main_formal = [| |] (* empty array *)
-      in let main_type = L.function_type i32_t main_formal in
-      L.define_function main_name main_type the_module in 
-
-    let main_builder = (*  main_builder the "builder" equivalent of main function *) 
-      L.builder_at_end context (L.entry_block main_define) in
-      
-    let main_fdecl = {
-      A.typ = A.Int;
-      A.fname = main_name;
-      A.formals = [];
-      A.body = main_body;
-      } in
-      
-    let local_vars = H.create 1000 in
-      
-    let main_builder = build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body) in
-
-    (* Add a return if the last block falls off the end *)
-
-    add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
-
-
-
 (* 8. Combine all *)
-  List.iter build_function_body functions; build_main main_stmt; 
+  build_main main_stmt; List.iter build_function_body functions; 
   the_module 
