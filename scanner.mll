@@ -22,7 +22,7 @@ rule token = parse
 | '='      { ASSIGN }
 | '$'      { FILTER }
 | ':'      { COLON }
-| ".*"     { INNERPRODUCT }
+| ".*"     { MATPRODUCT }
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }

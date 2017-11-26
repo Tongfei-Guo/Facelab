@@ -23,7 +23,13 @@ let translate (globals, functions, main_stmt) =
 
 (* sample code structure *)
 (* 1. default value: int:0 ; double:0. ; bool:true ; string:"" ; matrix:[] *)
-(*
+(* 2. matrix operation:
+      i). matrix number element-wise : matrix op number | number op matrix  (op : + - * / )
+      ii). matrix product : matrix .* matrix 
+      iii). matrix indexing : matrix[x1, y1] | matrix[x1:x2, y1:y2] | matrix[x1:, y1] | matrix[:, y1] | matrix[:, :y2] | etc. basically the syntax of Matlab.
+      iv). matrix assignment : m1 = m2[x1:x2, y1:y2] | m1[x:, :y] = m2[x1:x2, y1:y2] | etc.
+
+
 global int g1 = 2;
 global double g2; //default value 0.
 
@@ -297,9 +303,104 @@ printf(l2);
                | "y" -> L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
     | A.IntInd(i) -> L.const_int i32_t i
   in
+ (* matrix matrix element wise operation *)
+  let mat_mat_element_wise m1_mat m2_mat operator function_ptr builder=
+    let m1 = L.build_load (L.build_struct_gep m1_mat 0 "m_mat" !builder) "mat_mat" !builder in
+    let r = L.build_load (L.build_struct_gep m1_mat 1 "m_r" !builder) "r_mat" !builder in
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    let m2 = L.build_load (L.build_struct_gep m2_mat 0 "m_mat" !builder) "mat_v" !builder in
+    let result_mat = build_mat_init r c builder in
+    let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let m1_element_ptr = access m1 r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m1_element = L.build_load m1_element_ptr "tmp_element" !builder in
+        let m2_element_ptr = access m2 r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m2_element = L.build_load m2_element_ptr "tmp_element" !builder in
+        let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let tmp_element = operator m1_element m2_element "tmp_element" !builder in
+        ignore(L.build_store tmp_element result_element_ptr !builder) in
+      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
+  in
 
-
-
+  (* matrix number element wise operation *)
+  let mat_num_element_wise m1_mat num operator function_ptr builder=
+    let m1 = L.build_load (L.build_struct_gep m1_mat 0 "m_mat" !builder) "mat_mat" !builder in
+    let r = L.build_load (L.build_struct_gep m1_mat 1 "m_r" !builder) "r_mat" !builder in
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    let result_mat = build_mat_init r c builder in
+    let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let m1_element_ptr = access m1 r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m1_element = L.build_load m1_element_ptr "tmp_element" !builder in
+        let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let tmp_element = operator m1_element num "tmp_element" !builder in
+        ignore(L.build_store tmp_element result_element_ptr !builder) in
+      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
+  in
+  
+  (*matrix product*)
+  let mat_mat_product m1_mat m2_mat function_ptr builder=
+    let m1 = L.build_load (L.build_struct_gep m1_mat 0 "m_mat" !builder) "mat_mat" !builder in
+    let m2 = L.build_load (L.build_struct_gep m2_mat 0 "m_mat" !builder) "mat_v" !builder in
+    let r = L.build_load (L.build_struct_gep m1_mat 1 "m_r" !builder) "r_mat" !builder in
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c = L.build_load (L.build_struct_gep m2_mat 2 "m_c" !builder) "c_mat" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    let l = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
+    let l_high = L.build_sub l (L.const_int i32_t 1) "tmp" !builder in
+    let result_mat = build_mat_init r c builder in
+    let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder =
+        let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let tmp_element = L.build_alloca double_t "tmp_element" !builder in
+        let k = L.build_alloca i32_t "k" !builder in
+        let init_k builder = L.build_store (L.const_int i32_t 0) k !builder in
+        let predicate_k builder = L.build_icmp L.Icmp.Sle (L.build_load k "k_v" !builder) l_high "bool_val" !builder in
+        let update_k builder = ignore(L.build_store (L.build_add (L.build_load k "k_v" !builder) (L.const_int i32_t 1) "tmp" !builder) k !builder);builder in
+        let body_stmt_k builder = 
+          let m1_element_ptr = access m1 r l (L.build_load i "i_v" !builder) (L.build_load k "k_v" !builder) builder in
+          let m1_element = L.build_load m1_element_ptr "tmp_element" !builder in
+          let m2_element_ptr = access m2 l c (L.build_load k "k_v" !builder) (L.build_load j "j_v" !builder) builder in
+          let m2_element = L.build_load m2_element_ptr "tmp_element" !builder in
+          ignore(L.build_store (L.build_fadd (L.build_fmul m1_element m2_element "tmp" !builder) (L.build_load tmp_element "tmp" !builder) "tmp" !builder) tmp_element !builder) in
+        builder := !(llvm_for function_ptr builder (init_k, predicate_k, update_k, body_stmt_k));
+        ignore(L.build_store (L.build_load tmp_element "tmp" !builder) result_element_ptr !builder) in
+      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
+  in
 (* 2. Type inference *)
   let type_infer globals fdecl fdecl_m expression = (* takes an expression and return its type *)
     (* build global and local variable type table, so in case there are variables in the return statement, we can infer on return type by infer on the type of those variables*)
@@ -447,34 +548,52 @@ printf(l2);
       | A.Binop (e1, op, e2) -> 
           let exp1 = expr builder e1
           and exp2 = expr builder e2 in
-          let typ1 = L.string_of_lltype (L.type_of exp1) 
-          and typ2 = L.string_of_lltype (L.type_of exp2) in 
-          let build_op_by_type opf opi = (match (typ1, typ2) with
-              ("double", "double") -> opf
-            | ("i32", "i32") -> opi
-            | ("double", "i32") ->
-                (fun e1 e2 n bdr -> let e2' = L.build_sitofp e2 double_t n bdr in
-                                      opf e1 e2' "tmp" bdr)
-            | ("i32", "double") ->
-                (fun e1 e2 n bdr -> let e1' = L.build_sitofp e1 double_t n bdr in
-                                      opf e1' e2 "tmp" bdr)
-            | _ -> raise (Failure "not a valid type") ) 
-          in
-          (match op with
-            A.Add     -> build_op_by_type L.build_fadd L.build_add
-          | A.Sub     -> build_op_by_type L.build_fsub L.build_sub
-          | A.Mult    -> build_op_by_type L.build_fmul L.build_mul
-          | A.Div     -> build_op_by_type L.build_fdiv L.build_sdiv
-          | A.Rmdr    -> L.build_srem
-	  | A.And     -> L.build_and
-	  | A.Or      -> L.build_or
-	  | A.Equal   -> L.build_icmp L.Icmp.Eq
-	  | A.Neq     -> L.build_icmp L.Icmp.Ne
-	  | A.Less    -> L.build_icmp L.Icmp.Slt
-	  | A.Leq     -> L.build_icmp L.Icmp.Sle
-	  | A.Greater -> L.build_icmp L.Icmp.Sgt
-	  | A.Geq     -> L.build_icmp L.Icmp.Sge
-	  ) exp1 exp2 "tmp" !builder
+          (match (is_matrix exp1, is_matrix exp2) with
+            (false, false)->
+              (let typ1 = L.string_of_lltype (L.type_of exp1) 
+              and typ2 = L.string_of_lltype (L.type_of exp2) in 
+              let build_op_by_type opf opi = (match (typ1, typ2) with
+                  ("double", "double") -> opf
+                | ("i32", "i32") -> opi
+                | ("double", "i32") ->
+                    (fun e1 e2 n bdr -> let e2' = L.build_sitofp e2 double_t n bdr in
+                                         opf e1 e2' "tmp" bdr)
+                | ("i32", "double") ->
+                    (fun e1 e2 n bdr -> let e1' = L.build_sitofp e1 double_t n bdr in
+                                         opf e1' e2 "tmp" bdr)
+                | _ -> raise (Failure "not a valid type") ) 
+              in
+              (match op with
+                A.Add     -> build_op_by_type L.build_fadd L.build_add
+              | A.Sub     -> build_op_by_type L.build_fsub L.build_sub
+              | A.Mult    -> build_op_by_type L.build_fmul L.build_mul
+              | A.Div     -> build_op_by_type L.build_fdiv L.build_sdiv
+              | A.Rmdr    -> L.build_srem
+	      | A.And     -> L.build_and
+	      | A.Or      -> L.build_or
+	      | A.Equal   -> L.build_icmp L.Icmp.Eq
+	      | A.Neq     -> L.build_icmp L.Icmp.Ne
+	      | A.Less    -> L.build_icmp L.Icmp.Slt
+	      | A.Leq     -> L.build_icmp L.Icmp.Sle
+	      | A.Greater -> L.build_icmp L.Icmp.Sgt
+	      | A.Geq     -> L.build_icmp L.Icmp.Sge
+	      ) exp1 exp2 "tmp" !builder)
+          |_ -> (* matrix operation *)
+            (match op with
+              A.Matprod -> mat_mat_product exp1 exp2 function_ptr builder
+            | _ ->
+                let operator = 
+                  (match op with
+                    A.Add     -> L.build_fadd 
+                  | A.Sub     -> L.build_fsub 
+                  | A.Mult    -> L.build_fmul 
+                  | A.Div     -> L.build_fdiv
+                  )
+                in
+                (match (is_matrix exp1, is_matrix exp2) with
+                  (true, true) -> mat_mat_element_wise exp1 exp2 operator function_ptr builder
+                | (true, false) -> mat_num_element_wise exp1 exp2 operator function_ptr builder
+                | (false, true) -> mat_num_element_wise exp2 exp1 operator function_ptr builder)))
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
 	  (match op with

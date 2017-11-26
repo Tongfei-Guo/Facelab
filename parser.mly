@@ -5,7 +5,7 @@ open Ast
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACKET RBRACKET COLON
-%token PLUS MINUS TIMES DIVIDE ASSIGN NOT REMAINDER INNERPRODUCT
+%token PLUS MINUS TIMES DIVIDE ASSIGN NOT REMAINDER MATPRODUCT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN IF ELSE FOR WHILE INT DOUBLE BOOL STRING ELIF BREAK CONTINUE VOID
 %token FUNCTION MATRIX IMAGE 
@@ -26,7 +26,7 @@ open Ast
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE REMAINDER
+%left TIMES DIVIDE REMAINDER MATPRODUCT
 %left FILTER 
 %right NOT NEG
 %left SEMI
@@ -107,6 +107,7 @@ expr:
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
+  | expr MATPRODUCT expr { Binop($1, Matprod, $3) }
   | expr REMAINDER expr{ Binop($1, Rmdr, $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
   | expr NEQ    expr { Binop($1, Neq,   $3) }
