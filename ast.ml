@@ -9,9 +9,9 @@ type index = Beg | End | IntInd of int
 
 type index_range = Range of index * index
 
-type typ = Int | Bool | Image | Double | Matrix | Void | String | Noassign |
+type typ = Int | Bool | Image | Double | Matrix | Void | String |
            (* below are auxiliary or debug entities, not for other use *)
-           Sizedmat of int * int | Bug
+           Bug
 
 type bind = typ * string
 
@@ -28,7 +28,7 @@ type expr =
   | Index of string * (index_range * index_range)
   | Call of string * expr list
   | Noexpr
-  | NoassignExpr
+  | Noassign
   | Bug (* debug entity, not for other use *)
 
 type stmt =

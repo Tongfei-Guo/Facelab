@@ -41,7 +41,7 @@ program:
 
 globals_opt:
    /* nothing */ { [] }
- | globals_opt GLOBAL typ ID SEMI { ($3, $4, NoassignExpr) :: $1 }
+ | globals_opt GLOBAL typ ID SEMI { ($3, $4, Noassign) :: $1 }
  | globals_opt GLOBAL typ ID ASSIGN expr SEMI { ($3, $4, $6) :: $1 }
 decls:
    /* nothing */ { [], [] }
@@ -87,7 +87,7 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
-  | typ ID SEMI { Local($1, $2, NoassignExpr) }
+  | typ ID SEMI { Local($1, $2, Noassign) }
   | typ ID ASSIGN expr SEMI { Local($1, $2, $4) }
 
     
