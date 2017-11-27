@@ -474,7 +474,7 @@ printf(l2);
 
 
 
-(* 3. global variable declarations *)
+(* 2. global variable declarations *)
   let global_vars =
     let global_var m (t, n, v) =
       (match t with
@@ -512,7 +512,7 @@ printf(l2);
 
 
 
-(* 5. Statement construction *)
+(* 3. Statement construction *)
   (* part of code for generating statement, which used both in main function and function definition *)
   let rec build_stmt (fdecl, function_ptr) local_vars builder stmt=
 
@@ -745,8 +745,7 @@ printf(l2);
 
 
 
-(* 7. User-defined function body construction *)
-(* in this section, we will parse through each user-defined function one by one, build on the instruction for each function in system_function first, and then we can infer on its return type. Next we define the user-function, and move all blocks (code) from system_function to our user-defined function *)
+(* 4. User-defined function *)
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
     let formal_types = 
@@ -756,7 +755,7 @@ printf(l2);
         | _ -> ltype_of_typ t
       in
       Array.of_list (List.map f fdecl.A.formals) in
-
+     (* User-defined function body construction *)
     let body_building function_ptr = 
       let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
       (* imagine entry_block returns a block (i.e. {block} ), and builder_at_end enables adding instructions at the end of the block??*)
@@ -788,10 +787,10 @@ printf(l2);
           A.Void -> L.build_ret_void
         | t -> L.build_ret (L.const_int (ltype_of_typ t) 0));
     in
-    (* temporary function to store code *)
+    (* temporary function to go through code once, so that we can do return type inference *)
     let system_function = L.define_function "system_function" (L.function_type void_t formal_types) the_module in
     body_building system_function;
-    (* 4. User-defined function declarations *)
+    (* User-defined function declarations *)
     let name = fdecl.A.fname in
     let return_type = !current_return in
     let ftype = L.function_type return_type formal_types in
@@ -801,7 +800,7 @@ printf(l2);
     body_building function_decl;
     L.delete_function system_function (*for some unknown reason, it seems that deleting this auxiliary function would trigger stack protector and segment fault, so we have to let it be *)
   in
-(* 6. Main function body construction *)
+(* 5. Main function body construction *)
 
   (* build main function *)
   let build_main main_body =
@@ -824,6 +823,6 @@ printf(l2);
     add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
 
 
-(* 8. Combine all *)
+(* 6. Combine all *)
   List.iter build_function_body functions; build_main main_stmt;  
   the_module 
