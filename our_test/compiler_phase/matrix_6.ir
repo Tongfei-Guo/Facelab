@@ -503,6 +503,8 @@ merge301:                                         ; preds = %while261
 
 declare i32 @printf(i8*, ...)
 
+declare void @system_function(%matrix_t*)
+
 define void @f(%matrix_t*) {
 entry:
   %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1

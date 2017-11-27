@@ -313,5 +313,8 @@ L.build_call printf_func [| string_format_str ; two_space_str |] "printf" builde
                              ); builder
   in
 
+(match (is_matrix e') with
+               true -> current_return := L.pointer_type matrix_t
+             | false ->
 
   

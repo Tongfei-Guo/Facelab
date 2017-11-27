@@ -68,6 +68,8 @@ printf(l2);
   let main_builder = ref (*  main_builder the "builder" equivalent of main function *) 
     (L.builder_at_end context (L.entry_block main_define)) in
 
+  let function_decls = H.create (List.length functions) in 
+  let current_return = ref void_t in (* will be used in user-function construction, to stored the lltype of last return expression encountered in a function body*)
   
   
   (* AST.expr type to LLVM type conversion *)
@@ -80,14 +82,20 @@ printf(l2);
     | A.Matrix -> matrix_t
   in
 
-  let typ_of_lvalue lv =
-    let ltype_string = L.string_of_lltype (L.type_of lv) in
+  let type_of_lltype typ =
+    let ltype_string = L.string_of_lltype typ in
     match ltype_string with
-      "i32" ->  A.Int
+    | "void" -> A.Void
+    | "i32" ->  A.Int
     | "double" -> A.Double
     | "i1" -> A.Bool
     | "i8*" -> A.String
     | "%matrix_t*" -> A.Matrix
+  in
+  
+  let typ_of_lvalue lv =
+    let lltype = L.type_of lv in
+    type_of_lltype lltype
   in
 
   let is_matrix ptr = 
@@ -144,6 +152,7 @@ printf(l2);
            else Bug
   in
   *)
+  
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
@@ -242,8 +251,21 @@ printf(l2);
     let m_r = L.build_struct_gep m 1 "m_r" !builder in
     ignore(L.build_store r m_r !builder);
     let m_c = L.build_struct_gep m 2 "m_c" !builder in
-    ignore(L.build_store c m_c !builder); m
+    ignore(L.build_store c m_c !builder);m
   in
+  
+  let heap_build_mat_init r c builder =
+    let size = L.build_mul r c "size" !builder in
+    let mat = L.build_array_malloc double_t size "system_mat" !builder in
+    let m = L.build_malloc matrix_t "m" !builder in
+    let m_mat = L.build_struct_gep m 0 "m_mat" !builder in
+    ignore(L.build_store mat m_mat !builder);
+    let m_r = L.build_struct_gep m 1 "m_r" !builder in
+    ignore(L.build_store r m_r !builder);
+    let m_c = L.build_struct_gep m 2 "m_c" !builder in
+    ignore(L.build_store c m_c !builder);m
+  in
+  
   (* assign an array to an array on the stack *)
   let mat_assign m_mat x_low x_high y_low y_high v_mat v_x_low v_y_low function_ptr builder =
     let mat = L.build_load (L.build_struct_gep m_mat 0 "m_mat" !builder) "mat_mat" !builder in
@@ -449,61 +471,6 @@ printf(l2);
       llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
     llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i); result_mat
   in
-(* 2. Type inference *)
-  let type_infer globals fdecl fdecl_m expression = (* takes an expression and return its type *)
-    (* build global and local variable type table, so in case there are variables in the return statement, we can infer on return type by infer on the type of those variables*)
-    let global_vars_typ_table = 
-      let global_var m (t, n, v) = H.add m n t;m in
-      List.fold_left global_var (H.create (List.length globals)) globals in
-    let local_vars_typ_table =
-      let add_formal m (t, n) = H.add m n t;m in
-      let add_local m (t, n) = H.add m n t;m in
-      let rec local_stmt_finder local_expr stmt = match stmt with (* find return stmt in the function body and give back the expr that's being returned*)
-	  A.Block sl -> List.fold_left local_stmt_finder local_expr sl
-        | A.Local (t, n, v) -> (t, n)::local_expr
-        | _ -> local_expr
-      in
-      let local_list = local_stmt_finder [] (A.Block fdecl.A.body) in
-      let formals = List.fold_left add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals in
-      List.fold_left add_local formals local_list 
-    in
-    
-    let lookup n = try H.find local_vars_typ_table n
-                   with Not_found -> H.find global_vars_typ_table n
-    in
-    let type_infer_aux1 expr = match expr with  
-        A.IntLit i -> A.Int
-      | A.StringLit s -> A.String
-      | A.BoolLit b -> A.Bool
-      | A.Noexpr -> A.Void (* void type return *)
-      | A.Id s -> lookup s 
-      | A.Binop (e1, op, e2) ->
-          (match op with
-	    A.Add     -> A.Int
-	  | A.Sub     -> A.Int
-	  | A.Mult    -> A.Int
-          | A.Div     -> A.Int
-	  | A.And     -> A.Bool
-	  | A.Or      -> A.Bool
-	  | A.Equal   -> A.Bool
-	  | A.Neq     -> A.Bool
-	  | A.Less    -> A.Bool
-	  | A.Leq     -> A.Bool
-	  | A.Geq     -> A.Bool
-	  ) 
-      | A.Unop(op, e) ->
-	  (match op with
-	    A.Neg     -> A.Int
-          | A.Not     -> A.Bool)
-      | A.Call ("printf", [e]) -> A.Int
-      | A.Call ("print_int", [e]) -> A.Int
-      | A.Call (f, act) ->
-          let (fdef, fdecl) = H.find fdecl_m f in
-          fdecl.A.typ
-    in 
-    type_infer_aux1 expression
-  in
-
 
 
 
@@ -541,31 +508,6 @@ printf(l2);
   in
 
 
-
-(* 4. User-defined function declarations *)
-  (* Define each function (arguments and return type) so we can call it *)
-  let function_decls =(* its a map; "functions" is a list of func_decl type in AST *)
-    let function_decl m fdecl =
-      let name = fdecl.A.fname
-      and formal_types = 
-        let f(t,_) =
-          match t with
-            A.Matrix -> L.pointer_type matrix_t
-          | _ -> ltype_of_typ t
-        in
-        Array.of_list (List.map f fdecl.A.formals) in
-
-      let rec return_stmt_finder ret_expr stmt = match stmt with (* find return stmt in the function body and give back the expr that's being returned*)
-	  A.Block sl -> List.fold_left return_stmt_finder ret_expr sl
-        | A.Return e -> e::ret_expr
-        | _ -> ret_expr
-      in
-      let return_expr = List.hd (return_stmt_finder [] (A.Block fdecl.A.body)) in
-      let return_type = type_infer globals fdecl m return_expr in
-      let ftype = L.function_type (ltype_of_typ return_type) formal_types in
-      ignore(fdecl.A.typ <- return_type); H.add m name (L.define_function name ftype the_module, fdecl);m in
-    List.fold_left function_decl (H.create (List.length functions)) functions in
-  
 
 
 
@@ -710,9 +652,23 @@ printf(l2);
       | A.Call (f, act) ->
          let (fdef, fdecl) = H.find function_decls f in
          let actuals = List.rev (List.map (expr builder) (List.rev act)) in
-         let result = (match fdecl.A.typ with A.Void -> ""
-                                            | _ -> f ^ "_result") in
-         L.build_call fdef (Array.of_list actuals) result !builder (* corresponding to call void @foo(i32 2, i32 1) *)
+         let result = 
+           (match fdecl.A.typ with 
+             A.Void -> ""
+           | _ -> f ^ "_result") 
+         in
+         let exp = L.build_call fdef (Array.of_list actuals) result !builder in(* corresponding to call void @foo(i32 2, i32 1) *)
+         match fdecl.A.typ with
+           A.Matrix ->
+             let m = L.build_load (L.build_struct_gep exp 0 "m_mat" !builder) "mat_mat" !builder in
+             let r = L.build_load (L.build_struct_gep exp 1 "m_r" !builder) "r_mat" !builder in
+             let c = L.build_load (L.build_struct_gep exp 2 "m_c" !builder) "c_mat" !builder in
+             let mat = build_mat_init r c builder in
+             ignore(mat_assign mat (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
+                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
+                                   exp (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
+             L.build_free m !builder; L.build_free exp !builder;mat
+         | _ -> exp
     in
     match stmt with
     (* Build the code for the given statement; return the builder for
@@ -721,9 +677,23 @@ printf(l2);
         let build_st st = ignore (build_stmt (fdecl, function_ptr) local_vars builder st) in
         List.iter build_st sl; builder
     | A.Expr e -> ignore (expr builder e); builder
-    | A.Return e -> ignore (match fdecl.A.typ with
-        A.Void -> L.build_ret_void !builder
-      | _ -> L.build_ret (expr builder e) !builder); builder
+    | A.Return e -> 
+      (match e with
+        A.Noexpr -> ignore(L.build_ret_void !builder); current_return := void_t 
+      | _ -> let e' = expr builder e in
+             current_return := L.type_of e';
+             match (is_matrix e') with
+               true -> (* alloca space in heap to temporarily store the matrix struct, otherwise the matrix struct is stored in the stack of the function that is returning, so after return, the stack would be cleared, and we might have the matrix just storing garbage information. *)
+                 let r = L.build_load (L.build_struct_gep e' 1 "m_r" !builder) "r_mat" !builder in
+                 let c = L.build_load (L.build_struct_gep e' 2 "m_c" !builder) "c_mat" !builder in
+                 let mat = heap_build_mat_init r c builder in
+                 ignore(mat_assign mat (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
+                                (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
+                                e' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
+                 ignore(L.build_ret mat !builder);
+             | false ->
+                 ignore(L.build_ret e' !builder);
+      ); builder
     | A.If (predicate, then_stmt, else_stmt) -> 
       let pred builder = expr builder predicate in
       let then_st builder = build_stmt (fdecl, function_ptr) local_vars builder then_stmt in
@@ -773,6 +743,69 @@ printf(l2);
 
 
 
+(* 7. User-defined function body construction *)
+(* in this section, we will parse through each user-defined function one by one, build on the instruction for each function in system_function first, and then we can infer on its return type. Next we define the user-function, and move all blocks (code) from system_function to our user-defined function *)
+  (* Fill in the body of the given function *)
+  let build_function_body fdecl =
+    let formal_types = 
+      let f(t,_) =
+        match t with
+          A.Matrix -> L.pointer_type matrix_t
+        | _ -> ltype_of_typ t
+      in
+      Array.of_list (List.map f fdecl.A.formals) in
+    (* temporary function to store code *)
+    let system_function = L.define_function "system_function" (L.function_type void_t formal_types) the_module in
+
+    let builder = ref (L.builder_at_end context (L.entry_block system_function)) in
+    (* imagine entry_block returns a block (i.e. {block} ), and builder_at_end enables adding instructions at the end of the block??*)
+    
+    (* Construct the function's "locals": formal arguments and locally
+       declared variables.  Allocate each on the stack, initialize their
+       value, if appropriate, and remember their values in the "locals" map *)
+    let local_vars =
+      let add_formal m (t, n) p =  (* L.set_value_name n p; *)(* p is a value not a ptr? *) (*!! set_value_name returns () *)  
+        match t with
+          A.Matrix -> 
+            let r = L.build_load (L.build_struct_gep p 1 "m_r" !builder) "r_mat" !builder in
+            let c = L.build_load (L.build_struct_gep p 2 "m_c" !builder) "c_mat" !builder in
+            let local = build_mat_init r c builder in
+            mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
+                             (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
+                             p (L.const_int i32_t 0) (L.const_int i32_t 0) system_function builder;
+            H.add m n local;m
+        | _ -> 
+          let local = L.build_alloca (ltype_of_typ t) n !builder in
+          ignore (L.build_store p local !builder);
+          H.add m n local;m(* local is a ptr? *)
+      in
+      List.fold_left2 add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals (Array.to_list (L.params system_function)) 
+    in
+
+    (* Build the code for each statement in the function *)
+    builder := !(build_stmt (fdecl, system_function) local_vars builder (A.Block fdecl.A.body));
+
+    (* Add a return if the last block falls off the end *)
+
+    add_terminal builder (match fdecl.A.typ with
+        A.Void -> L.build_ret_void
+      | t -> L.build_ret (L.const_int (ltype_of_typ t) 0));
+
+    (* 4. User-defined function declarations *)
+    let name = fdecl.A.fname in
+    let return_type = !current_return in
+    let ftype = L.function_type return_type formal_types in
+    let function_decl = L.define_function name ftype the_module in
+    ignore((type_of_lltype return_type)); 
+    H.add function_decls name (function_decl, fdecl); 
+    let entry_block = L.entry_block function_decl in
+    L.delete_block entry_block; (* keep this so the function starts with basic block "entry" instead of "entry1" *)
+    let system_block = L.append_block context "system_block" function_decl in
+    let move_block moved_to_bb moved_from_bb = L.move_block_after moved_to_bb moved_from_bb; moved_from_bb in
+    ignore(L.fold_left_blocks move_block system_block system_function);
+    L.delete_block system_block;
+    (*L.delete_function system_function*)
+  in
 (* 6. Main function body construction *)
 
   (* build main function *)
@@ -796,47 +829,6 @@ printf(l2);
     add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
 
 
-
-(* 7. User-defined function body construction *)
-
-  (* Fill in the body of the given function *)
-  let build_function_body fdecl =
-    let (the_function, _) = H.find function_decls fdecl.A.fname in (*the_function corresponds to L.define_function return value in line 60, presumably is a pointer or something like that *)
-    let builder = ref (L.builder_at_end context (L.entry_block the_function)) in
-    (* imagine entry_block returns a block (i.e. {block} ), and builder_at_end enables adding instructions at the end of the block??*)
-    
-    (* Construct the function's "locals": formal arguments and locally
-       declared variables.  Allocate each on the stack, initialize their
-       value, if appropriate, and remember their values in the "locals" map *)
-    let local_vars =
-      let add_formal m (t, n) p =  (* L.set_value_name n p; *)(* p is a value not a ptr? *) (*!! set_value_name returns () *)  
-        match t with
-          A.Matrix -> 
-            let r = L.build_load (L.build_struct_gep p 1 "m_r" !builder) "r_mat" !builder in
-            let c = L.build_load (L.build_struct_gep p 2 "m_c" !builder) "c_mat" !builder in
-            let local = build_mat_init r c builder in
-            mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
-                             (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
-                             p (L.const_int i32_t 0) (L.const_int i32_t 0) the_function builder;
-            H.add m n local;m
-        | _ -> 
-          let local = L.build_alloca (ltype_of_typ t) n !builder in
-          ignore (L.build_store p local !builder);
-          H.add m n local;m(* local is a ptr? *)
-      in
-      List.fold_left2 add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals (Array.to_list (L.params the_function)) 
-    in
-    (* Build the code for each statement in the function *)
-    builder := !(build_stmt (fdecl, the_function) local_vars builder (A.Block fdecl.A.body));
-
-    (* Add a return if the last block falls off the end *)
-
-    add_terminal builder (match fdecl.A.typ with
-        A.Void -> L.build_ret_void
-      | t -> L.build_ret (L.const_int (ltype_of_typ t) 0)) in
-
-
-
 (* 8. Combine all *)
-  build_main main_stmt; List.iter build_function_body functions; 
+  List.iter build_function_body functions; build_main main_stmt;  
   the_module 

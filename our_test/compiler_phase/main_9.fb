@@ -1,0 +1,20 @@
+func f1() {printf(1); return 5;}
+func f2() { string st; printf(f1()); st = "abc";return st;}
+func f3(matrix m, double d) {printf("testing");printend(); return m*d;}
+int i=2;
+int j=3;
+printf(i); printf(j);
+i = 0;
+printf(i);
+j = f1();
+printf("now j is :");
+printf(j);
+string my_str;
+my_str = "hahaha";
+printf(my_str);
+string s;
+s = f2();
+printf("now s is :");
+printf(s);
+matrix m = [1.1, 2.2, 3.3; 4.4, 5.5, 6.6];
+printf(f3(m,10.01));
