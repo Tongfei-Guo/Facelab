@@ -1,0 +1,13 @@
+func gcd(int m, int n)
+{
+    if (m == 0)
+        return n;
+    if (n == 0)
+        return m;
+    if (m > n)
+        return gcd(m%n, n);
+    else
+        return gcd(n%m, m);
+}
+printf(gcd(252, 9)); printend();
+printf(gcd(71, 131)); printend();

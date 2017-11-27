@@ -1,15 +1,13 @@
 func gcd(int m, int n) {
 //calculate gcd of two integer number
-while(m>0)
+while(m!=0 && n!=0)
 {
-int c;
-c = n % m;
-n = m;
-m = c;
+if(n > m) n = n % m;
+else m = m % n;
 }
-return n;
+if(m ==0) return n;
+else return m;
 }
 
-int m;
-m = gcd(81,18);
+int m = gcd(81,18);
 printf(m);

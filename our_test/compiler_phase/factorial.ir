@@ -1,0 +1,43 @@
+; ModuleID = 'MicroC'
+source_filename = "MicroC"
+
+@fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_str.2 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.3 = private unnamed_addr constant [1 x i8] zeroinitializer
+@fmt_str.4 = private unnamed_addr constant [5 x i8] c"true\00"
+@fmt_str.5 = private unnamed_addr constant [6 x i8] c"false\00"
+
+define i32 @main() {
+entry:
+  %factorial_result = call i32 @factorial(i32 4)
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %factorial_result)
+  ret i32 0
+}
+
+declare i32 @printf(i8*, ...)
+
+define i32 @factorial(i32) {
+entry:
+  %i = alloca i32
+  store i32 %0, i32* %i
+  %i4 = load i32, i32* %i
+  %tmp5 = icmp eq i32 %i4, 1
+  br i1 %tmp5, label %then, label %else
+
+merge:                                            ; No predecessors!
+  ret i32 0
+
+then:                                             ; preds = %entry
+  ret i32 1
+
+else:                                             ; preds = %entry
+  %i1 = load i32, i32* %i
+  %i2 = load i32, i32* %i
+  %tmp = sub i32 %i2, 1
+  %factorial_result = call i32 @factorial(i32 %tmp)
+  %tmp3 = mul i32 %i1, %factorial_result
+  ret i32 %tmp3
+}

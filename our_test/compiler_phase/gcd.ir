@@ -4,80 +4,76 @@ source_filename = "MicroC"
 @fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
 @fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
 @fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.1 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.2 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.3 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.4 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.5 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.6 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.7 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.8 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.9 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.10 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.11 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.12 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.13 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.14 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.15 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.16 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.17 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.18 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.19 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.20 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.21 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.22 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.23 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.24 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.25 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.26 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.27 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.28 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.29 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.30 = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_str.31 = private unnamed_addr constant [3 x i8] c"%s\00"
-@fmt_double.32 = private unnamed_addr constant [3 x i8] c"%f\00"
-@fmt_int.33 = private unnamed_addr constant [3 x i8] c"%d\00"
-
-declare i32 @printf(i8*, ...)
-
-define i32 @gcd(i32 %m, i32 %n) {
-entry:
-  %m1 = alloca i32
-  store i32 %m, i32* %m1
-  %n2 = alloca i32
-  store i32 %n, i32* %n2
-  br label %while
-
-while:                                            ; preds = %while_body, %entry
-  %m7 = load i32, i32* %m1
-  %tmp8 = icmp sgt i32 %m7, 0
-  br i1 %tmp8, label %while_body, label %merge
-
-while_body:                                       ; preds = %while
-  %c = alloca i32
-  store i32 0, i32* %c
-  %n3 = load i32, i32* %n2
-  %m4 = load i32, i32* %m1
-  %tmp = srem i32 %n3, %m4
-  store i32 %tmp, i32* %c
-  %m5 = load i32, i32* %m1
-  store i32 %m5, i32* %n2
-  %c6 = load i32, i32* %c
-  store i32 %c6, i32* %m1
-  br label %while
-
-merge:                                            ; preds = %while
-  %n9 = load i32, i32* %n2
-  ret i32 %n9
-}
+@fmt_str.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_str.2 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.3 = private unnamed_addr constant [1 x i8] zeroinitializer
+@fmt_str.4 = private unnamed_addr constant [5 x i8] c"true\00"
+@fmt_str.5 = private unnamed_addr constant [6 x i8] c"false\00"
 
 define i32 @main() {
 entry:
   %m = alloca i32
-  store i32 0, i32* %m
   %gcd_result = call i32 @gcd(i32 81, i32 18)
   store i32 %gcd_result, i32* %m
   %m1 = load i32, i32* %m
-  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.33, i32 0, i32 0), i32 %m1)
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %m1)
   ret i32 0
+}
+
+declare i32 @printf(i8*, ...)
+
+define i32 @gcd(i32, i32) {
+entry:
+  %m = alloca i32
+  store i32 %0, i32* %m
+  %n = alloca i32
+  store i32 %1, i32* %n
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %m10 = load i32, i32* %m
+  %tmp11 = icmp ne i32 %m10, 0
+  %n12 = load i32, i32* %n
+  %tmp13 = icmp ne i32 %n12, 0
+  %tmp14 = and i1 %tmp11, %tmp13
+  br i1 %tmp14, label %while_body, label %merge9
+
+while_body:                                       ; preds = %while
+  %n6 = load i32, i32* %n
+  %m7 = load i32, i32* %m
+  %tmp8 = icmp sgt i32 %n6, %m7
+  br i1 %tmp8, label %then, label %else
+
+merge:                                            ; preds = %else, %then
+  br label %while
+
+then:                                             ; preds = %while_body
+  %n1 = load i32, i32* %n
+  %m2 = load i32, i32* %m
+  %tmp = srem i32 %n1, %m2
+  store i32 %tmp, i32* %n
+  br label %merge
+
+else:                                             ; preds = %while_body
+  %m3 = load i32, i32* %m
+  %n4 = load i32, i32* %n
+  %tmp5 = srem i32 %m3, %n4
+  store i32 %tmp5, i32* %m
+  br label %merge
+
+merge9:                                           ; preds = %while
+  %m20 = load i32, i32* %m
+  %tmp21 = icmp eq i32 %m20, 0
+  br i1 %tmp21, label %then16, label %else18
+
+merge15:                                          ; No predecessors!
+  ret i32 0
+
+then16:                                           ; preds = %merge9
+  %n17 = load i32, i32* %n
+  ret i32 %n17
+
+else18:                                           ; preds = %merge9
+  %m19 = load i32, i32* %m
+  ret i32 %m19
 }
