@@ -24,11 +24,13 @@ let translate (globals, functions, main_stmt) =
 (* sample code structure *)
 (* 1. default value: int:0 ; double:0. ; bool:true ; string:"" ; matrix:[] *)
 (* 2. matrix operation:
+      for each operation below: matrix dimension must agree
+   
       i). matrix number element-wise : matrix op number | number op matrix  (op : + - * / )
       ii). matrix product : matrix .* matrix 
       iii). matrix indexing : matrix[x1, y1] | matrix[x1:x2, y1:y2] | matrix[x1:, y1] | matrix[:, y1] | matrix[:, :y2] | etc. basically the syntax of Matlab.
       iv). matrix assignment : m1 = m2[x1:x2, y1:y2] | m1[x:, :y] = m2[x1:x2, y1:y2] | etc.
-
+      v). matrix equality and inequality : m1 == m2 | m1[x1:, :] != m2[x2:x3, y1:y2] | etc. 
 
 global int g1 = 2;
 global double g2; //default value 0.
@@ -158,9 +160,11 @@ printf(l2);
   let string_format_str = L.build_global_stringptr "%s" "fmt_str" !main_builder in
   let double_format_str = L.build_global_stringptr "%f" "fmt_double" !main_builder in
   let int_format_str = L.build_global_stringptr "%d" "fmt_int" !main_builder in
-  let new_line_str = L.build_global_stringptr "\n" "fmt_int" !main_builder in
-  let two_space_str = L.build_global_stringptr "  " "fmt_int" !main_builder in
-  let empty_str = L.build_global_stringptr "" "fmt_int" !main_builder in
+  let new_line_str = L.build_global_stringptr "\n" "fmt_str" !main_builder in
+  let two_space_str = L.build_global_stringptr "  " "fmt_str" !main_builder in
+  let empty_str = L.build_global_stringptr "" "fmt_str" !main_builder in
+  let true_str = L.build_global_stringptr "true" "fmt_str" !main_builder in
+  let false_str = L.build_global_stringptr "false" "fmt_str" !main_builder in
 
   (* following function builds llvm control flow *)
   (* llvm if *)
@@ -178,7 +182,7 @@ printf(l2);
     let bool_val = predicate builder in
     ignore (L.build_cond_br bool_val then_bb else_bb !builder); (* L.build_cond_br syntax : br bool entry1 entry2 *)
     let merge_builder = ref (L.builder_at_end context merge_bb) in
-    merge_builder
+    builder := !merge_builder; merge_builder
   in
   (* llvm while *)
   let llvm_while function_ptr builder (predicate, body_stmt) = 
@@ -196,7 +200,7 @@ printf(l2);
     let bool_var = predicate pred_builder in
     ignore (L.build_cond_br bool_var body_bb merge_bb !pred_builder);
     let merge_builder = ref (L.builder_at_end context merge_bb) in
-    merge_builder
+    builder := !merge_builder; merge_builder
   in
   (* llvm for *)
   let llvm_for function_ptr builder (init, predicate, update, body_stmt) =
@@ -263,8 +267,8 @@ printf(l2);
                                              (L.build_add (L.build_sub (L.build_load j "j_v" !builder) y_low "tmp" !builder) v_y_low "tmp" !builder) builder in
         let tmp_element = L.build_load v_element_ptr "tmp_element" !builder in
         ignore(L.build_store tmp_element mat_element_ptr !builder) in
-      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
-    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i))
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)
   in
 
   (* print an array *)
@@ -288,9 +292,9 @@ printf(l2);
         let tmp_element = L.build_load mat_element_ptr "tmp_element" !builder in
         ignore(L.build_call printf_func [| double_format_str ; tmp_element|] "printf" !builder);
         ignore(L.build_call printf_func [| string_format_str ; two_space_str |] "printf" !builder) in
-      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j));
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j);
       ignore(L.build_call printf_func [| string_format_str ; new_line_str |] "printf" !builder) in
-    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i));
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);
     L.build_call printf_func [| string_format_str ; empty_str |] "printf" !builder
   in
 
@@ -330,8 +334,51 @@ printf(l2);
         let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
         let tmp_element = operator m1_element m2_element "tmp_element" !builder in
         ignore(L.build_store tmp_element result_element_ptr !builder) in
-      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
-    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i); result_mat
+  in
+
+  (*matrix equality *)
+  let mat_equal m1_mat m2_mat function_ptr builder=
+    let m1 = L.build_load (L.build_struct_gep m1_mat 0 "m_mat" !builder) "mat_mat" !builder in
+    let r = L.build_load (L.build_struct_gep m1_mat 1 "m_r" !builder) "r_mat" !builder in
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    let m2 = L.build_load (L.build_struct_gep m2_mat 0 "m_mat" !builder) "mat_v" !builder in
+    let result = L.build_alloca i1_t "result" !builder in
+    ignore(L.build_store (L.const_int i1_t 1) result !builder);
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let m1_element_ptr = access m1 r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m1_element = L.build_load m1_element_ptr "tmp_element" !builder in
+        let m2_element_ptr = access m2 r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m2_element = L.build_load m2_element_ptr "tmp_element" !builder in
+        let predicate builder = L.build_fcmp L.Fcmp.One m1_element m2_element "tmp" !builder in
+        let then_stmt builder = ignore(L.build_store (L.const_int i1_t 0) result !builder); builder in
+        let else_stmt builder = builder in 
+        llvm_if function_ptr builder (predicate, then_stmt, else_stmt) in
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);
+    L.build_load result "result" !builder
+  in
+
+  let mat_not_equal m1_mat m2_mat function_ptr builder=
+    let result = L.build_alloca i1_t "result" !builder in
+    let tmp = mat_equal m1_mat m2_mat function_ptr builder in
+    let predicate builder = L.build_icmp L.Icmp.Ne tmp (L.const_int i1_t 1) "tmp" !builder in
+    let then_stmt builder = ignore(L.build_store (L.const_int i1_t 1) result !builder); builder in
+    let else_stmt builder = ignore(L.build_store (L.const_int i1_t 0) result !builder); builder in 
+    ignore(llvm_if function_ptr builder (predicate, then_stmt, else_stmt));
+    L.build_load result "result" !builder
   in
 
   (* matrix number element wise operation *)
@@ -358,9 +405,10 @@ printf(l2);
         let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
         let tmp_element = operator m1_element num "tmp_element" !builder in
         ignore(L.build_store tmp_element result_element_ptr !builder) in
-      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
-    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i); result_mat
   in
+
   
   (*matrix product*)
   let mat_mat_product m1_mat m2_mat function_ptr builder=
@@ -396,10 +444,10 @@ printf(l2);
           let m2_element_ptr = access m2 l c (L.build_load k "k_v" !builder) (L.build_load j "j_v" !builder) builder in
           let m2_element = L.build_load m2_element_ptr "tmp_element" !builder in
           ignore(L.build_store (L.build_fadd (L.build_fmul m1_element m2_element "tmp" !builder) (L.build_load tmp_element "tmp" !builder) "tmp" !builder) tmp_element !builder) in
-        builder := !(llvm_for function_ptr builder (init_k, predicate_k, update_k, body_stmt_k));
+        llvm_for function_ptr builder (init_k, predicate_k, update_k, body_stmt_k);
         ignore(L.build_store (L.build_load tmp_element "tmp" !builder) result_element_ptr !builder) in
-      builder := !(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
-    builder := !(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i); result_mat
   in
 (* 2. Type inference *)
   let type_infer globals fdecl fdecl_m expression = (* takes an expression and return its type *)
@@ -581,6 +629,8 @@ printf(l2);
           |_ -> (* matrix operation *)
             (match op with
               A.Matprod -> mat_mat_product exp1 exp2 function_ptr builder
+            | A.Equal -> mat_equal exp1 exp2 function_ptr builder
+            | A.Neq -> mat_not_equal exp1 exp2 function_ptr builder
             | _ ->
                 let operator = 
                   (match op with
@@ -646,9 +696,17 @@ printf(l2);
           (match (typ_of_lvalue exp1) with
             A.Double -> L.build_call printf_func [| double_format_str ; (exp1) |] "printf" !builder
           | A.Int -> L.build_call printf_func [| int_format_str ; (exp1) |] "printf" !builder
+          | A.Bool ->
+              let predicate builder = L.build_icmp L.Icmp.Ne (L.const_int i1_t 1) exp1 "tmp" !builder in
+              let then_stmt builder = ignore(L.build_call printf_func [| string_format_str ; false_str |] "printf" !builder); builder in
+              let else_stmt builder = ignore(L.build_call printf_func [| string_format_str ; true_str |] "printf" !builder); builder in 
+              ignore(llvm_if function_ptr builder (predicate, then_stmt, else_stmt));
+              L.build_call printf_func [| string_format_str ; empty_str |] "printf" !builder
           | A.Matrix -> mat_print exp1 function_ptr builder
-          | _ -> L.build_call printf_func [| string_format_str ; (exp1) |] "printf" !builder
+          | A.String -> L.build_call printf_func [| string_format_str ; (exp1) |] "printf" !builder
           )
+      | A.Call ("printend", []) -> 
+          L.build_call printf_func [| string_format_str ; new_line_str |] "printf" !builder
       | A.Call (f, act) ->
          let (fdef, fdecl) = H.find function_decls f in
          let actuals = List.rev (List.map (expr builder) (List.rev act)) in
@@ -670,19 +728,19 @@ printf(l2);
       let pred builder = expr builder predicate in
       let then_st builder = build_stmt (fdecl, function_ptr) local_vars builder then_stmt in
       let else_st builder = build_stmt(fdecl, function_ptr) local_vars builder else_stmt in
-      builder := !(llvm_if function_ptr builder (pred, then_st, else_st)); builder
+      llvm_if function_ptr builder (pred, then_st, else_st); builder
          
     | A.While (predicate, body) ->
       let pred builder = expr builder predicate in
       let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body in
-      builder := !(llvm_while function_ptr builder (pred, body_st)); builder
+      llvm_while function_ptr builder (pred, body_st); builder
 
     | A.For (e1, e2, e3, body) -> 
       let init_st builder = expr builder e1 in
       let pred builder = expr builder e2 in
       let update builder = ignore(expr builder e3); builder in
       let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body in
-      builder := !(llvm_for function_ptr builder (init_st, pred, update, body_st)); builder
+      llvm_for function_ptr builder (init_st, pred, update, body_st); builder
     | A.Local (t, n, v) -> (match t with
                              A.Matrix ->
                                (match v with
