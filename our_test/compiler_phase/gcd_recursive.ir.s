@@ -6,16 +6,20 @@
 main:                                   # @main
 	.cfi_startproc
 # BB#0:                                 # %entry
-	pushq	%rax
+	pushq	%rbx
 .Lcfi0:
 	.cfi_def_cfa_offset 16
+.Lcfi1:
+	.cfi_offset %rbx, -16
 	movl	$252, %edi
 	movl	$9, %esi
 	callq	gcd
-	movl	%eax, %ecx
+	movl	(%rax), %ebx
+	movq	%rax, %rdi
+	callq	free
 	movl	$.Lfmt_int, %edi
 	xorl	%eax, %eax
-	movl	%ecx, %esi
+	movl	%ebx, %esi
 	callq	printf
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.1, %esi
@@ -24,17 +28,19 @@ main:                                   # @main
 	movl	$71, %edi
 	movl	$131, %esi
 	callq	gcd
-	movl	%eax, %ecx
+	movl	(%rax), %ebx
+	movq	%rax, %rdi
+	callq	free
 	movl	$.Lfmt_int, %edi
 	xorl	%eax, %eax
-	movl	%ecx, %esi
+	movl	%ebx, %esi
 	callq	printf
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.1, %esi
 	xorl	%eax, %eax
 	callq	printf
 	xorl	%eax, %eax
-	popq	%rcx
+	popq	%rbx
 	retq
 .Lfunc_end0:
 	.size	main, .Lfunc_end0-main
@@ -46,41 +52,69 @@ main:                                   # @main
 gcd:                                    # @gcd
 	.cfi_startproc
 # BB#0:                                 # %entry
-	pushq	%rax
-.Lcfi1:
+	pushq	%rbp
+.Lcfi2:
 	.cfi_def_cfa_offset 16
+	pushq	%rbx
+.Lcfi3:
+	.cfi_def_cfa_offset 24
+	pushq	%rax
+.Lcfi4:
+	.cfi_def_cfa_offset 32
+.Lcfi5:
+	.cfi_offset %rbx, -24
+.Lcfi6:
+	.cfi_offset %rbp, -16
 	movl	%edi, 4(%rsp)
 	movl	%esi, (%rsp)
 	testl	%edi, %edi
-	je	.LBB1_6
+	je	.LBB1_5
 # BB#1:                                 # %merge
 	cmpl	$0, (%rsp)
-	je	.LBB1_7
+	je	.LBB1_8
 # BB#2:                                 # %merge3
 	movl	4(%rsp), %eax
 	cmpl	(%rsp), %eax
-	jle	.LBB1_5
-# BB#3:                                 # %then10
+	jle	.LBB1_9
+# BB#3:                                 # %then13
+	movl	$4, %edi
+	callq	malloc
+	movq	%rax, %rbx
 	movl	(%rsp), %esi
 	movl	4(%rsp), %eax
 	jmp	.LBB1_4
+.LBB1_5:                                # %then
+	movl	$4, %edi
+	callq	malloc
+	movl	(%rsp), %ecx
+	jmp	.LBB1_6
+.LBB1_8:                                # %then4
+	movl	$4, %edi
+	callq	malloc
+	movl	4(%rsp), %ecx
 .LBB1_6:                                # %then
-	movl	(%rsp), %eax
-	popq	%rcx
-	retq
-.LBB1_7:                                # %then4
-	movl	4(%rsp), %eax
-	popq	%rcx
-	retq
-.LBB1_5:                                # %else15
+	movl	%ecx, (%rax)
+	jmp	.LBB1_7
+.LBB1_9:                                # %else21
+	movl	$4, %edi
+	callq	malloc
+	movq	%rax, %rbx
 	movl	4(%rsp), %esi
 	movl	(%rsp), %eax
-.LBB1_4:                                # %then10
+.LBB1_4:                                # %then13
 	cltd
 	idivl	%esi
 	movl	%edx, %edi
 	callq	gcd
-	popq	%rcx
+	movl	(%rax), %ebp
+	movq	%rax, %rdi
+	callq	free
+	movl	%ebp, (%rbx)
+	movq	%rbx, %rax
+.LBB1_7:                                # %then
+	addq	$8, %rsp
+	popq	%rbx
+	popq	%rbp
 	retq
 .Lfunc_end1:
 	.size	gcd, .Lfunc_end1-gcd

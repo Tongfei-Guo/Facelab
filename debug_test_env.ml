@@ -62,6 +62,53 @@ let empty_str = L.build_global_stringptr "" "fmt_int" builder ;;
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |];;
   let printf_func = L.declare_function "printf" printf_t the_module ;;
 
+let f = L.define_function "sys_func" (L.function_type (L.pointer_type matrix_t) [|(L.pointer_type matrix_t)|]) the_module;;
+let builder2 = L.builder_at_end context (L.entry_block f);;
+L.build_ret (Array.get (L.params f) 0) builder2;;
+let m5 = L.build_malloc matrix_t "m5" builder;;
+L.build_store (L.const_int i32_t 112233) (L.build_struct_gep m5 1 "tmp" builder) builder;;
+L.build_store (L.const_int i32_t 556677) (L.build_struct_gep m5 2 "tmp" builder) builder;;
+let m6 = L.build_call f [|m5|] "m6" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 1 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 2 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m6 1 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m6 2 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_free m5 builder;;
+for i = 1 to 10000 do
+    ignore(L.build_malloc matrix_t "m" builder)
+done;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 1 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 2 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m6 1 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m6 2 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_ret (L.const_int i32_t 0) builder;;
+L.print_module "t2.ir" the_module;;
+
+let f = L.define_function "sys_func" (L.function_type (L.pointer_type (L.pointer_type matrix_t)) [||]) the_module;;
+let builder2 = L.builder_at_end context (L.entry_block f);;
+let m4 = L.build_malloc matrix_t "m4" builder2;;
+L.build_store (L.const_int i32_t 112233) (L.build_struct_gep m4 1 "tmp" builder2) builder2;;
+L.build_store (L.const_int i32_t 556677) (L.build_struct_gep m4 2 "tmp" builder2) builder2;;
+let p = L.build_malloc (L.pointer_type matrix_t) "p" builder2;;
+L.build_store m4 p builder2;;
+L.build_ret p builder2;;
+let exp = L.build_call f [||] "ret" builder;;
+let m5 = L.build_load exp "m5" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 1 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 2 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_free exp builder;;
+for i = 1 to 5000 do
+    ignore(L.build_malloc matrix_t "m" builder)
+done;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 1 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 2 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_free m5 builder;;
+for i = 1 to 5000 do
+    ignore(L.build_malloc matrix_t "m" builder)
+done;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 1 "tmp" builder) "tmp" builder |] "printf" builder;;
+L.build_call printf_func [| int_format_str ; L.build_load (L.build_struct_gep m5 2 "tmp" builder) "tmp" builder |] "printf" builder;;
+
 let build_mat_init r c builder =
     let size = L.build_mul r c "size" builder in
     let mat = L.build_array_alloca double_t size "system_mat" builder in
@@ -317,4 +364,20 @@ L.build_call printf_func [| string_format_str ; two_space_str |] "printf" builde
                true -> current_return := L.pointer_type matrix_t
              | false ->
 
-  
+
+
+(* Add a return if the last block falls off the end *)
+      (*let const_struct_builder struct_type = 
+        let element_type = L.struct_element_types struct_type in
+        let const_constructor ltyp = 
+          match (type_of_lltype ltyp) with
+            A.Int -> L.const_int i32_t 0
+          | A.Double -> L.const_float double_t 0.0
+          | A.String -> L.build_global_stringptr "" "system_string" !builder (*empty string*)
+          | A.Bool -> L.const_int i1_t 0
+          | A.Matrix -> L.const_struct context [|L.const_array double_t [||]; L.const_int i32_t 0; L.const_int i32_t 0|]
+          | A.Void -> failwith ("const_struct_builder error?") (*not gonna occur*) 
+        in
+        L.const_struct context (Array.map const_constructor element_type)
+      in*)
+   (*acutally this add_terminal has no functional use, just some special case, for example in a if clause, its then clause and else clause both returns, but if still builds a merge block, though it will not be used, and we need this add_terminal to give that non-useful merge block a return, otherwise llvm is gonna complain. *)

@@ -4,7 +4,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACKET RBRACKET COLON
+%token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COLON COMMA ID_SEP_COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT REMAINDER MATPRODUCT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN IF ELSE FOR WHILE INT DOUBLE BOOL STRING ELIF BREAK CONTINUE VOID
@@ -16,11 +16,13 @@ open Ast
 %token <string> ID
 %token GLOBAL EOF
 
+%nonassoc RETURN 
+%right ASSIGN
 %nonassoc NOELSE
 %nonassoc ELSE
 %nonassoc ELSEIF
 %nonassoc COLON
-%right ASSIGN
+%left COMMA
 %left OR
 %left AND
 %left EQ NEQ
@@ -117,11 +119,23 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
+  | expr COMMA  expr { match $1, $3 with
+                         Comma(e1), Comma(e2) -> Comma(e1@e2)
+                       | Comma(e1), e2 -> Comma(e1@[e2])
+                       | e1, Comma(e2) -> Comma(e1::e2)
+                       | e1, e2 -> Comma([e1;e2])
+                     } /* a lot of sematic check needs for this one, the only cases it's allow is in return expr,  ID LPAREN expr_opt RPAREN, and expr ASSIGN expr*/
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | NOT expr         { Unop(Not, $2) }
-  | expr ASSIGN expr   { Assign($1, $3) } /*add to semant, check here only id and matrix indexing can be assigned to */
+  | expr ASSIGN expr   { Assign($1, $3) } /*add to semant, check here only id and matrix indexing can be assigned to, left hand side can be multiple left value, right hand side can be not be expr COMMA expr */
   | ID LBRACKET index_pair RBRACKET { Index($1, $3) }
-  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
+  | ID LPAREN expr_opt RPAREN { let actuals = 
+                                  match $3 with
+                                    Comma e1 -> e1
+                                  | Noexpr -> []
+                                  | _ -> [$3]
+                                in
+                                Call($1, actuals) }
   | LPAREN expr RPAREN { $2 } 
 
 index_pair: 
@@ -146,10 +160,3 @@ double_mat_row:
     DOUBLE_LITERAL { [| $1 |], 1 }
   | double_mat_row COMMA DOUBLE_LITERAL { Array.append (fst $1) [| $3 |], snd $1 + 1 }
 
-actuals_opt:
-    /* nothing */ { [] }
-  | actuals_list  { List.rev $1 }
-
-actuals_list:
-    expr                    { [$1] }
-  | actuals_list COMMA expr { $3 :: $1 }

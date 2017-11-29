@@ -1,0 +1,9 @@
+#!/bin/bash
+for var in "$@"
+do
+    rm $var.ir;
+    ../../facelab.native $var.fb >> $var.ir;
+    llc-5.0 $var.ir;
+    clang $var.ir.s -o $var
+done
+    

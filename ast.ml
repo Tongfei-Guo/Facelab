@@ -9,7 +9,7 @@ type index = Beg | End | IntInd of int
 
 type index_range = Range of index * index
 
-type typ = Int | Bool | Image | Double | Matrix | Void | String |
+type typ = Int | Bool | Image | Double | Matrix | Void | String | Mulret of typ list |
            (* below are auxiliary or debug entities, not for other use *)
            Bug
 
@@ -23,8 +23,10 @@ type expr =
   | MatrixLit of float array array * (int * int)
   | Id of string
   | Binop of expr * op * expr
+  | Comma of expr list
   | Unop of uop * expr
   | Assign of expr * expr
+  | Mulassign of expr * expr
   | Index of string * (index_range * index_range)
   | Call of string * expr list
   | Noexpr

@@ -6,20 +6,28 @@
 main:                                   # @main
 	.cfi_startproc
 # BB#0:                                 # %entry
-	pushq	%rax
+	pushq	%rbx
 .Lcfi0:
 	.cfi_def_cfa_offset 16
+	subq	$16, %rsp
+.Lcfi1:
+	.cfi_def_cfa_offset 32
+.Lcfi2:
+	.cfi_offset %rbx, -16
 	movl	$81, %edi
 	movl	$18, %esi
 	callq	gcd
-	movl	%eax, %ecx
-	movl	%ecx, 4(%rsp)
+	movl	(%rax), %ebx
+	movq	%rax, %rdi
+	callq	free
+	movl	%ebx, 12(%rsp)
 	movl	$.Lfmt_int, %edi
 	xorl	%eax, %eax
-	movl	%ecx, %esi
+	movl	%ebx, %esi
 	callq	printf
 	xorl	%eax, %eax
-	popq	%rcx
+	addq	$16, %rsp
+	popq	%rbx
 	retq
 .Lfunc_end0:
 	.size	main, .Lfunc_end0-main
@@ -31,46 +39,56 @@ main:                                   # @main
 gcd:                                    # @gcd
 	.cfi_startproc
 # BB#0:                                 # %entry
-	movl	%edi, -8(%rsp)
-	movl	%esi, -4(%rsp)
-	cmpl	$0, -8(%rsp)
+	pushq	%rax
+.Lcfi3:
+	.cfi_def_cfa_offset 16
+	movl	%edi, (%rsp)
+	movl	%esi, 4(%rsp)
+	cmpl	$0, (%rsp)
 	jne	.LBB1_2
 	jmp	.LBB1_6
 	.p2align	4, 0x90
 .LBB1_5:                                # %else
                                         #   in Loop: Header=BB1_2 Depth=1
-	movl	-8(%rsp), %eax
+	movl	(%rsp), %eax
 	cltd
-	idivl	-4(%rsp)
-	movl	%edx, -8(%rsp)
-	cmpl	$0, -8(%rsp)
+	idivl	4(%rsp)
+	movl	%edx, (%rsp)
+	cmpl	$0, (%rsp)
 	je	.LBB1_6
 .LBB1_2:                                # %while
                                         # =>This Inner Loop Header: Depth=1
-	movl	-4(%rsp), %eax
+	movl	4(%rsp), %eax
 	testl	%eax, %eax
 	je	.LBB1_6
 # BB#3:                                 # %while_body
                                         #   in Loop: Header=BB1_2 Depth=1
-	movl	-4(%rsp), %eax
-	cmpl	-8(%rsp), %eax
+	movl	4(%rsp), %eax
+	cmpl	(%rsp), %eax
 	jle	.LBB1_5
 # BB#4:                                 # %then
                                         #   in Loop: Header=BB1_2 Depth=1
-	movl	-4(%rsp), %eax
+	movl	4(%rsp), %eax
 	cltd
-	idivl	-8(%rsp)
-	movl	%edx, -4(%rsp)
-	cmpl	$0, -8(%rsp)
+	idivl	(%rsp)
+	movl	%edx, 4(%rsp)
+	cmpl	$0, (%rsp)
 	jne	.LBB1_2
 .LBB1_6:                                # %merge9
-	cmpl	$0, -8(%rsp)
+	cmpl	$0, (%rsp)
 	je	.LBB1_7
-# BB#8:                                 # %else18
-	movl	-8(%rsp), %eax
-	retq
+# BB#9:                                 # %else18
+	movl	$4, %edi
+	callq	malloc
+	movl	(%rsp), %ecx
+	jmp	.LBB1_8
 .LBB1_7:                                # %then16
-	movl	-4(%rsp), %eax
+	movl	$4, %edi
+	callq	malloc
+	movl	4(%rsp), %ecx
+.LBB1_8:                                # %then16
+	movl	%ecx, (%rax)
+	popq	%rcx
 	retq
 .Lfunc_end1:
 	.size	gcd, .Lfunc_end1-gcd

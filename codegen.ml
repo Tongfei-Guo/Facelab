@@ -18,6 +18,7 @@ module M = Matrix
 module H = Hashtbl
 open Str
 module StringMap = Map.Make(String)
+type ret_typ = Returnstruct of L.lltype | Lltypearray of L.lltype array | Voidtype of L.lltype | Maintype
 (* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication, and we force globals to be either uninitilized or initialized with literals *)
 let translate (globals, functions, main_stmt) =
 
@@ -36,13 +37,12 @@ global int g1 = 2;
 global double g2; //default value 0.
 
 func f1(...) { return;}
-func f2(...) { return;}
-
-int l1 = 4;
-string l2; //default value empty string.
-printf(l1);
-printf(l2);
-
+func f2(matrix m, int i, double d, string s) { return m1, m2, d1, s1;}
+matrix m1 = [1.0,2.0;3.0,4.0];
+matrix m2;
+double d1 =3.4;
+string s;
+m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 *)
 
 
@@ -69,7 +69,7 @@ printf(l2);
     (L.builder_at_end context (L.entry_block main_define)) in
 
   let function_decls = H.create (List.length functions) in 
-  let current_return = ref void_t in (* will be used in user-function construction, to stored the lltype of last return expression encountered in a function body*)
+  
   
   
   (* AST.expr type to LLVM type conversion *)
@@ -105,7 +105,6 @@ printf(l2);
     | _ -> false
   in
       
-
 (* currently not used 
   (* LLVM value to its corresponding AST.expr Literal type conversion *)
   let lit_of_lvalue lv =
@@ -242,7 +241,7 @@ printf(l2);
     ignore(L.build_store (L.const_int i32_t c) m_c !builder); m
   in
   (* create a matrix of size r by c (where r c are llvalues) *)
-  let build_mat_init r c builder =
+  let build_mat_init r c function_ptr builder =
     let size = L.build_mul r c "size" !builder in
     let mat = L.build_array_alloca double_t size "system_mat" !builder in
     let m = L.build_alloca matrix_t "m" !builder in
@@ -251,10 +250,27 @@ printf(l2);
     let m_r = L.build_struct_gep m 1 "m_r" !builder in
     ignore(L.build_store r m_r !builder);
     let m_c = L.build_struct_gep m 2 "m_c" !builder in
-    ignore(L.build_store c m_c !builder);m
+    ignore(L.build_store c m_c !builder);
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    (*IMPORTANT: initialize to 0, otherwise it will start with some garbage value, and therefore give wrong results.*)
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let mat_element_ptr = access mat r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        ignore(L.build_store (L.const_float double_t 0.0) mat_element_ptr !builder) in
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);m
   in
   
-  let heap_build_mat_init r c builder =
+  let heap_build_mat_init r c function_ptr builder =
     let size = L.build_mul r c "size" !builder in
     let mat = L.build_array_malloc double_t size "system_mat" !builder in
     let m = L.build_malloc matrix_t "m" !builder in
@@ -263,7 +279,23 @@ printf(l2);
     let m_r = L.build_struct_gep m 1 "m_r" !builder in
     ignore(L.build_store r m_r !builder);
     let m_c = L.build_struct_gep m 2 "m_c" !builder in
-    ignore(L.build_store c m_c !builder);m
+    ignore(L.build_store c m_c !builder);
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let mat_element_ptr = access mat r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        ignore(L.build_store (L.const_float double_t 0.0) mat_element_ptr !builder) in
+      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);m
   in
   
   (* assign an array to an array on the stack *)
@@ -337,7 +369,7 @@ printf(l2);
     let c = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
     let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
     let m2 = L.build_load (L.build_struct_gep m2_mat 0 "m_mat" !builder) "mat_v" !builder in
-    let result_mat = build_mat_init r c builder in
+    let result_mat = build_mat_init r c function_ptr builder in
     let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
     let i = L.build_alloca i32_t "i" !builder in
     let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
@@ -410,7 +442,7 @@ printf(l2);
     let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
     let c = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
     let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
-    let result_mat = build_mat_init r c builder in
+    let result_mat = build_mat_init r c function_ptr builder in
     let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
     let i = L.build_alloca i32_t "i" !builder in
     let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
@@ -440,9 +472,9 @@ printf(l2);
     let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
     let c = L.build_load (L.build_struct_gep m2_mat 2 "m_c" !builder) "c_mat" !builder in
     let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
-    let l = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
+    let l = L.build_load (L.build_struct_gep m1_mat 2 "m_l" !builder) "l_mat" !builder in
     let l_high = L.build_sub l (L.const_int i32_t 1) "tmp" !builder in
-    let result_mat = build_mat_init r c builder in
+    let result_mat = build_mat_init r c function_ptr builder in
     let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
     let i = L.build_alloca i32_t "i" !builder in
     let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
@@ -456,6 +488,7 @@ printf(l2);
       let body_stmt_j builder =
         let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
         let tmp_element = L.build_alloca double_t "tmp_element" !builder in
+        ignore(L.build_store (L.const_float double_t 0.0) tmp_element !builder); (*IMPORTANT: initialize to 0, otherwise it will start with some garbage value, and therefore give wrong results.*)
         let k = L.build_alloca i32_t "k" !builder in
         let init_k builder = L.build_store (L.const_int i32_t 0) k !builder in
         let predicate_k builder = L.build_icmp L.Icmp.Sle (L.build_load k "k_v" !builder) l_high "bool_val" !builder in
@@ -480,7 +513,7 @@ printf(l2);
       (match t with
         A.Matrix ->
           (match v with
-            A.Noassign -> let global = build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) main_builder in
+            A.Noassign -> let global = build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) main_define main_builder in
                           H.add m n global;m
           | A.MatrixLit (mat,(r,c))-> 
                 let global = build_mat_lit (mat, (r,c)) main_builder in
@@ -514,14 +547,30 @@ printf(l2);
 
 (* 3. Statement construction *)
   (* part of code for generating statement, which used both in main function and function definition *)
-  let rec build_stmt (fdecl, function_ptr) local_vars builder stmt=
+  let rec build_stmt (fdecl, function_ptr) local_vars builder stmt current_return=
 
 (* Return the value for a variable or formal argument *)
     
-    let rec expr builder e= 
+    let rec expr builder e=
+
+     (*expr builder e auxiliaries *)
+      let return_aux e t = 
+        match t with
+          A.Matrix ->
+            let m = L.build_load (L.build_struct_gep e 0 "m_mat" !builder) "mat_mat" !builder in
+            let r = L.build_load (L.build_struct_gep e 1 "m_r" !builder) "r_mat" !builder in
+            let c = L.build_load (L.build_struct_gep e 2 "m_c" !builder) "c_mat" !builder in
+            let mat = build_mat_init r c function_ptr builder in
+            ignore(mat_assign mat (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
+                                  (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
+                                  e (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
+            ignore(L.build_free m !builder); ignore(L.build_free e !builder);mat
+        | _ -> e
+      in
       let lookup n = try (H.find local_vars n, local_vars)
                    with Not_found -> (H.find global_vars n, global_vars)
       in
+
       match e with
         A.IntLit i -> L.const_int i32_t i
       | A.DoubleLit d -> L.const_float double_t d
@@ -592,29 +641,45 @@ printf(l2);
 	    A.Neg     -> L.build_neg
           | A.Not     -> L.build_not) e' "tmp" !builder
       | A.Assign (e1, e2) -> 
+          let single_assign e1 value = 
+            (match e1 with
+              A.Id s -> 
+                let ptr,map = lookup s in
+                (match (is_matrix ptr) with
+                  true -> 
+                    let r = L.build_load (L.build_struct_gep value 1 "m_r" !builder) "r_mat" !builder in
+                    let c = L.build_load (L.build_struct_gep value 2 "m_c" !builder) "c_mat" !builder in 
+                    let m = build_mat_init r c function_ptr builder in
+                    H.replace map s m; 
+                    mat_assign m (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder) 
+                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder) 
+                                   value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value
+                | false -> ignore(L.build_store value ptr !builder); value)
+            | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
+                let ptr,map = lookup s in
+                let r = L.build_load (L.build_struct_gep ptr 1 "m_r" !builder) "r_mat" !builder in
+                let c = L.build_load (L.build_struct_gep ptr 2 "m_c" !builder) "c_mat" !builder in
+                let x_l = index_converter "x" x_low r c builder in
+                let x_h = index_converter "x" x_high r c builder in
+                let y_l = index_converter "y" y_low r c builder in
+                let y_h = index_converter "y" y_high r c builder in              
+                mat_assign ptr x_l x_h y_l y_h value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value)
+          in
           let value = expr builder e2 in
           (match e1 with
-            A.Id s -> 
-              let ptr,map = lookup s in
-              (match (is_matrix ptr) with
-                true -> 
-                  let r = L.build_load (L.build_struct_gep value 1 "m_r" !builder) "r_mat" !builder in
-                  let c = L.build_load (L.build_struct_gep value 2 "m_c" !builder) "c_mat" !builder in 
-                  let m = build_mat_init r c builder in
-                  H.replace map s m; 
-                  mat_assign ptr (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder) 
-                                 (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder) 
-                                 value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value
-              | false -> ignore(L.build_store value ptr !builder); value)
-          | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
-              let ptr,map = lookup s in
-              let r = L.build_load (L.build_struct_gep ptr 1 "m_r" !builder) "r_mat" !builder in
-              let c = L.build_load (L.build_struct_gep ptr 2 "m_c" !builder) "c_mat" !builder in
-              let x_l = index_converter "x" x_low r c builder in
-              let x_h = index_converter "x" x_high r c builder in
-              let y_l = index_converter "y" y_low r c builder in
-              let y_h = index_converter "y" y_high r c builder in              
-              mat_assign ptr x_l x_h y_l y_h value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value)
+            A.Comma s_list -> 
+             (match e2 with 
+               A.Call(f,act) ->
+                 let (fdef, fdecl) = H.find function_decls f in
+                 let l = match fdecl.A.typ with A.Mulret li -> li in
+                   (for i = 0 to ((List.length l) - 1) do
+                     let v = L.build_load (L.build_struct_gep value i "v_ptr" !builder) "v" !builder in
+                     ignore (single_assign (List.nth s_list i) (return_aux v (List.nth l i)))
+                   done);
+                   ignore(L.build_free value !builder);
+             | _ -> failwith("Multiple variables must be assigned with a function call that has multiple return values.") ); value
+          | _ -> single_assign e1 value
+          )
                
       | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
           let ptr, map = lookup s in
@@ -627,7 +692,7 @@ printf(l2);
           let x_size = L.build_sub x_h x_l "tmp" !builder in
           let y_size = L.build_sub y_h y_l "tmp" !builder in
           let m = build_mat_init (L.build_add x_size (L.const_int i32_t 1) "tmp" !builder)
-                                 (L.build_add y_size (L.const_int i32_t 1) "tmp" !builder) builder in
+                                 (L.build_add y_size (L.const_int i32_t 1) "tmp" !builder) function_ptr builder in
           mat_assign m (L.const_int i32_t 0) x_size (L.const_int i32_t 0) y_size ptr x_l y_l function_ptr builder; m
       (*| A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
           let (t,ptr) = lookup s in
@@ -658,70 +723,108 @@ printf(l2);
            | _ -> f ^ "_result") 
          in
          let exp = L.build_call fdef (Array.of_list actuals) result !builder in(* corresponding to call void @foo(i32 2, i32 1) *)
-         match fdecl.A.typ with
-           A.Matrix ->
-             let m = L.build_load (L.build_struct_gep exp 0 "m_mat" !builder) "mat_mat" !builder in
-             let r = L.build_load (L.build_struct_gep exp 1 "m_r" !builder) "r_mat" !builder in
-             let c = L.build_load (L.build_struct_gep exp 2 "m_c" !builder) "c_mat" !builder in
-             let mat = build_mat_init r c builder in
-             ignore(mat_assign mat (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
-                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
-                                   exp (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
-             L.build_free m !builder; L.build_free exp !builder;mat
-         | _ -> exp
+         
+         (match fdecl.A.typ with
+           A.Void -> exp
+         | A.Mulret l -> 
+             match (List.length l) with
+               1 -> let v = L.build_load (L.build_struct_gep exp 0 "v_ptr" !builder) "v" !builder in
+                    ignore(L.build_free exp !builder); 
+                    return_aux v (List.hd l)
+             | _ -> exp) (* multi return case, can only be used in A.Assign, and we will deal with it there. *)  
+      | A.Comma l -> L.const_int i32_t 0 (*failwith("Syntax error at comma separated list") *)
     in
+
     match stmt with
     (* Build the code for the given statement; return the builder for
        the statement's successor *)
       A.Block sl -> 
-        let build_st st = ignore (build_stmt (fdecl, function_ptr) local_vars builder st) in
+        let build_st st = ignore (build_stmt (fdecl, function_ptr) local_vars builder st current_return) in
         List.iter build_st sl; builder
     | A.Expr e -> ignore (expr builder e); builder
-    | A.Return e -> 
-      (match e with
-        A.Noexpr -> ignore(L.build_ret_void !builder); current_return := void_t 
-      | _ -> (* Since we are infering return type from e, we need to consider if a funciton is recursive, and thus when we build the function return in its body, its return type has not yet been inferred, and its definition is not seen, so it cannot call itself because it cannot find itself in function_decls, but the thing is that recursive function always has a base case (i.e. a return whose return value is not recursing on itself, and that we can infer on, so we just need to find that return, and use its type as our return type *)
-         try let e' = expr builder e in
-             current_return := L.type_of e';
-             match (is_matrix e') with
-               true -> (* alloca space in heap to temporarily store the matrix struct, otherwise the matrix struct is stored in the stack of the function that is returning, so after return, the stack would be cleared, and we might have the matrix just storing garbage information. *)
-                 let r = L.build_load (L.build_struct_gep e' 1 "m_r" !builder) "r_mat" !builder in
-                 let c = L.build_load (L.build_struct_gep e' 2 "m_c" !builder) "c_mat" !builder in
-                 let mat = heap_build_mat_init r c builder in
-                 ignore(mat_assign mat (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
-                                (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
-                                e' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
-                 ignore(L.build_ret mat !builder)
-             | false ->
-                 ignore(L.build_ret e' !builder)
-         with Not_found -> ignore(L.build_ret_void !builder)
-      ); builder
+    | A.Return e ->
+  (* Since we are infering return type from e, we need to consider if a funciton is recursive, and thus when we build the function return in its body, its return type has not yet been inferred, and its definition is not seen, so it cannot call itself because it cannot find itself in function_decls, but the thing is that recursive function always has a base case (i.e. a return whose return value is not recursing on itself, and that we can infer on, so we just need to find that return, and use its type as our return type *)
+        (let eval_return e=
+          let e' = expr builder e in
+          match (is_matrix e') with
+            true -> (* alloca space in heap to temporarily store the matrix struct, otherwise the matrix struct is stored in the stack of the function that is returning, so after return, the stack would be cleared, and we might have the matrix just storing garbage information. *)
+              let r = L.build_load (L.build_struct_gep e' 1 "m_r" !builder) "r_mat" !builder in
+              let c = L.build_load (L.build_struct_gep e' 2 "m_c" !builder) "c_mat" !builder in
+              let mat = heap_build_mat_init r c function_ptr builder in
+              ignore(mat_assign mat (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
+                                    (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
+                                    e' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);mat
+          | false -> e'
+        in
+        let build_return l t= 
+          let build_return_struct l return=
+            for i = 0 to ((List.length l)-1) do
+              let e = List.nth l i in
+              let e' = eval_return e in
+              ignore(L.build_store e' (L.build_struct_gep return i ("return"^string_of_int(i)) !builder) !builder);
+            done
+          in
+          let return = L.build_malloc t "return" !builder in
+          (*L.build_store (L.const_int i32_t (List.length l)) (L.build_struct_gep return 0 "return_size" !builder) !builder;*)
+          build_return_struct l return;
+          ignore(L.build_ret return !builder)
+        in
+        match !current_return with
+          Maintype -> ignore(L.build_ret (L.const_int i32_t 0) !builder)
+        | Returnstruct t -> (* this is used to build actual function body *)
+            (match e with
+              A.Noexpr -> ignore(L.build_ret_void !builder)
+            | A.Comma l-> build_return l t; 
+            | _ -> let l = [e] in build_return l t); 
+        | Lltypearray ltyp_arr->  (* this is used for return type inference *) 
+            (match e with 
+              A.Noexpr -> current_return := Voidtype(void_t)
+            | A.Comma l -> 
+              (match ltyp_arr with
+                [||] -> current_return := Lltypearray(Array.make (List.length l) void_t)
+              | _ -> ());
+              let ltyp_arr = match !current_return with Lltypearray l -> l in
+              for i = 0 to ((List.length l)-1) do
+                try let e'= expr builder (List.nth l i) in
+                  ltyp_arr.(i) <- L.type_of e';
+                with Not_found -> ()
+              done
+            | _ -> 
+              (match ltyp_arr with
+                [||] -> current_return := Lltypearray([|void_t|])
+              | _ -> ());
+              let ltyp_arr = match !current_return with Lltypearray l -> l in
+              try let e'= expr builder e in
+                ltyp_arr.(0) <- L.type_of e';
+              with Not_found -> ())
+        | Voidtype t -> ()
+        );builder
     | A.If (predicate, then_stmt, else_stmt) -> 
       let pred builder = expr builder predicate in
-      let then_st builder = build_stmt (fdecl, function_ptr) local_vars builder then_stmt in
-      let else_st builder = build_stmt(fdecl, function_ptr) local_vars builder else_stmt in
+      let then_st builder = build_stmt (fdecl, function_ptr) local_vars builder then_stmt current_return in
+      let else_st builder = build_stmt(fdecl, function_ptr) local_vars builder else_stmt current_return in
       llvm_if function_ptr builder (pred, then_st, else_st); builder
          
     | A.While (predicate, body) ->
       let pred builder = expr builder predicate in
-      let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body in
+      let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body current_return in
       llvm_while function_ptr builder (pred, body_st); builder
 
     | A.For (e1, e2, e3, body) -> 
       let init_st builder = expr builder e1 in
       let pred builder = expr builder e2 in
       let update builder = ignore(expr builder e3); builder in
-      let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body in
+      let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body current_return in
       llvm_for function_ptr builder (init_st, pred, update, body_st); builder
     | A.Local (t, n, v) -> (match t with
                              A.Matrix ->
                                (match v with
-                                 A.Noassign -> let local = build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) builder in
+                                 A.Noassign -> let local = build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder in
                                                H.add local_vars n local;
                                | _-> let v' = expr builder v in
                                      let r = L.build_load (L.build_struct_gep v' 1 "m_r" !builder) "r_mat" !builder in
                                      let c = L.build_load (L.build_struct_gep v' 2 "m_c" !builder) "c_mat" !builder in
-                                     let local = build_mat_init r c builder in
+                                     let local = build_mat_init r c function_ptr builder in
                                      mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
                                                   v' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder;
@@ -748,6 +851,7 @@ printf(l2);
 (* 4. User-defined function *)
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
+    let current_return = ref (Lltypearray([||])) in (* will be used to stored the lltype of last return expression encountered in a function body*)
     let formal_types = 
       let f(t,_) =
         match t with
@@ -768,7 +872,7 @@ printf(l2);
             A.Matrix -> 
               let r = L.build_load (L.build_struct_gep p 1 "m_r" !builder) "r_mat" !builder in
               let c = L.build_load (L.build_struct_gep p 2 "m_c" !builder) "c_mat" !builder in
-              let local = build_mat_init r c builder in
+              let local = build_mat_init r c function_ptr builder in
               mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
                                p (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder;
@@ -781,21 +885,36 @@ printf(l2);
         List.fold_left2 add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals (Array.to_list (L.params function_ptr)) 
       in
       (* Build the code for each statement in the function *)
-      builder := !(build_stmt (fdecl, function_ptr) local_vars builder (A.Block fdecl.A.body));
-      (* Add a return if the last block falls off the end *)
-      add_terminal builder (match fdecl.A.typ with
-          A.Void -> L.build_ret_void
-        | t -> L.build_ret (L.const_int (ltype_of_typ t) 0));
+      builder := !(build_stmt (fdecl, function_ptr) local_vars builder (A.Block fdecl.A.body) current_return); 
+      match !current_return with
+        Returnstruct t ->
+          add_terminal builder (match fdecl.A.typ with  
+            A.Void -> L.build_ret_void
+          | _ -> L.build_ret (L.build_alloca t "tmp" !builder))
+      | _ -> () (* this is when doing type inference, the system function is going to be deleted anyway, so we don't care if all its blocks have ret or not *) 
     in
     (* temporary function to go through code once, so that we can do return type inference *)
     let system_function = L.define_function "system_function" (L.function_type void_t formal_types) the_module in
     body_building system_function;
+    (* find return type from current_return *)
+    let return_t = L.named_struct_type context "return_t" in
+    (match !current_return with
+      Voidtype t -> current_return := Returnstruct (void_t); ignore(fdecl.A.typ <- A.Void)
+    | Lltypearray ltyp_arr -> L.struct_set_body return_t ltyp_arr false; current_return := Returnstruct (return_t); 
+                              let f m t = (type_of_lltype t)::m in
+                              ignore(fdecl.A.typ <- A.Mulret (List.rev (Array.fold_left f [] ltyp_arr)))
+    | Returnstruct t -> failwith ("type inference bug")
+    | Maintype -> failwith ("type inference bug") );
     (* User-defined function declarations *)
     let name = fdecl.A.fname in
-    let return_type = !current_return in
+    let return_type = 
+      let ret = match !current_return with Returnstruct t -> t | _-> failwith "type inference bug" in
+      match (L.string_of_lltype ret) with
+        "void" -> void_t
+      | _ -> L.pointer_type ret
+    in
     let ftype = L.function_type return_type formal_types in
     let function_decl = L.define_function name ftype the_module in
-    ignore( fdecl.A.typ <-(type_of_lltype return_type)); 
     H.add function_decls name (function_decl, fdecl); 
     body_building function_decl;
     L.delete_function system_function (*for some unknown reason, it seems that deleting this auxiliary function would trigger stack protector and segment fault, so we have to let it be *)
@@ -804,7 +923,7 @@ printf(l2);
 
   (* build main function *)
   let build_main main_body =
-
+    let current_return = ref Maintype in
 
 
  (* continue with building main function *)
@@ -817,12 +936,12 @@ printf(l2);
       
     
     let local_vars = H.create 1000 in
-    main_builder := !(build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body));
+    main_builder := !(build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body) current_return);
     (* Add a return if the last block falls off the end *)
 
     add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
 
 
 (* 6. Combine all *)
-  List.iter build_function_body functions; build_main main_stmt;  
+  List.iter build_function_body functions; build_main main_stmt;
   the_module 

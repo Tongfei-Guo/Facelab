@@ -1,6 +1,8 @@
 ; ModuleID = 'MicroC'
 source_filename = "MicroC"
 
+%return_t = type { i32 }
+
 @fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
 @fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
 @fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
@@ -12,18 +14,26 @@ source_filename = "MicroC"
 
 define i32 @main() {
 entry:
-  %gcd_result = call i32 @gcd(i32 252, i32 9)
-  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %gcd_result)
+  %gcd_result = call %return_t* @gcd(i32 252, i32 9)
+  %v_ptr = getelementptr inbounds %return_t, %return_t* %gcd_result, i32 0, i32 0
+  %v = load i32, i32* %v_ptr
+  %0 = bitcast %return_t* %gcd_result to i8*
+  tail call void @free(i8* %0)
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %v)
   %printf1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_str.1, i32 0, i32 0))
-  %gcd_result2 = call i32 @gcd(i32 71, i32 131)
-  %printf3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %gcd_result2)
-  %printf4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_str.1, i32 0, i32 0))
+  %gcd_result2 = call %return_t* @gcd(i32 71, i32 131)
+  %v_ptr3 = getelementptr inbounds %return_t, %return_t* %gcd_result2, i32 0, i32 0
+  %v4 = load i32, i32* %v_ptr3
+  %1 = bitcast %return_t* %gcd_result2 to i8*
+  tail call void @free(i8* %1)
+  %printf5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %v4)
+  %printf6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_str.1, i32 0, i32 0))
   ret i32 0
 }
 
 declare i32 @printf(i8*, ...)
 
-define i32 @gcd(i32, i32) {
+define %return_t* @gcd(i32, i32) {
 entry:
   %m = alloca i32
   store i32 %0, i32* %m
@@ -34,46 +44,75 @@ entry:
   br i1 %tmp, label %then, label %else
 
 merge:                                            ; preds = %else
-  %n7 = load i32, i32* %n
-  %tmp8 = icmp eq i32 %n7, 0
-  br i1 %tmp8, label %then4, label %else6
+  %n10 = load i32, i32* %n
+  %tmp11 = icmp eq i32 %n10, 0
+  br i1 %tmp11, label %then4, label %else9
 
 then:                                             ; preds = %entry
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %return_t*
   %n1 = load i32, i32* %n
-  ret i32 %n1
+  %return0 = getelementptr inbounds %return_t, %return_t* %return, i32 0, i32 0
+  store i32 %n1, i32* %return0
+  ret %return_t* %return
 
 else:                                             ; preds = %entry
   br label %merge
 
-merge3:                                           ; preds = %else6
-  %m21 = load i32, i32* %m
-  %n22 = load i32, i32* %n
-  %tmp23 = icmp sgt i32 %m21, %n22
-  br i1 %tmp23, label %then10, label %else15
+merge3:                                           ; preds = %else9
+  %m32 = load i32, i32* %m
+  %n33 = load i32, i32* %n
+  %tmp34 = icmp sgt i32 %m32, %n33
+  br i1 %tmp34, label %then13, label %else21
 
 then4:                                            ; preds = %merge
-  %m5 = load i32, i32* %m
-  ret i32 %m5
+  %malloccall5 = tail call i8* @malloc(i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32))
+  %return6 = bitcast i8* %malloccall5 to %return_t*
+  %m7 = load i32, i32* %m
+  %return08 = getelementptr inbounds %return_t, %return_t* %return6, i32 0, i32 0
+  store i32 %m7, i32* %return08
+  ret %return_t* %return6
 
-else6:                                            ; preds = %merge
+else9:                                            ; preds = %merge
   br label %merge3
 
-merge9:                                           ; No predecessors!
-  ret i32 0
+merge12:                                          ; No predecessors!
+  %tmp35 = alloca %return_t
+  ret %return_t* %tmp35
 
-then10:                                           ; preds = %merge3
-  %n11 = load i32, i32* %n
-  %m12 = load i32, i32* %m
-  %n13 = load i32, i32* %n
-  %tmp14 = srem i32 %m12, %n13
-  %gcd_result = call i32 @gcd(i32 %tmp14, i32 %n11)
-  ret i32 %gcd_result
+then13:                                           ; preds = %merge3
+  %malloccall14 = tail call i8* @malloc(i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32))
+  %return15 = bitcast i8* %malloccall14 to %return_t*
+  %n16 = load i32, i32* %n
+  %m17 = load i32, i32* %m
+  %n18 = load i32, i32* %n
+  %tmp19 = srem i32 %m17, %n18
+  %gcd_result = call %return_t* @gcd(i32 %tmp19, i32 %n16)
+  %v_ptr = getelementptr inbounds %return_t, %return_t* %gcd_result, i32 0, i32 0
+  %v = load i32, i32* %v_ptr
+  %2 = bitcast %return_t* %gcd_result to i8*
+  tail call void @free(i8* %2)
+  %return020 = getelementptr inbounds %return_t, %return_t* %return15, i32 0, i32 0
+  store i32 %v, i32* %return020
+  ret %return_t* %return15
 
-else15:                                           ; preds = %merge3
-  %m16 = load i32, i32* %m
-  %n17 = load i32, i32* %n
-  %m18 = load i32, i32* %m
-  %tmp19 = srem i32 %n17, %m18
-  %gcd_result20 = call i32 @gcd(i32 %tmp19, i32 %m16)
-  ret i32 %gcd_result20
+else21:                                           ; preds = %merge3
+  %malloccall22 = tail call i8* @malloc(i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32))
+  %return23 = bitcast i8* %malloccall22 to %return_t*
+  %m24 = load i32, i32* %m
+  %n25 = load i32, i32* %n
+  %m26 = load i32, i32* %m
+  %tmp27 = srem i32 %n25, %m26
+  %gcd_result28 = call %return_t* @gcd(i32 %tmp27, i32 %m24)
+  %v_ptr29 = getelementptr inbounds %return_t, %return_t* %gcd_result28, i32 0, i32 0
+  %v30 = load i32, i32* %v_ptr29
+  %3 = bitcast %return_t* %gcd_result28 to i8*
+  tail call void @free(i8* %3)
+  %return031 = getelementptr inbounds %return_t, %return_t* %return23, i32 0, i32 0
+  store i32 %v30, i32* %return031
+  ret %return_t* %return23
 }
+
+declare noalias i8* @malloc(i32)
+
+declare void @free(i8*)
