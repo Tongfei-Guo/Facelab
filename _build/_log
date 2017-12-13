@@ -1,26 +1,43 @@
 ### Starting build.
 # Target: facelab.ml.depends, tags: { extension:ml, file:facelab.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules facelab.ml > facelab.ml.depends # cached
+ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules facelab.ml > facelab.ml.depends
 # Target: codegen.ml.depends, tags: { extension:ml, file:codegen.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), package(str), quiet }
 ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules codegen.ml > codegen.ml.depends
 # Target: ast.ml.depends, tags: { extension:ml, file:ast.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends # cached
-# Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o ast.cmo ast.ml # cached
+ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends
 # Target: matrix.ml.depends, tags: { extension:ml, file:matrix.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules matrix.ml > matrix.ml.depends # cached
+ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules matrix.ml > matrix.ml.depends
+# Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, package(llvm), package(llvm.analysis), package(str), quiet }
+ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o ast.cmo ast.ml
++ ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o ast.cmo ast.ml
+File "ast.ml", line 57, characters 19-220:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+(Rmdr|Matprod)
+File "ast.ml", line 75, characters 25-519:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+(MatrixLit (_, _)|Comma _|Mulassign (_, _)|Index (_, _)|Noassign|Bug)
+File "ast.ml", line 90, characters 25-649:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+Local (_, _, _)
+File "ast.ml", line 103, characters 20-173:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+(Mulret _|Bug)
 # Target: matrix.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:matrix.cmo, file:matrix.ml, implem, ocaml, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o matrix.cmo matrix.ml # cached
+ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o matrix.cmo matrix.ml
 # Target: parser.mly, tags: { extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, package(llvm), package(llvm.analysis), package(str), parser, quiet }
-/usr/bin/ocamlyacc parser.mly # cached
+/usr/bin/ocamlyacc parser.mly
 # Target: parser.mli.depends, tags: { extension:mli, file:parser.mli, ocaml, ocamldep, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules parser.mli > parser.mli.depends # cached
-# Target: parser.cmi, tags: { byte, compile, extension:mli, file:parser.mli, interf, ocaml, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o parser.cmi parser.mli # cached
+ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules parser.mli > parser.mli.depends
 # Target: scanner.mll, tags: { extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, package(llvm), package(llvm.analysis), package(str), quiet }
-/usr/bin/ocamllex -q scanner.mll # cached
+/usr/bin/ocamllex -q scanner.mll
 # Target: scanner.ml.depends, tags: { extension:ml, file:scanner.ml, ocaml, ocamldep, package(llvm), package(llvm.analysis), package(str), quiet }
-ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules scanner.ml > scanner.ml.depends # cached
+ocamlfind ocamldep -package str -package llvm.analysis -package llvm -modules scanner.ml > scanner.ml.depends
+# Target: parser.cmi, tags: { byte, compile, extension:mli, file:parser.mli, interf, ocaml, package(llvm), package(llvm.analysis), package(str), quiet }
+ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o parser.cmi parser.mli
 # Target: codegen.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:codegen.cmo, file:codegen.ml, implem, ocaml, package(llvm), package(llvm.analysis), package(str), quiet }
 ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
 + ocamlfind ocamlc -c -w +a-4 -package str -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
