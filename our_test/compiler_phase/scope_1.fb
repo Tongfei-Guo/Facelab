@@ -1,6 +1,21 @@
-int i = 3;
+int i = 0;
 {
-    int j = 4;
+    int j = 5;
+    printf(i);printf(j);
+    {
+        i = 1;
+        int j = 6;
+        printf(i);printf(j);
+        {
+            i = 2;
+        }
+    }
+    {
+        {
+             int i;
+             i = 3;
+        }
+    }
 }
-printf(j);
-
+printf(i);
+//printf(j);//give error variable j not declared.

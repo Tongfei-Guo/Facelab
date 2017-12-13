@@ -19,6 +19,7 @@ module H = Hashtbl
 open Str
 module StringMap = Map.Make(String)
 type ret_typ = Returnstruct of L.lltype | Lltypearray of L.lltype array | Voidtype of L.lltype | Maintype
+type access_link = Access of access_link * (string, L.llvalue) H.t | Null
 (* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication, and we force globals to be either uninitilized or initialized with literals *)
 let translate (globals, functions, main_stmt) =
 
@@ -515,9 +516,10 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           ignore(L.build_store init_v global !main_builder);m
       )
     in
-    List.fold_left global_var (H.create (List.length globals)) globals
+    let global_access = Access(Null, H.create (List.length globals)) in
+    let map = match global_access with Access(_, map) -> map | Null -> failwith("global access link error") in
+    ignore(List.fold_left global_var map globals); global_access
   in
-
 
 
 
@@ -545,8 +547,12 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             ignore(L.build_free m !builder); ignore(L.build_free e !builder);mat
         | _ -> e
       in
-      let lookup n = try (H.find local_vars n, local_vars)
-                   with Not_found -> (H.find global_vars n, global_vars)
+      let rec lookup n access= 
+        match access with
+          Access(prev_access, map) ->
+            (try (H.find map n, map)
+            with Not_found -> lookup n prev_access)
+        | Null -> failwith("variable " ^ n ^ " not declared")
       in
 
       match e with
@@ -558,7 +564,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       | A.Noexpr -> L.const_int i32_t 0
       | A.Noassign -> L.const_int i32_t 0
       | A.Id s ->
-          let ptr,map = lookup s in
+          let ptr,map = lookup s local_vars in
           (match (is_matrix ptr) with
             true -> ptr
           | false -> L.build_load ptr s !builder)
@@ -622,7 +628,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           let single_assign e1 value = 
             (match e1 with
               A.Id s -> 
-                let ptr,map = lookup s in
+                let ptr,map = lookup s local_vars in
                 (match (is_matrix ptr) with
                   true -> 
                     let r = L.build_load (L.build_struct_gep value 1 "m_r" !builder) "r_mat" !builder in
@@ -634,7 +640,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                                    value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value
                 | false -> ignore(L.build_store value ptr !builder); value)
             | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
-                let ptr,map = lookup s in
+                let ptr,map = lookup s local_vars in
                 let r = L.build_load (L.build_struct_gep ptr 1 "m_r" !builder) "r_mat" !builder in
                 let c = L.build_load (L.build_struct_gep ptr 2 "m_c" !builder) "c_mat" !builder in
                 let x_l = index_converter "x" x_low r c builder in
@@ -660,7 +666,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           )
                
       | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
-          let ptr, map = lookup s in
+          let ptr, map = lookup s local_vars in
           let r = L.build_load (L.build_struct_gep ptr 1 "m_r" !builder) "r_mat" !builder in
           let c = L.build_load (L.build_struct_gep ptr 2 "m_c" !builder) "c_mat" !builder in
           let x_l = index_converter "x" x_low r c builder in
@@ -717,6 +723,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     (* Build the code for the given statement; return the builder for
        the statement's successor *)
       A.Block sl -> 
+        let local_vars = Access(local_vars, H.create 1000) in
         let build_st st = ignore (build_stmt (fdecl, function_ptr) local_vars builder st current_return) in
         List.iter build_st sl; builder
     | A.Expr e -> ignore (expr builder e); builder
@@ -794,11 +801,12 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       let update builder = ignore(expr builder e3); builder in
       let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body current_return in
       llvm_for function_ptr builder (init_st, pred, update, body_st); builder
-    | A.Local (t, n, v) -> (match t with
+    | A.Local (t, n, v) -> let map = match local_vars with Access(_, map) -> map | Null -> failwith("local access link error") in
+                           (match t with
                              A.Matrix ->
                                (match v with
                                  A.Noassign -> let local = stack_build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder in
-                                               H.add local_vars n local;
+                                               H.add map n local;
                                | _-> let v' = expr builder v in
                                      let r = L.build_load (L.build_struct_gep v' 1 "m_r" !builder) "r_mat" !builder in
                                      let c = L.build_load (L.build_struct_gep v' 2 "m_c" !builder) "c_mat" !builder in
@@ -806,10 +814,10 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                                      mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
                                                   v' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder;
-                                     H.add local_vars n local)
+                                     H.add map n local)
                            | _ -> 
                                let local = L.build_alloca (ltype_of_typ t) n !builder in 
-                               H.add local_vars n local;
+                               H.add map n local;
                                let init_v =
                                  (match v with
                                    A.Noassign ->
@@ -860,7 +868,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             ignore (L.build_store p local !builder);
             H.add m n local;m(* local is a ptr? *)
         in
-        List.fold_left2 add_formal (H.create (1000 + List.length fdecl.A.formals)) fdecl.A.formals (Array.to_list (L.params function_ptr)) 
+        let func_local_access = Access(global_vars, H.create (1000 + List.length fdecl.A.formals)) in
+        let map = match func_local_access with Access(_, map) -> map | Null -> failwith("function local access link error") in
+        ignore(List.fold_left2 add_formal map fdecl.A.formals (Array.to_list (L.params function_ptr))); func_local_access
       in
       (* Build the code for each statement in the function *)
       builder := !(build_stmt (fdecl, function_ptr) local_vars builder (A.Block fdecl.A.body) current_return); 
@@ -913,7 +923,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       } in
       
     
-    let local_vars = H.create 1000 in
+    let local_vars = Access(global_vars, H.create 1000) in
     main_builder := !(build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body) current_return);
     (* Add a return if the last block falls off the end *)
 
