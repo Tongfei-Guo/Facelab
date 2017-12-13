@@ -1,336 +1,244 @@
-	.text
-	.file	"MicroC"
-	.section	.rodata.cst8,"aM",@progbits,8
-	.p2align	3               # -- Begin function main
-.LCPI0_0:
-	.quad	4607182418800017408     # double 1
-	.text
-	.globl	main
+	.section	__TEXT,__text,regular,pure_instructions
+	.macosx_version_min 10, 13
+	.globl	_main                   ## -- Begin function main
 	.p2align	4, 0x90
-	.type	main,@function
-main:                                   # @main
+_main:                                  ## @main
 	.cfi_startproc
-# BB#0:                                 # %entry
-	subq	$200, %rsp
-.Lcfi0:
-	.cfi_def_cfa_offset 208
-	movabsq	$4607182418800017408, %rax # imm = 0x3FF0000000000000
-	movq	%rax, 8(%rsp)
-	movabsq	$4611686018427387904, %rax # imm = 0x4000000000000000
-	movq	%rax, 16(%rsp)
-	movabsq	$4613937818241073152, %rax # imm = 0x4008000000000000
-	movq	%rax, 24(%rsp)
-	movabsq	$4616189618054758400, %rax # imm = 0x4010000000000000
-	movq	%rax, 32(%rsp)
-	movabsq	$4617315517961601024, %rax # imm = 0x4014000000000000
-	movq	%rax, 40(%rsp)
-	movabsq	$4618441417868443648, %rax # imm = 0x4018000000000000
-	movq	%rax, 48(%rsp)
-	movabsq	$4619567317775286272, %rax # imm = 0x401C000000000000
-	movq	%rax, 56(%rsp)
-	movabsq	$4620693217682128896, %rax # imm = 0x4020000000000000
-	movq	%rax, 64(%rsp)
-	movabsq	$4621256167635550208, %rax # imm = 0x4022000000000000
-	movq	%rax, 72(%rsp)
-	movabsq	$4621819117588971520, %rax # imm = 0x4024000000000000
-	movq	%rax, 80(%rsp)
-	movabsq	$4622382067542392832, %rax # imm = 0x4026000000000000
-	movq	%rax, 88(%rsp)
-	movabsq	$4622945017495814144, %rax # imm = 0x4028000000000000
-	movq	%rax, 96(%rsp)
-	movsd	.LCPI0_0(%rip), %xmm0   # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
+## BB#0:                                ## %entry
+	pushq	%rbp
+Lcfi0:
+	.cfi_def_cfa_offset 16
+Lcfi1:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Lcfi2:
+	.cfi_def_cfa_register %rbp
+	pushq	%r15
+	pushq	%r14
+	pushq	%r13
+	pushq	%r12
+	pushq	%rbx
+	subq	$136, %rsp
+Lcfi3:
+	.cfi_offset %rbx, -56
+Lcfi4:
+	.cfi_offset %r12, -48
+Lcfi5:
+	.cfi_offset %r13, -40
+Lcfi6:
+	.cfi_offset %r14, -32
+Lcfi7:
+	.cfi_offset %r15, -24
+	movabsq	$4607182418800017408, %rax ## imm = 0x3FF0000000000000
+	movq	%rax, -176(%rbp)
+	movabsq	$4611686018427387904, %rax ## imm = 0x4000000000000000
+	movq	%rax, -168(%rbp)
+	movabsq	$4613937818241073152, %rax ## imm = 0x4008000000000000
+	movq	%rax, -160(%rbp)
+	movabsq	$4616189618054758400, %rax ## imm = 0x4010000000000000
+	movq	%rax, -152(%rbp)
+	movabsq	$4617315517961601024, %rax ## imm = 0x4014000000000000
+	movq	%rax, -144(%rbp)
+	movabsq	$4618441417868443648, %rax ## imm = 0x4018000000000000
+	movq	%rax, -136(%rbp)
+	movabsq	$4619567317775286272, %rax ## imm = 0x401C000000000000
+	movq	%rax, -128(%rbp)
+	movabsq	$4620693217682128896, %rax ## imm = 0x4020000000000000
+	movq	%rax, -120(%rbp)
+	movabsq	$4621256167635550208, %rax ## imm = 0x4022000000000000
+	movq	%rax, -112(%rbp)
+	movabsq	$4621819117588971520, %rax ## imm = 0x4024000000000000
+	movq	%rax, -104(%rbp)
+	movabsq	$4622382067542392832, %rax ## imm = 0x4026000000000000
+	movq	%rax, -96(%rbp)
+	movabsq	$4622945017495814144, %rax ## imm = 0x4028000000000000
+	movq	%rax, -88(%rbp)
+	leaq	-176(%rbp), %rax
+	movq	%rax, -80(%rbp)
+	movabsq	$12884901892, %rdx      ## imm = 0x300000004
+	movq	%rdx, -72(%rbp)
+	movl	$4, %r8d
+	movl	$3, %ecx
+	movq	%rsp, %rax
+	addq	$-96, %rax
+	movq	%rax, %rsp
+	movq	%rax, -64(%rbp)
+	movq	%rdx, -56(%rbp)
+	movl	$2, %edx
+	movl	$0, -44(%rbp)
+	cmpl	%ecx, -44(%rbp)
+	jle	LBB0_2
+	jmp	LBB0_6
+	.p2align	4, 0x90
+LBB0_5:                                 ## %merge
+                                        ##   in Loop: Header=BB0_2 Depth=1
+	incl	-44(%rbp)
+	cmpl	%ecx, -44(%rbp)
+	jg	LBB0_6
+LBB0_2:                                 ## %while_body
+                                        ## =>This Loop Header: Depth=1
+                                        ##     Child Loop BB0_4 Depth 2
+	movq	%rsp, %rdi
+	leaq	-16(%rdi), %rsi
+	movq	%rsi, %rsp
+	movl	$0, -16(%rdi)
+	cmpl	%edx, (%rsi)
+	jg	LBB0_5
+	.p2align	4, 0x90
+LBB0_4:                                 ## %while_body21
+                                        ##   Parent Loop BB0_2 Depth=1
+                                        ## =>  This Inner Loop Header: Depth=2
+	movl	-44(%rbp), %edi
+	imull	%ecx, %edi
+	addl	(%rsi), %edi
+	movslq	%edi, %rdi
+	movq	$0, (%rax,%rdi,8)
+	incl	(%rsi)
+	cmpl	%edx, (%rsi)
+	jle	LBB0_4
+	jmp	LBB0_5
+LBB0_6:                                 ## %merge29
+	decl	%ecx
+	decl	%r8d
+	movq	-64(%rbp), %r9
+	movl	-52(%rbp), %r11d
+	movq	-80(%rbp), %r14
+	movl	-68(%rbp), %r15d
+	movq	%rsp, %rdx
+	leaq	-16(%rdx), %rax
+	movq	%rax, %rsp
+	movl	$0, -16(%rdx)
+	cmpl	%r8d, (%rax)
+	jle	LBB0_8
+	jmp	LBB0_12
+	.p2align	4, 0x90
+LBB0_11:                                ## %merge64
+                                        ##   in Loop: Header=BB0_8 Depth=1
+	incl	(%rax)
+	cmpl	%r8d, (%rax)
+	jg	LBB0_12
+LBB0_8:                                 ## %while_body44
+                                        ## =>This Loop Header: Depth=1
+                                        ##     Child Loop BB0_10 Depth 2
+	movq	%rsp, %r10
+	leaq	-16(%r10), %rdx
+	movq	%rdx, %rsp
+	movl	$0, -16(%r10)
+	cmpl	%ecx, (%rdx)
+	jg	LBB0_11
+	.p2align	4, 0x90
+LBB0_10:                                ## %while_body47
+                                        ##   Parent Loop BB0_8 Depth=1
+                                        ## =>  This Inner Loop Header: Depth=2
+	movl	(%rdx), %esi
+	movl	(%rax), %edi
+	movl	%r11d, %ebx
+	imull	%edi, %ebx
+	addl	%esi, %ebx
+	movslq	%ebx, %rbx
+	imull	%r15d, %edi
+	addl	%esi, %edi
+	movslq	%edi, %rsi
+	movsd	(%r14,%rsi,8), %xmm0    ## xmm0 = mem[0],zero
+	movsd	%xmm0, (%r9,%rbx,8)
+	incl	(%rdx)
+	cmpl	%ecx, (%rdx)
+	jle	LBB0_10
+	jmp	LBB0_11
+LBB0_12:                                ## %merge69
+	movq	-64(%rbp), %rbx
+	movl	-56(%rbp), %eax
+	movl	-52(%rbp), %r12d
+	decl	%eax
+	movl	%eax, -48(%rbp)         ## 4-byte Spill
+	leal	-1(%r12), %r14d
+	movq	%rsp, %rax
+	leaq	-16(%rax), %r15
+	movq	%r15, %rsp
+	movl	$0, -16(%rax)
+	jmp	LBB0_13
+	.p2align	4, 0x90
+LBB0_17:                                ## %merge95
+                                        ##   in Loop: Header=BB0_13 Depth=1
+	xorl	%eax, %eax
+	leaq	L_fmt_str(%rip), %rdi
+	leaq	L_fmt_str.1(%rip), %rsi
+	callq	_printf
+	incl	(%r15)
+LBB0_13:                                ## %while81
+                                        ## =>This Loop Header: Depth=1
+                                        ##     Child Loop BB0_16 Depth 2
+	movl	-48(%rbp), %eax         ## 4-byte Reload
+	cmpl	%eax, (%r15)
+	jg	LBB0_18
+## BB#14:                               ## %while_body82
+                                        ##   in Loop: Header=BB0_13 Depth=1
+	movq	%rsp, %rax
+	leaq	-16(%rax), %r13
+	movq	%r13, %rsp
+	movl	$0, -16(%rax)
+	cmpl	%r14d, (%r13)
+	jg	LBB0_17
+	.p2align	4, 0x90
+LBB0_16:                                ## %while_body85
+                                        ##   Parent Loop BB0_13 Depth=1
+                                        ## =>  This Inner Loop Header: Depth=2
+	movl	(%r15), %eax
+	imull	%r12d, %eax
+	addl	(%r13), %eax
+	cltq
+	movsd	(%rbx,%rax,8), %xmm0    ## xmm0 = mem[0],zero
 	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
+	leaq	L_fmt_double(%rip), %rdi
+	callq	_printf
 	xorl	%eax, %eax
-	callq	printf
-	movsd	16(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
+	leaq	L_fmt_str(%rip), %rdi
+	leaq	L_fmt_str.2(%rip), %rsi
+	callq	_printf
+	incl	(%r13)
+	cmpl	%r14d, (%r13)
+	jle	LBB0_16
+	jmp	LBB0_17
+LBB0_18:                                ## %merge101
+	leaq	L_fmt_str(%rip), %rdi
+	leaq	L_fmt_str.3(%rip), %rsi
 	xorl	%eax, %eax
-	callq	printf
-	movsd	24(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
+	callq	_printf
 	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	32(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	40(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	48(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	56(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	64(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	72(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	80(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	88(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	96(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.3, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	8(%rsp), %xmm0          # xmm0 = mem[0],zero
-	movsd	16(%rsp), %xmm1         # xmm1 = mem[0],zero
-	movsd	%xmm0, 104(%rsp)
-	movsd	%xmm1, 112(%rsp)
-	movsd	24(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 120(%rsp)
-	movsd	32(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 128(%rsp)
-	movsd	40(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 136(%rsp)
-	movsd	48(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 144(%rsp)
-	movsd	56(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 152(%rsp)
-	movsd	64(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 160(%rsp)
-	movsd	72(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 168(%rsp)
-	movsd	80(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	88(%rsp), %xmm1         # xmm1 = mem[0],zero
-	movsd	%xmm0, 176(%rsp)
-	movsd	%xmm1, 184(%rsp)
-	movsd	96(%rsp), %xmm0         # xmm0 = mem[0],zero
-	movsd	%xmm0, 192(%rsp)
-	movsd	104(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	112(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	120(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	128(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	136(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	144(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	152(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	160(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	168(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	176(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	184(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movsd	192(%rsp), %xmm0        # xmm0 = mem[0],zero
-	movl	$.Lfmt_double, %edi
-	movb	$1, %al
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.2, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.1, %esi
-	xorl	%eax, %eax
-	callq	printf
-	movl	$.Lfmt_str, %edi
-	movl	$.Lfmt_int.3, %esi
-	xorl	%eax, %eax
-	callq	printf
-	xorl	%eax, %eax
-	addq	$200, %rsp
+	leaq	-40(%rbp), %rsp
+	popq	%rbx
+	popq	%r12
+	popq	%r13
+	popq	%r14
+	popq	%r15
+	popq	%rbp
 	retq
-.Lfunc_end0:
-	.size	main, .Lfunc_end0-main
 	.cfi_endproc
-                                        # -- End function
-	.type	.Lfmt_str,@object       # @fmt_str
-	.section	.rodata.str1.1,"aMS",@progbits,1
-.Lfmt_str:
+                                        ## -- End function
+	.section	__TEXT,__cstring,cstring_literals
+L_fmt_str:                              ## @fmt_str
 	.asciz	"%s"
-	.size	.Lfmt_str, 3
 
-	.type	.Lfmt_double,@object    # @fmt_double
-.Lfmt_double:
+L_fmt_double:                           ## @fmt_double
 	.asciz	"%f"
-	.size	.Lfmt_double, 3
 
-	.type	.Lfmt_int,@object       # @fmt_int
-.Lfmt_int:
+L_fmt_int:                              ## @fmt_int
 	.asciz	"%d"
-	.size	.Lfmt_int, 3
 
-	.type	.Lfmt_int.1,@object     # @fmt_int.1
-.Lfmt_int.1:
+L_fmt_str.1:                            ## @fmt_str.1
 	.asciz	"\n"
-	.size	.Lfmt_int.1, 2
 
-	.type	.Lfmt_int.2,@object     # @fmt_int.2
-.Lfmt_int.2:
+L_fmt_str.2:                            ## @fmt_str.2
 	.asciz	"  "
-	.size	.Lfmt_int.2, 3
 
-	.type	.Lfmt_int.3,@object     # @fmt_int.3
-.Lfmt_int.3:
-	.zero	1
-	.size	.Lfmt_int.3, 1
+L_fmt_str.3:                            ## @fmt_str.3
+	.space	1
+
+L_fmt_str.4:                            ## @fmt_str.4
+	.asciz	"true"
+
+L_fmt_str.5:                            ## @fmt_str.5
+	.asciz	"false"
 
 
-	.section	".note.GNU-stack","",@progbits
+.subsections_via_symbols
