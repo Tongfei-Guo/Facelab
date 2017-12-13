@@ -217,6 +217,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     llvm_while function_ptr builder (predicate, combined_stmt)
   in
 (* matrix auxiliaries *)
+
   (* access an entries in a matrix *)
   let access mat r c x y builder = 
     let index = L.build_add y (L.build_mul c x "tmp" !builder) "index" !builder in
@@ -240,11 +241,12 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     let m_c = L.build_struct_gep m 2 "m_c" !builder in
     ignore(L.build_store (L.const_int i32_t c) m_c !builder); m
   in
+
   (* create a matrix of size r by c (where r c are llvalues) *)
-  let build_mat_init r c function_ptr builder =
+  let build_mat_init alloc_func array_alloc_func r c function_ptr builder =
     let size = L.build_mul r c "size" !builder in
-    let mat = L.build_array_alloca double_t size "system_mat" !builder in
-    let m = L.build_alloca matrix_t "m" !builder in
+    let mat = array_alloc_func double_t size "system_mat" !builder in
+    let m = alloc_func matrix_t "m" !builder in
     let m_mat = L.build_struct_gep m 0 "m_mat" !builder in
     ignore(L.build_store mat m_mat !builder);
     let m_r = L.build_struct_gep m 1 "m_r" !builder in
@@ -269,34 +271,10 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
     llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);m
   in
-  
+  let stack_build_mat_init r c function_ptr builder =
+    build_mat_init L.build_alloca L.build_array_alloca r c function_ptr builder in
   let heap_build_mat_init r c function_ptr builder =
-    let size = L.build_mul r c "size" !builder in
-    let mat = L.build_array_malloc double_t size "system_mat" !builder in
-    let m = L.build_malloc matrix_t "m" !builder in
-    let m_mat = L.build_struct_gep m 0 "m_mat" !builder in
-    ignore(L.build_store mat m_mat !builder);
-    let m_r = L.build_struct_gep m 1 "m_r" !builder in
-    ignore(L.build_store r m_r !builder);
-    let m_c = L.build_struct_gep m 2 "m_c" !builder in
-    ignore(L.build_store c m_c !builder);
-    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
-    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
-    let i = L.build_alloca i32_t "i" !builder in
-    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
-    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
-    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
-    let body_stmt_i builder = 
-      let j = L.build_alloca i32_t "j" !builder in
-      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
-      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
-      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
-      let body_stmt_j builder = 
-        let mat_element_ptr = access mat r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
-        ignore(L.build_store (L.const_float double_t 0.0) mat_element_ptr !builder) in
-      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
-    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);m
-  in
+    build_mat_init L.build_malloc L.build_array_malloc r c function_ptr builder in
   
   (* assign an array to an array on the stack *)
   let mat_assign m_mat x_low x_high y_low y_high v_mat v_x_low v_y_low function_ptr builder =
@@ -369,7 +347,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     let c = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
     let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
     let m2 = L.build_load (L.build_struct_gep m2_mat 0 "m_mat" !builder) "mat_v" !builder in
-    let result_mat = build_mat_init r c function_ptr builder in
+    let result_mat = stack_build_mat_init r c function_ptr builder in
     let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
     let i = L.build_alloca i32_t "i" !builder in
     let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
@@ -442,7 +420,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
     let c = L.build_load (L.build_struct_gep m1_mat 2 "m_c" !builder) "c_mat" !builder in
     let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
-    let result_mat = build_mat_init r c function_ptr builder in
+    let result_mat = stack_build_mat_init r c function_ptr builder in
     let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
     let i = L.build_alloca i32_t "i" !builder in
     let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
@@ -474,7 +452,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
     let l = L.build_load (L.build_struct_gep m1_mat 2 "m_l" !builder) "l_mat" !builder in
     let l_high = L.build_sub l (L.const_int i32_t 1) "tmp" !builder in
-    let result_mat = build_mat_init r c function_ptr builder in
+    let result_mat = stack_build_mat_init r c function_ptr builder in
     let result = L.build_load (L.build_struct_gep result_mat 0 "m_mat" !builder) "mat_mat" !builder in
     let i = L.build_alloca i32_t "i" !builder in
     let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
@@ -513,7 +491,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       (match t with
         A.Matrix ->
           (match v with
-            A.Noassign -> let global = build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) main_define main_builder in
+            A.Noassign -> let global = stack_build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) main_define main_builder in
                           H.add m n global;m
           | A.MatrixLit (mat,(r,c))-> 
                 let global = build_mat_lit (mat, (r,c)) main_builder in
@@ -560,7 +538,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             let m = L.build_load (L.build_struct_gep e 0 "m_mat" !builder) "mat_mat" !builder in
             let r = L.build_load (L.build_struct_gep e 1 "m_r" !builder) "r_mat" !builder in
             let c = L.build_load (L.build_struct_gep e 2 "m_c" !builder) "c_mat" !builder in
-            let mat = build_mat_init r c function_ptr builder in
+            let mat = stack_build_mat_init r c function_ptr builder in
             ignore(mat_assign mat (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
                                   e (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
@@ -649,7 +627,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                   true -> 
                     let r = L.build_load (L.build_struct_gep value 1 "m_r" !builder) "r_mat" !builder in
                     let c = L.build_load (L.build_struct_gep value 2 "m_c" !builder) "c_mat" !builder in 
-                    let m = build_mat_init r c function_ptr builder in
+                    let m = stack_build_mat_init r c function_ptr builder in
                     H.replace map s m; 
                     mat_assign m (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder) 
                                    (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder) 
@@ -691,7 +669,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           let y_h = index_converter "y" y_high r c builder in
           let x_size = L.build_sub x_h x_l "tmp" !builder in
           let y_size = L.build_sub y_h y_l "tmp" !builder in
-          let m = build_mat_init (L.build_add x_size (L.const_int i32_t 1) "tmp" !builder)
+          let m = stack_build_mat_init (L.build_add x_size (L.const_int i32_t 1) "tmp" !builder)
                                  (L.build_add y_size (L.const_int i32_t 1) "tmp" !builder) function_ptr builder in
           mat_assign m (L.const_int i32_t 0) x_size (L.const_int i32_t 0) y_size ptr x_l y_l function_ptr builder; m
       (*| A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
@@ -819,12 +797,12 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     | A.Local (t, n, v) -> (match t with
                              A.Matrix ->
                                (match v with
-                                 A.Noassign -> let local = build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder in
+                                 A.Noassign -> let local = stack_build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder in
                                                H.add local_vars n local;
                                | _-> let v' = expr builder v in
                                      let r = L.build_load (L.build_struct_gep v' 1 "m_r" !builder) "r_mat" !builder in
                                      let c = L.build_load (L.build_struct_gep v' 2 "m_c" !builder) "c_mat" !builder in
-                                     let local = build_mat_init r c function_ptr builder in
+                                     let local = stack_build_mat_init r c function_ptr builder in
                                      mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
                                                   v' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder;
@@ -872,7 +850,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             A.Matrix -> 
               let r = L.build_load (L.build_struct_gep p 1 "m_r" !builder) "r_mat" !builder in
               let c = L.build_load (L.build_struct_gep p 2 "m_c" !builder) "c_mat" !builder in
-              let local = build_mat_init r c function_ptr builder in
+              let local = stack_build_mat_init r c function_ptr builder in
               mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
                                p (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder;
