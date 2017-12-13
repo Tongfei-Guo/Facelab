@@ -4,6 +4,6 @@ do
     rm $var.ir;
     ../../facelab.native $var.fb >> $var.ir;
     llc-5.0 $var.ir;
-    clang $var.ir.s -o $var
+    clang-4.0 $var.ir.s -o $var
 done
     
