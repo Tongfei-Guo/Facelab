@@ -1,0 +1,5 @@
+matrix m = [0.0, 0.1, 0.2; 1.0, 1.1, 1.2; 2.0, 2.1, 2.2];
+printf(m[0,0]==0.000);
+
+// convert 1 by 1 matrix to double
+// sample_output: true

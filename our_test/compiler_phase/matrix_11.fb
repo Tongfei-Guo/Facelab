@@ -1,0 +1,8 @@
+func funky() {
+	matrix m = [0.0,-0.1,0.2;0.0,0.1,0.2;1.1,1.2,1.3];
+	printf(m[0,1]);
+}
+funky();
+
+// can't have negative values in matrix;
+// sample output: [-0.1]

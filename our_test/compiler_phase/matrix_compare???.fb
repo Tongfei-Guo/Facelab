@@ -1,0 +1,21 @@
+func compare(matrix m1, matrix m2) {
+	printf("m1: ");
+	printend();
+	printf(m1);
+	printf("m2: ");
+	printend();
+	printf(m2);
+	printf("m1 == m2 ? ");
+	printf(m1 == m2);
+	printend();
+}
+
+matrix m1 = [0.0,0.1,0.2;1.0,1.1,1.2];
+matrix m2 = [0.0,0.1,0.2;1.0,1.1,1.2];
+compare(m1, m2);
+
+matrix m3 = [0.0,0.1,0.2];
+matrix m4 = [0.0,0.1,0.2;1.0,1.1,1.2];
+compare(m3, m4);
+
+// compare matrix with different dimensions
