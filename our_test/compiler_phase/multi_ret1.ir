@@ -3,6 +3,7 @@ source_filename = "MicroC"
 
 %matrix_t = type { double*, i32, i32 }
 %return_t.0 = type { %matrix_t*, %matrix_t* }
+%matrix_size_t = type { i32, i32 }
 
 @fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
 @fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
@@ -1175,6 +1176,23 @@ merge717:                                         ; preds = %while675
 
 declare i32 @printf(i8*, ...)
 
+define %matrix_size_t* @size(%matrix_t*) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 trunc (i64 mul nuw (i64 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i64), i64 2) to i32))
+  %return = bitcast i8* %malloccall to %matrix_size_t*
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r
+  %row_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 0
+  store i32 %r_mat, i32* %row_size
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c
+  %col_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 1
+  store i32 %c_mat, i32* %col_size
+  ret %matrix_size_t* %return
+}
+
+declare noalias i8* @malloc(i32)
+
 define void @f(%matrix_t*) {
 entry:
   %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
@@ -2222,7 +2240,5 @@ merge546:                                         ; preds = %while519
   %tmp549 = alloca %return_t.0
   ret %return_t.0* %tmp549
 }
-
-declare noalias i8* @malloc(i32)
 
 declare void @free(i8*)

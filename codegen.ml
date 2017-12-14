@@ -86,12 +86,13 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   let type_of_lltype typ =
     let ltype_string = L.string_of_lltype typ in
     match ltype_string with
-    | "void" -> A.Void
+      "void" -> A.Void
     | "i32" ->  A.Int
     | "double" -> A.Double
     | "i1" -> A.Bool
     | "i8*" -> A.String
     | "%matrix_t*" -> A.Matrix
+    | _ -> failwith("Compiler error : type_of_lltype function matching error.")
   in
   
   let typ_of_lvalue lv =
@@ -270,8 +271,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       let body_stmt_j builder = 
         let mat_element_ptr = access mat r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
         ignore(L.build_store (L.const_float double_t 0.0) mat_element_ptr !builder) in
-      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
-    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);m
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i));m
   in
   let stack_build_mat_init r c function_ptr builder =
     build_mat_init L.build_alloca L.build_array_alloca r c function_ptr builder in
@@ -326,9 +327,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
         let tmp_element = L.build_load mat_element_ptr "tmp_element" !builder in
         ignore(L.build_call printf_func [| double_format_str ; tmp_element|] "printf" !builder);
         ignore(L.build_call printf_func [| string_format_str ; two_space_str |] "printf" !builder) in
-      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j);
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j));
       ignore(L.build_call printf_func [| string_format_str ; new_line_str |] "printf" !builder) in
-    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i));
     L.build_call printf_func [| string_format_str ; empty_str |] "printf" !builder
   in
 
@@ -361,7 +362,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
         let tmp_element = operator m1_element m2_element "tmp_element" !builder in
         ignore(L.build_store tmp_element result_element_ptr !builder) in
       llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
-    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i); result_mat
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
   in
 
   (*matrix equality *)
@@ -649,7 +650,12 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                 let x_h = index_converter "x" x_high r c builder in
                 let y_l = index_converter "y" y_low r c builder in
                 let y_h = index_converter "y" y_high r c builder in              
-                mat_assign ptr x_l x_h y_l y_h value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value)
+                if ((x_low = x_high) && (y_low = y_high))
+                then (
+                  let mat = L.build_load (L.build_struct_gep ptr 0 "mat" !builder) "mat" !builder in
+                  L.build_store value (access mat r c x_l y_l builder) !builder) 
+                else (
+                  mat_assign ptr x_l x_h y_l y_h value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value))             
           in
           let value = expr builder e2 in
           (match e1 with
@@ -675,11 +681,16 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           let x_h = index_converter "x" x_high r c builder in
           let y_l = index_converter "y" y_low r c builder in
           let y_h = index_converter "y" y_high r c builder in
-          let x_size = L.build_sub x_h x_l "tmp" !builder in
-          let y_size = L.build_sub y_h y_l "tmp" !builder in
-          let m = stack_build_mat_init (L.build_add x_size (L.const_int i32_t 1) "tmp" !builder)
-                                 (L.build_add y_size (L.const_int i32_t 1) "tmp" !builder) function_ptr builder in
-          mat_assign m (L.const_int i32_t 0) x_size (L.const_int i32_t 0) y_size ptr x_l y_l function_ptr builder; m
+          if ((x_low = x_high) && (y_low = y_high))
+          then (
+            let mat = L.build_load (L.build_struct_gep ptr 0 "mat" !builder) "mat" !builder in
+            L.build_load (access mat r c x_l y_l builder) "element" !builder) 
+          else (
+            let x_size = L.build_sub x_h x_l "tmp" !builder in
+            let y_size = L.build_sub y_h y_l "tmp" !builder in
+            let m = stack_build_mat_init (L.build_add x_size (L.const_int i32_t 1) "tmp" !builder)
+                                         (L.build_add y_size (L.const_int i32_t 1) "tmp" !builder) function_ptr builder in
+            mat_assign m (L.const_int i32_t 0) x_size (L.const_int i32_t 0) y_size ptr x_l y_l function_ptr builder; m)
       (*| A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
           let (t,ptr) = lookup s in
           let A.Sizedmat(r, c) = t in
