@@ -157,6 +157,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
+
   (* Invoke "f builder" if the current block doesn't already
        have a terminal (e.g., a branch). *)
   let add_terminal builder f =
@@ -717,7 +718,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                     ignore(L.build_free exp !builder); 
                     return_aux v (List.hd l)
              | _ -> exp) (* multi return case, can only be used in A.Assign, and we will deal with it there. *)  
-      | A.Comma l -> L.const_int i32_t 0 (*failwith("Syntax error at comma separated list") *)
+      | A.Comma l -> failwith("Syntax error at comma separated list") 
     in
 
     match stmt with
@@ -908,6 +909,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     body_building function_decl;
     L.delete_function system_function (*for some unknown reason, it seems that deleting this auxiliary function would trigger stack protector and segment fault, so we have to let it be *)
   in
+
+
 (* 5. Main function body construction *)
 
   (* build main function *)
@@ -932,5 +935,38 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 
 
 (* 6. Combine all *)
+ 
+(* define size(), which return matrix size *)
+  let size_func_decl = 
+    { A.typ = Mulret([A.Int; A.Int]);
+      A.fname = "size";
+      A.formals = [(A.Matrix, "mat")];
+      A.body = [] }
+  in
+  let matrix_size_t = L.named_struct_type context "matrix_size_t" in
+  L.struct_set_body matrix_size_t [|i32_t; i32_t|] false;
+  let size_func = 
+    L.define_function "size" (L.function_type (L.pointer_type matrix_size_t) [| L.pointer_type matrix_t |]) the_module
+  in
+  H.add function_decls "size" (size_func, size_func_decl);
+
+ (* built-in functions *)
+  let built_in_body_building f body= 
+    let (fdef, fdecl) = H.find function_decls f in
+    body fdef
+  in
+   (* size function body *)
+  let size_func_body function_ptr =
+    let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
+    let return = L.build_malloc matrix_size_t "return" !builder in
+    let p = List.hd (Array.to_list (L.params function_ptr)) in
+    let r = L.build_load (L.build_struct_gep p 1 "m_r" !builder) "r_mat" !builder in
+    ignore(L.build_store r (L.build_struct_gep return 0 "row_size" !builder) !builder);
+    let c = L.build_load (L.build_struct_gep p 2 "m_c" !builder) "c_mat" !builder in
+    ignore(L.build_store c (L.build_struct_gep return 1 "col_size" !builder) !builder);
+    ignore(L.build_ret return !builder)
+  in
+  built_in_body_building "size" size_func_body;
+
   List.iter build_function_body functions; build_main main_stmt;
   the_module 
