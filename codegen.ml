@@ -947,6 +947,13 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 
 (* 6. Combine all *)
  
+ (* built-in functions *)
+  let built_in_body_building f body= 
+    let (fdef, fdecl) = H.find function_decls f in
+    body fdef
+  in
+
+ (* i. size() *)
 (* define size(), which return matrix size *)
   let size_func_decl = 
     { A.typ = Mulret([A.Int; A.Int]);
@@ -960,12 +967,6 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     L.define_function "size" (L.function_type (L.pointer_type matrix_size_t) [| L.pointer_type matrix_t |]) the_module
   in
   H.add function_decls "size" (size_func, size_func_decl);
-
- (* built-in functions *)
-  let built_in_body_building f body= 
-    let (fdef, fdecl) = H.find function_decls f in
-    body fdef
-  in
    (* size function body *)
   let size_func_body function_ptr =
     let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
@@ -978,6 +979,32 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     ignore(L.build_ret return !builder)
   in
   built_in_body_building "size" size_func_body;
+
+ (* i. zeros(i,j) *)
+(* define zeros(i,j), which return a zero matrix *)
+let zero_matrix_func_decl = 
+    { A.typ = Mulret([A.Matrix]);
+      A.fname = "zeros";
+      A.formals = [(A.Int, "i"); (A.Int, "j")];
+      A.body = [] }
+  in
+  let zero_matrix_t = L.named_struct_type context "zero_matrix_t" in
+  L.struct_set_body zero_matrix_t [| L.pointer_type matrix_t |] false;
+  let zero_matrix_func = 
+    L.define_function "zeros" (L.function_type (L.pointer_type zero_matrix_t) [| i32_t; i32_t |]) the_module
+  in
+  H.add function_decls "zeros" (zero_matrix_func, zero_matrix_func_decl);
+   (* zeros function body *)
+  let zero_matrix_func_body function_ptr =
+    let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
+    let return = L.build_malloc zero_matrix_t "return" !builder in
+    let i = List.hd (Array.to_list (L.params function_ptr)) in
+    let j = List.hd (List.tl (Array.to_list (L.params function_ptr))) in
+    let m = heap_build_mat_init i j function_ptr builder in
+    ignore(L.build_store m (L.build_struct_gep return 0 "m" !builder) !builder);
+    ignore(L.build_ret return !builder)
+  in
+  built_in_body_building "zeros" zero_matrix_func_body;
 
   List.iter build_function_body functions; build_main main_stmt;
   the_module 
