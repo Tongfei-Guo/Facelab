@@ -1,0 +1,25 @@
+int i = 0;
+{
+    int j = 5;
+    printf(i);printf(j);
+    {
+        i = 1;
+        int j = 6;
+        printf(i);printf(j);
+        {
+            i = 2;
+            int j = 0;
+        }
+        printf(j);
+    }
+    {
+        {
+             int i;
+             i = 3;
+        }
+        i = 9;
+    }
+}
+printf(i);
+
+//should print: 051669

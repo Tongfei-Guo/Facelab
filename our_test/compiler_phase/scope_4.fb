@@ -1,0 +1,12 @@
+int i = 0;
+int j;
+{
+	int i = 10;
+}
+for (j = 1; j <= 10; j=j+1) {
+	i = i + j;
+}
+printf(i);
+printend();
+printf(j);
+printend();
