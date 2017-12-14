@@ -23,8 +23,8 @@ open Ast
 %nonassoc NOELSE
 %nonassoc ELSE
 %nonassoc ELSEIF
-%nonassoc COLON
 %left COMMA
+%nonassoc COLON
 %left OR
 %left AND
 %left EQ NEQ
