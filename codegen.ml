@@ -16,7 +16,7 @@ module L = Llvm
 module A = Ast
 module M = Matrix
 module H = Hashtbl
-open Str
+(*open Str*)
 module StringMap = Map.Make(String)
 type ret_typ = Returnstruct of L.lltype | Lltypearray of L.lltype array | Voidtype of L.lltype | Maintype
 type access_link = Access of access_link * (string, L.llvalue) H.t | Null
@@ -81,6 +81,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     | A.Bool -> i1_t
     | A.Void -> void_t 
     | A.Matrix -> matrix_t
+    | _ -> failwith("Compiler error : ltype_of_typ function matching error.")
   in
 
   let type_of_lltype typ =
@@ -222,7 +223,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 (* matrix auxiliaries *)
 
   (* access an entries in a matrix *)
-  let access mat r c x y builder = 
+  let access mat r c x y builder =
+    ignore(r); (* no use but suppress warning *) 
     let index = L.build_add y (L.build_mul c x "tmp" !builder) "index" !builder in
     L.build_gep mat [|index|] "element_ptr" !builder
   in
@@ -361,7 +363,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
         let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
         let tmp_element = operator m1_element m2_element "tmp_element" !builder in
         ignore(L.build_store tmp_element result_element_ptr !builder) in
-      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
     ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
   in
 
@@ -392,9 +394,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
         let predicate builder = L.build_fcmp L.Fcmp.One m1_element m2_element "tmp" !builder in
         let then_stmt builder = ignore(L.build_store (L.const_int i1_t 0) result !builder); builder in
         let else_stmt builder = builder in 
-        llvm_if function_ptr builder (predicate, then_stmt, else_stmt) in
-      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
-    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i);
+        ignore(llvm_if function_ptr builder (predicate, then_stmt, else_stmt)) in
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i));
     L.build_load result "result" !builder
   in
 
@@ -432,8 +434,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
         let result_element_ptr = access result r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
         let tmp_element = operator m1_element num "tmp_element" !builder in
         ignore(L.build_store tmp_element result_element_ptr !builder) in
-      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
-    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i); result_mat
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
   in
 
   
@@ -472,10 +474,10 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           let m2_element_ptr = access m2 l c (L.build_load k "k_v" !builder) (L.build_load j "j_v" !builder) builder in
           let m2_element = L.build_load m2_element_ptr "tmp_element" !builder in
           ignore(L.build_store (L.build_fadd (L.build_fmul m1_element m2_element "tmp" !builder) (L.build_load tmp_element "tmp" !builder) "tmp" !builder) tmp_element !builder) in
-        llvm_for function_ptr builder (init_k, predicate_k, update_k, body_stmt_k);
+        ignore(llvm_for function_ptr builder (init_k, predicate_k, update_k, body_stmt_k));
         ignore(L.build_store (L.build_load tmp_element "tmp" !builder) result_element_ptr !builder) in
-      llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j) in
-    llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i); result_mat
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
   in
 
 
@@ -490,7 +492,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                           H.add m n global;m
           | A.MatrixLit (mat,(r,c))-> 
                 let global = build_mat_lit (mat, (r,c)) main_builder in
-                H.add m n global;m)
+                H.add m n global;m
+          | _ -> failwith("Syntax error : global matrix can only be default initialized or assigned with a matrix literal.") )
       | _ -> 
           let global = L.build_alloca (ltype_of_typ t) n !main_builder in 
           H.add m n global;
@@ -501,17 +504,20 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                   A.Int -> L.const_int i32_t 0
                 | A.Double -> L.const_float double_t 0.
                 | A.String -> L.build_global_stringptr "" "system_string" !main_builder (*empty string*)
-                | A.Bool -> L.const_int i1_t 0)
+                | A.Bool -> L.const_int i1_t 0
+                | A.Void -> failwith("Semantic error : variable "^n^" has type void.")
+                | _ -> failwith("Compiler error : global_vars unknown type initilization? ") )
             | A.IntLit i -> L.const_int i32_t i
             | A.DoubleLit d -> L.const_float double_t d
-            | A.StringLit s -> L.build_global_stringptr "" "system_string" !main_builder (*empty string*)
-            | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0))
+            | A.StringLit s -> L.build_global_stringptr s "system_string" !main_builder (*empty string*)
+            | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
+            | _ -> failwith("Syntax error : global variable can only be default initialized or assigned with a literal."))
           in
           ignore(L.build_store init_v global !main_builder);m
       )
     in
     let global_access = Access(Null, H.create (List.length globals)) in
-    let map = match global_access with Access(_, map) -> map | Null -> failwith("global access link error") in
+    let map = match global_access with Access(_, map) -> map | Null -> failwith("Compiler error : global access link error.") in
     ignore(List.fold_left global_var map globals); global_access
   in
 
@@ -545,7 +551,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           Access(prev_access, map) ->
             (try (H.find map n, map)
             with Not_found -> lookup n prev_access)
-        | Null -> failwith("variable " ^ n ^ " not declared")
+        | Null -> failwith("Semantic error : variable " ^ n ^ " not declared")
       in 
       (* convert A.index type to corresponding integral index in a matrix of size r by c *)
       let index_converter d ind r c builder= 
@@ -553,7 +559,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           A.Beg -> L.const_int i32_t 0
         | A.End -> (match d with
                      "x" -> L.build_sub r (L.const_int i32_t 1) "tmp" !builder
-                   | "y" -> L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
+                   | "y" -> L.build_sub c (L.const_int i32_t 1) "tmp" !builder
+                   | _ -> failwith ("Compiler error : index_converter wrong dimension symbol. "))
         | A.ExprInd(e) -> expr builder e
       in
 
@@ -567,7 +574,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       | A.Noexpr -> L.const_int i32_t 0
       | A.Noassign -> L.const_int i32_t 0
       | A.Id s ->
-          let ptr,map = lookup s local_vars in
+          let ptr,_ = lookup s local_vars in
           (match (is_matrix ptr) with
             true -> ptr
           | false -> L.build_load ptr s !builder)
@@ -603,6 +610,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 	      | A.Leq     -> L.build_icmp L.Icmp.Sle
 	      | A.Greater -> L.build_icmp L.Icmp.Sgt
 	      | A.Geq     -> L.build_icmp L.Icmp.Sge
+              | _ -> failwith ("Semantic error : wrong operator used on numerical operation.")
 	      ) exp1 exp2 "tmp" !builder)
           |_ -> (* matrix operation *)
             (match op with
@@ -616,12 +624,14 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                   | A.Sub     -> L.build_fsub 
                   | A.Mult    -> L.build_fmul 
                   | A.Div     -> L.build_fdiv
+                  | _         -> failwith ("Semantic error : wrong operator used on matrix operation.")
                   )
                 in
                 (match (is_matrix exp1, is_matrix exp2) with
                   (true, true) -> mat_mat_element_wise exp1 exp2 operator function_ptr builder
                 | (true, false) -> mat_num_element_wise exp1 exp2 operator function_ptr builder
-                | (false, true) -> mat_num_element_wise exp2 exp1 operator function_ptr builder)))
+                | (false, true) -> mat_num_element_wise exp2 exp1 operator function_ptr builder
+                | _ -> failwith("Compiler error : Binop operator matching error."))))
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
 	  (match op with
@@ -638,12 +648,12 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                     let c = L.build_load (L.build_struct_gep value 2 "m_c" !builder) "c_mat" !builder in 
                     let m = stack_build_mat_init r c function_ptr builder in
                     H.replace map s m; 
-                    mat_assign m (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder) 
+                    ignore(mat_assign m (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder) 
                                    (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder) 
-                                   value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value
+                                   value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder); value
                 | false -> ignore(L.build_store value ptr !builder); value)
-            | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
-                let ptr,map = lookup s local_vars in
+            | A.Index (s, (A.Range(x_low, x_high), A.Range(y_low, y_high))) ->
+                let ptr,_ = lookup s local_vars in
                 let r = L.build_load (L.build_struct_gep ptr 1 "m_r" !builder) "r_mat" !builder in
                 let c = L.build_load (L.build_struct_gep ptr 2 "m_c" !builder) "c_mat" !builder in
                 let x_l = index_converter "x" x_low r c builder in
@@ -655,26 +665,27 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                   let mat = L.build_load (L.build_struct_gep ptr 0 "mat" !builder) "mat" !builder in
                   L.build_store value (access mat r c x_l y_l builder) !builder) 
                 else (
-                  mat_assign ptr x_l x_h y_l y_h value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder; value))             
+                  ignore(mat_assign ptr x_l x_h y_l y_h value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder); value)
+            | _ -> failwith ("Semantic error : only variable and matrix indexing can be assigned to."))             
           in
           let value = expr builder e2 in
           (match e1 with
             A.Comma s_list -> 
              (match e2 with 
-               A.Call(f,act) ->
-                 let (fdef, fdecl) = H.find function_decls f in
-                 let l = match fdecl.A.typ with A.Mulret li -> li in
+               A.Call(f,_) ->
+                 let (_, fdecl) = H.find function_decls f in
+                 let l = match fdecl.A.typ with A.Mulret li -> li | _ -> failwith("Compiler error : Assign expr at A.Call return type is not Mulret") in
                    (for i = 0 to ((List.length l) - 1) do
                      let v = L.build_load (L.build_struct_gep value i "v_ptr" !builder) "v" !builder in
                      ignore (single_assign (List.nth s_list i) (return_aux v (List.nth l i)))
                    done);
                    ignore(L.build_free value !builder);
-             | _ -> failwith("Multiple variables must be assigned with a function call that has multiple return values.") ); value
+             | _ -> failwith("Syntax error: multiple variables must be assigned with a function call that has multiple return values.") ); value
           | _ -> single_assign e1 value
           )
                
-      | A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
-          let ptr, map = lookup s local_vars in
+      | A.Index (s, (A.Range(x_low, x_high), A.Range(y_low, y_high))) ->
+          let ptr, _ = lookup s local_vars in
           let r = L.build_load (L.build_struct_gep ptr 1 "m_r" !builder) "r_mat" !builder in
           let c = L.build_load (L.build_struct_gep ptr 2 "m_c" !builder) "c_mat" !builder in
           let x_l = index_converter "x" x_low r c builder in
@@ -690,7 +701,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             let y_size = L.build_sub y_h y_l "tmp" !builder in
             let m = stack_build_mat_init (L.build_add x_size (L.const_int i32_t 1) "tmp" !builder)
                                          (L.build_add y_size (L.const_int i32_t 1) "tmp" !builder) function_ptr builder in
-            mat_assign m (L.const_int i32_t 0) x_size (L.const_int i32_t 0) y_size ptr x_l y_l function_ptr builder; m)
+            ignore(mat_assign m (L.const_int i32_t 0) x_size (L.const_int i32_t 0) y_size ptr x_l y_l function_ptr builder); m)
       (*| A.Index (s, (Range(x_low, x_high), Range(y_low, y_high))) ->
           let (t,ptr) = lookup s in
           let A.Sizedmat(r, c) = t in
@@ -708,6 +719,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
               L.build_call printf_func [| string_format_str ; empty_str |] "printf" !builder
           | A.Matrix -> mat_print exp1 function_ptr builder
           | A.String -> L.build_call printf_func [| string_format_str ; (exp1) |] "printf" !builder
+          | _ -> failwith("Compiler error : unknown type expr passed to printf.")
           )
       | A.Call ("printend", []) -> 
           L.build_call printf_func [| string_format_str ; new_line_str |] "printf" !builder
@@ -724,12 +736,14 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
          (match fdecl.A.typ with
            A.Void -> exp
          | A.Mulret l -> 
-             match (List.length l) with
+             (match (List.length l) with
                1 -> let v = L.build_load (L.build_struct_gep exp 0 "v_ptr" !builder) "v" !builder in
                     ignore(L.build_free exp !builder); 
                     return_aux v (List.hd l)
-             | _ -> exp) (* multi return case, can only be used in A.Assign, and we will deal with it there. *)  
-      | A.Comma l -> failwith("Syntax error at comma separated list") 
+             | _ -> exp)(* multi return case, can only be used in A.Assign, and we will deal with it there. *)  
+         | _ -> failwith ("Compiler error : Call expr function return type neither Void nor Mulret.")) 
+      | A.Comma(_) -> failwith("Syntax error : Wrong usage of comma seperated list.") 
+      | _ -> failwith("Syntax error : Wrong usage of matrix indexing, possible standalone indexing expressions.")
     in
 
     match stmt with
@@ -781,7 +795,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
               (match ltyp_arr with
                 [||] -> current_return := Lltypearray(Array.make (List.length l) void_t)
               | _ -> ());
-              let ltyp_arr = match !current_return with Lltypearray l -> l in
+              let ltyp_arr = match !current_return with Lltypearray l -> l | _ -> failwith("Compiler error : Lltypearray wrong matching.") in
               for i = 0 to ((List.length l)-1) do
                 try let e'= expr builder (List.nth l i) in
                   ltyp_arr.(i) <- L.type_of e';
@@ -791,30 +805,30 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
               (match ltyp_arr with
                 [||] -> current_return := Lltypearray([|void_t|])
               | _ -> ());
-              let ltyp_arr = match !current_return with Lltypearray l -> l in
+              let ltyp_arr = match !current_return with Lltypearray l -> l | _ -> failwith("Compiler error : Lltypearray wrong matching.") in
               try let e'= expr builder e in
                 ltyp_arr.(0) <- L.type_of e';
               with Not_found -> ())
-        | Voidtype t -> ()
+        | Voidtype(_) -> ()
         );builder
     | A.If (predicate, then_stmt, else_stmt) -> 
       let pred builder = expr builder predicate in
       let then_st builder = build_stmt (fdecl, function_ptr) local_vars builder then_stmt current_return in
       let else_st builder = build_stmt(fdecl, function_ptr) local_vars builder else_stmt current_return in
-      llvm_if function_ptr builder (pred, then_st, else_st); builder
+      ignore(llvm_if function_ptr builder (pred, then_st, else_st)); builder
          
     | A.While (predicate, body) ->
       let pred builder = expr builder predicate in
       let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body current_return in
-      llvm_while function_ptr builder (pred, body_st); builder
+      ignore(llvm_while function_ptr builder (pred, body_st)); builder
 
     | A.For (e1, e2, e3, body) -> 
       let init_st builder = expr builder e1 in
       let pred builder = expr builder e2 in
       let update builder = ignore(expr builder e3); builder in
       let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body current_return in
-      llvm_for function_ptr builder (init_st, pred, update, body_st); builder
-    | A.Local (t, n, v) -> let map = match local_vars with Access(_, map) -> map | Null -> failwith("local access link error") in
+      ignore(llvm_for function_ptr builder (init_st, pred, update, body_st)); builder
+    | A.Local (t, n, v) -> let map = match local_vars with Access(_, map) -> map | Null -> failwith("Compiler error : local access link error") in
                            (match t with
                              A.Matrix ->
                                (match v with
@@ -824,9 +838,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                                      let r = L.build_load (L.build_struct_gep v' 1 "m_r" !builder) "r_mat" !builder in
                                      let c = L.build_load (L.build_struct_gep v' 2 "m_c" !builder) "c_mat" !builder in
                                      let local = stack_build_mat_init r c function_ptr builder in
-                                     mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
+                                     ignore(mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                                   (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
-                                                  v' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder;
+                                                  v' (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
                                      H.add map n local)
                            | _ -> 
                                let local = L.build_alloca (ltype_of_typ t) n !builder in 
@@ -838,7 +852,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                                        A.Int -> L.const_int i32_t 0
                                      | A.Double -> L.const_float double_t 0.
                                      | A.String -> L.build_global_stringptr "" "system_string" !builder (*empty string*)
-                                     | A.Bool -> L.const_int i1_t 0)
+                                     | A.Bool -> L.const_int i1_t 0
+                                     | _ -> failwith ("Compiler error : local variable type matching error."))
                                  | _ -> expr builder v)
                                in
                                ignore(L.build_store init_v local !builder)
@@ -872,9 +887,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
               let r = L.build_load (L.build_struct_gep p 1 "m_r" !builder) "r_mat" !builder in
               let c = L.build_load (L.build_struct_gep p 2 "m_c" !builder) "c_mat" !builder in
               let local = stack_build_mat_init r c function_ptr builder in
-              mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
+              ignore(mat_assign local (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder)
                                (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
-                               p (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder;
+                               p (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder);
               H.add m n local;m
           | _ -> 
             let local = L.build_alloca (ltype_of_typ t) n !builder in
@@ -882,7 +897,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             H.add m n local;m(* local is a ptr? *)
         in
         let func_local_access = Access(global_vars, H.create (1000 + List.length fdecl.A.formals)) in
-        let map = match func_local_access with Access(_, map) -> map | Null -> failwith("function local access link error") in
+        let map = match func_local_access with Access(_, map) -> map | Null -> failwith("Compiler error : function local access link error") in
         ignore(List.fold_left2 add_formal map fdecl.A.formals (Array.to_list (L.params function_ptr))); func_local_access
       in
       (* Build the code for each statement in the function *)
@@ -900,16 +915,16 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     (* find return type from current_return *)
     let return_t = L.named_struct_type context "return_t" in
     (match !current_return with
-      Voidtype t -> current_return := Returnstruct (void_t); ignore(fdecl.A.typ <- A.Void)
+      Voidtype(_) -> current_return := Returnstruct (void_t); ignore(fdecl.A.typ <- A.Void)
     | Lltypearray ltyp_arr -> L.struct_set_body return_t ltyp_arr false; current_return := Returnstruct (return_t); 
                               let f m t = (type_of_lltype t)::m in
                               ignore(fdecl.A.typ <- A.Mulret (List.rev (Array.fold_left f [] ltyp_arr)))
-    | Returnstruct t -> failwith ("type inference bug")
-    | Maintype -> failwith ("type inference bug") );
+    | Returnstruct(_) -> failwith ("Compiler error : type inference bug")
+    | Maintype -> failwith ("Compiler error : type inference bug") );
     (* User-defined function declarations *)
     let name = fdecl.A.fname in
     let return_type = 
-      let ret = match !current_return with Returnstruct t -> t | _-> failwith "type inference bug" in
+      let ret = match !current_return with Returnstruct t -> t | _-> failwith ("Compiler error : type inference bug") in
       match (L.string_of_lltype ret) with
         "void" -> void_t
       | _ -> L.pointer_type ret
@@ -949,14 +964,14 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
  
  (* built-in functions *)
   let built_in_body_building f body= 
-    let (fdef, fdecl) = H.find function_decls f in
+    let (fdef, _) = H.find function_decls f in
     body fdef
   in
 
  (* i. size() *)
 (* define size(), which return matrix size *)
   let size_func_decl = 
-    { A.typ = Mulret([A.Int; A.Int]);
+    { A.typ = A.Mulret([A.Int; A.Int]);
       A.fname = "size";
       A.formals = [(A.Matrix, "mat")];
       A.body = [] }
@@ -983,7 +998,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
  (* i. zeros(i,j) *)
 (* define zeros(i,j), which return a zero matrix *)
 let zero_matrix_func_decl = 
-    { A.typ = Mulret([A.Matrix]);
+    { A.typ = A.Mulret([A.Matrix]);
       A.fname = "zeros";
       A.formals = [(A.Int, "i"); (A.Int, "j")];
       A.body = [] }

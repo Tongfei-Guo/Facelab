@@ -5,9 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Image | Double | Matrix | Void | String | Mulret of typ list |
-           (* below are auxiliary or debug entities, not for other use *)
-           Bug
+type typ = Int | Bool | Image | Double | Matrix | Void | String | Mulret of typ list 
 
 type bind = typ * string
 
@@ -66,6 +64,7 @@ let string_of_op = function
   | Geq -> ">="
   | And -> "&&"
   | Or -> "||"
+  | _ -> ""
 
 let string_of_uop = function
     Neg -> "-"
@@ -85,6 +84,7 @@ let rec string_of_expr = function
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
+  | _ -> ""
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -98,6 +98,7 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
+  | _ -> ""
 
 let string_of_typ = function
     Int -> "int"
@@ -107,7 +108,7 @@ let string_of_typ = function
   | Image -> "image"
   | Matrix -> "matrix"
   | String -> "string"
-
+  | _ -> ""
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

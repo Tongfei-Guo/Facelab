@@ -46,6 +46,120 @@ main:                                   # @main
 	.size	main, .Lfunc_end0-main
 	.cfi_endproc
                                         # -- End function
+	.globl	size                    # -- Begin function size
+	.p2align	4, 0x90
+	.type	size,@function
+size:                                   # @size
+	.cfi_startproc
+# BB#0:                                 # %entry
+	pushq	%rbx
+.Lcfi2:
+	.cfi_def_cfa_offset 16
+.Lcfi3:
+	.cfi_offset %rbx, -16
+	movq	%rdi, %rbx
+	movl	$8, %edi
+	callq	malloc
+	movl	8(%rbx), %ecx
+	movl	%ecx, (%rax)
+	movl	12(%rbx), %ecx
+	movl	%ecx, 4(%rax)
+	popq	%rbx
+	retq
+.Lfunc_end1:
+	.size	size, .Lfunc_end1-size
+	.cfi_endproc
+                                        # -- End function
+	.globl	zeros                   # -- Begin function zeros
+	.p2align	4, 0x90
+	.type	zeros,@function
+zeros:                                  # @zeros
+	.cfi_startproc
+# BB#0:                                 # %entry
+	pushq	%rbp
+.Lcfi4:
+	.cfi_def_cfa_offset 16
+.Lcfi5:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+.Lcfi6:
+	.cfi_def_cfa_register %rbp
+	pushq	%r15
+	pushq	%r14
+	pushq	%r12
+	pushq	%rbx
+	subq	$16, %rsp
+.Lcfi7:
+	.cfi_offset %rbx, -48
+.Lcfi8:
+	.cfi_offset %r12, -40
+.Lcfi9:
+	.cfi_offset %r14, -32
+.Lcfi10:
+	.cfi_offset %r15, -24
+	movl	%esi, %r12d
+	movl	%edi, %r14d
+	movl	$8, %edi
+	callq	malloc
+	movq	%rax, %r15
+	movl	%r14d, %edi
+	imull	%r12d, %edi
+	shll	$3, %edi
+	callq	malloc
+	movq	%rax, %rbx
+	movl	$16, %edi
+	callq	malloc
+	movq	%rbx, (%rax)
+	movl	%r14d, 8(%rax)
+	movl	%r12d, 12(%rax)
+	decl	%r14d
+	leal	-1(%r12), %ecx
+	movl	$0, -36(%rbp)
+	cmpl	%r14d, -36(%rbp)
+	jle	.LBB2_2
+	jmp	.LBB2_6
+	.p2align	4, 0x90
+.LBB2_5:                                # %merge
+                                        #   in Loop: Header=BB2_2 Depth=1
+	incl	-36(%rbp)
+	cmpl	%r14d, -36(%rbp)
+	jg	.LBB2_6
+.LBB2_2:                                # %while_body
+                                        # =>This Loop Header: Depth=1
+                                        #     Child Loop BB2_4 Depth 2
+	movq	%rsp, %rsi
+	leaq	-16(%rsi), %rdx
+	movq	%rdx, %rsp
+	movl	$0, -16(%rsi)
+	cmpl	%ecx, (%rdx)
+	jg	.LBB2_5
+	.p2align	4, 0x90
+.LBB2_4:                                # %while_body5
+                                        #   Parent Loop BB2_2 Depth=1
+                                        # =>  This Inner Loop Header: Depth=2
+	movl	-36(%rbp), %esi
+	imull	%r12d, %esi
+	addl	(%rdx), %esi
+	movslq	%esi, %rsi
+	movq	$0, (%rbx,%rsi,8)
+	incl	(%rdx)
+	cmpl	%ecx, (%rdx)
+	jle	.LBB2_4
+	jmp	.LBB2_5
+.LBB2_6:                                # %merge12
+	movq	%rax, (%r15)
+	movq	%r15, %rax
+	leaq	-32(%rbp), %rsp
+	popq	%rbx
+	popq	%r12
+	popq	%r14
+	popq	%r15
+	popq	%rbp
+	retq
+.Lfunc_end2:
+	.size	zeros, .Lfunc_end2-zeros
+	.cfi_endproc
+                                        # -- End function
 	.globl	gcd                     # -- Begin function gcd
 	.p2align	4, 0x90
 	.type	gcd,@function
@@ -53,55 +167,55 @@ gcd:                                    # @gcd
 	.cfi_startproc
 # BB#0:                                 # %entry
 	pushq	%rbp
-.Lcfi2:
+.Lcfi11:
 	.cfi_def_cfa_offset 16
 	pushq	%rbx
-.Lcfi3:
+.Lcfi12:
 	.cfi_def_cfa_offset 24
 	pushq	%rax
-.Lcfi4:
+.Lcfi13:
 	.cfi_def_cfa_offset 32
-.Lcfi5:
+.Lcfi14:
 	.cfi_offset %rbx, -24
-.Lcfi6:
+.Lcfi15:
 	.cfi_offset %rbp, -16
 	movl	%edi, 4(%rsp)
 	movl	%esi, (%rsp)
 	testl	%edi, %edi
-	je	.LBB1_5
+	je	.LBB3_5
 # BB#1:                                 # %merge
 	cmpl	$0, (%rsp)
-	je	.LBB1_8
+	je	.LBB3_8
 # BB#2:                                 # %merge3
 	movl	4(%rsp), %eax
 	cmpl	(%rsp), %eax
-	jle	.LBB1_9
+	jle	.LBB3_9
 # BB#3:                                 # %then13
 	movl	$4, %edi
 	callq	malloc
 	movq	%rax, %rbx
 	movl	(%rsp), %esi
 	movl	4(%rsp), %eax
-	jmp	.LBB1_4
-.LBB1_5:                                # %then
+	jmp	.LBB3_4
+.LBB3_5:                                # %then
 	movl	$4, %edi
 	callq	malloc
 	movl	(%rsp), %ecx
-	jmp	.LBB1_6
-.LBB1_8:                                # %then4
+	jmp	.LBB3_6
+.LBB3_8:                                # %then4
 	movl	$4, %edi
 	callq	malloc
 	movl	4(%rsp), %ecx
-.LBB1_6:                                # %then
+.LBB3_6:                                # %then
 	movl	%ecx, (%rax)
-	jmp	.LBB1_7
-.LBB1_9:                                # %else21
+	jmp	.LBB3_7
+.LBB3_9:                                # %else21
 	movl	$4, %edi
 	callq	malloc
 	movq	%rax, %rbx
 	movl	4(%rsp), %esi
 	movl	(%rsp), %eax
-.LBB1_4:                                # %then13
+.LBB3_4:                                # %then13
 	cltd
 	idivl	%esi
 	movl	%edx, %edi
@@ -111,13 +225,13 @@ gcd:                                    # @gcd
 	callq	free
 	movl	%ebp, (%rbx)
 	movq	%rbx, %rax
-.LBB1_7:                                # %then
+.LBB3_7:                                # %then
 	addq	$8, %rsp
 	popq	%rbx
 	popq	%rbp
 	retq
-.Lfunc_end1:
-	.size	gcd, .Lfunc_end1-gcd
+.Lfunc_end3:
+	.size	gcd, .Lfunc_end3-gcd
 	.cfi_endproc
                                         # -- End function
 	.type	.Lfmt_str,@object       # @fmt_str
