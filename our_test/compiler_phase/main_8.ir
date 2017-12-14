@@ -1,12 +1,17 @@
 ; ModuleID = 'MicroC'
 source_filename = "MicroC"
 
+%matrix_size_t = type { i32, i32 }
+%matrix_t = type { double*, i32, i32 }
+
 @fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
 @fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
 @fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
-@fmt_int.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
-@fmt_int.2 = private unnamed_addr constant [3 x i8] c"  \00"
-@fmt_int.3 = private unnamed_addr constant [1 x i8] zeroinitializer
+@fmt_str.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_str.2 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.3 = private unnamed_addr constant [1 x i8] zeroinitializer
+@fmt_str.4 = private unnamed_addr constant [5 x i8] c"true\00"
+@fmt_str.5 = private unnamed_addr constant [6 x i8] c"false\00"
 
 define i32 @main() {
 entry:
@@ -59,3 +64,20 @@ merge13:                                          ; preds = %while7
 }
 
 declare i32 @printf(i8*, ...)
+
+define %matrix_size_t* @size(%matrix_t*) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 trunc (i64 mul nuw (i64 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i64), i64 2) to i32))
+  %return = bitcast i8* %malloccall to %matrix_size_t*
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r
+  %row_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 0
+  store i32 %r_mat, i32* %row_size
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c
+  %col_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 1
+  store i32 %c_mat, i32* %col_size
+  ret %matrix_size_t* %return
+}
+
+declare noalias i8* @malloc(i32)

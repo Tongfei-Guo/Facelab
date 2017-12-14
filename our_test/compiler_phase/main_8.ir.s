@@ -1,83 +1,103 @@
-	.text
-	.file	"MicroC"
-	.globl	main                    # -- Begin function main
+	.section	__TEXT,__text,regular,pure_instructions
+	.macosx_version_min 10, 12
+	.globl	_main                   ## -- Begin function main
 	.p2align	4, 0x90
-	.type	main,@function
-main:                                   # @main
+_main:                                  ## @main
 	.cfi_startproc
-# BB#0:                                 # %merge
-	pushq	%rax
-.Lcfi0:
+## BB#0:                                ## %merge
+	pushq	%rbx
+Lcfi0:
 	.cfi_def_cfa_offset 16
-	movl	$.Lfmt_int, %edi
+	subq	$16, %rsp
+Lcfi1:
+	.cfi_def_cfa_offset 32
+Lcfi2:
+	.cfi_offset %rbx, -16
+	leaq	L_fmt_int(%rip), %rbx
 	movl	$1, %esi
 	xorl	%eax, %eax
-	callq	printf
-	movl	$0, 4(%rsp)
-	cmpl	$3, 4(%rsp)
-	je	.LBB0_3
+	movq	%rbx, %rdi
+	callq	_printf
+	movl	$0, 12(%rsp)
+	cmpl	$3, 12(%rsp)
+	je	LBB0_3
 	.p2align	4, 0x90
-.LBB0_2:                                # %while_body
-                                        # =>This Inner Loop Header: Depth=1
-	movl	4(%rsp), %esi
-	movl	$.Lfmt_int, %edi
+LBB0_2:                                 ## %while_body
+                                        ## =>This Inner Loop Header: Depth=1
+	movl	12(%rsp), %esi
 	xorl	%eax, %eax
-	callq	printf
-	incl	4(%rsp)
-	cmpl	$3, 4(%rsp)
-	jne	.LBB0_2
-.LBB0_3:                                # %merge4
-	movl	$0, 4(%rsp)
-	cmpl	$3, 4(%rsp)
-	je	.LBB0_6
+	movq	%rbx, %rdi
+	callq	_printf
+	incl	12(%rsp)
+	cmpl	$3, 12(%rsp)
+	jne	LBB0_2
+LBB0_3:                                 ## %merge4
+	movl	$0, 12(%rsp)
+	leaq	L_fmt_int(%rip), %rbx
+	cmpl	$3, 12(%rsp)
+	je	LBB0_6
 	.p2align	4, 0x90
-.LBB0_5:                                # %while_body8
-                                        # =>This Inner Loop Header: Depth=1
-	movl	4(%rsp), %esi
-	movl	$.Lfmt_int, %edi
+LBB0_5:                                 ## %while_body8
+                                        ## =>This Inner Loop Header: Depth=1
+	movl	12(%rsp), %esi
 	xorl	%eax, %eax
-	callq	printf
-	incl	4(%rsp)
-	cmpl	$3, 4(%rsp)
-	jne	.LBB0_5
-.LBB0_6:                                # %merge13
+	movq	%rbx, %rdi
+	callq	_printf
+	incl	12(%rsp)
+	cmpl	$3, 12(%rsp)
+	jne	LBB0_5
+LBB0_6:                                 ## %merge13
 	xorl	%eax, %eax
-	popq	%rcx
+	addq	$16, %rsp
+	popq	%rbx
 	retq
-.Lfunc_end0:
-	.size	main, .Lfunc_end0-main
 	.cfi_endproc
-                                        # -- End function
-	.type	.Lfmt_str,@object       # @fmt_str
-	.section	.rodata.str1.1,"aMS",@progbits,1
-.Lfmt_str:
+                                        ## -- End function
+	.globl	_size                   ## -- Begin function size
+	.p2align	4, 0x90
+_size:                                  ## @size
+	.cfi_startproc
+## BB#0:                                ## %entry
+	pushq	%rbx
+Lcfi3:
+	.cfi_def_cfa_offset 16
+Lcfi4:
+	.cfi_offset %rbx, -16
+	movq	%rdi, %rbx
+	movl	$8, %edi
+	callq	_malloc
+	movl	8(%rbx), %ecx
+	movl	%ecx, (%rax)
+	movl	12(%rbx), %ecx
+	movl	%ecx, 4(%rax)
+	popq	%rbx
+	retq
+	.cfi_endproc
+                                        ## -- End function
+	.section	__TEXT,__cstring,cstring_literals
+L_fmt_str:                              ## @fmt_str
 	.asciz	"%s"
-	.size	.Lfmt_str, 3
 
-	.type	.Lfmt_double,@object    # @fmt_double
-.Lfmt_double:
+L_fmt_double:                           ## @fmt_double
 	.asciz	"%f"
-	.size	.Lfmt_double, 3
 
-	.type	.Lfmt_int,@object       # @fmt_int
-.Lfmt_int:
+L_fmt_int:                              ## @fmt_int
 	.asciz	"%d"
-	.size	.Lfmt_int, 3
 
-	.type	.Lfmt_int.1,@object     # @fmt_int.1
-.Lfmt_int.1:
+L_fmt_str.1:                            ## @fmt_str.1
 	.asciz	"\n"
-	.size	.Lfmt_int.1, 2
 
-	.type	.Lfmt_int.2,@object     # @fmt_int.2
-.Lfmt_int.2:
+L_fmt_str.2:                            ## @fmt_str.2
 	.asciz	"  "
-	.size	.Lfmt_int.2, 3
 
-	.type	.Lfmt_int.3,@object     # @fmt_int.3
-.Lfmt_int.3:
-	.zero	1
-	.size	.Lfmt_int.3, 1
+L_fmt_str.3:                            ## @fmt_str.3
+	.space	1
+
+L_fmt_str.4:                            ## @fmt_str.4
+	.asciz	"true"
+
+L_fmt_str.5:                            ## @fmt_str.5
+	.asciz	"false"
 
 
-	.section	".note.GNU-stack","",@progbits
+.subsections_via_symbols
