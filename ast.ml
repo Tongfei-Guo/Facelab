@@ -5,10 +5,6 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type index = Beg | End | IntInd of int
-
-type index_range = Range of index * index
-
 type typ = Int | Bool | Image | Double | Matrix | Void | String | Mulret of typ list |
            (* below are auxiliary or debug entities, not for other use *)
            Bug
@@ -27,11 +23,14 @@ type expr =
   | Unop of uop * expr
   | Assign of expr * expr
   | Mulassign of expr * expr
-  | Index of string * (index_range * index_range)
+  | Index of string * (expr * expr)
   | Call of string * expr list
   | Noexpr
   | Noassign
   | Bug (* debug entity, not for other use *)
+  | Range of index * index
+and index = Beg | End | ExprInd of expr
+
 
 type stmt =
     Block of stmt list

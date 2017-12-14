@@ -16,6 +16,8 @@ open Ast
 %token <string> ID
 %token GLOBAL EOF
 
+
+%left SEMI
 %nonassoc RETURN 
 %right ASSIGN
 %nonassoc NOELSE
@@ -31,7 +33,6 @@ open Ast
 %left TIMES DIVIDE REMAINDER MATPRODUCT
 %left FILTER 
 %right NOT NEG
-%left SEMI
 
 %start program
 %type <Ast.program> program
@@ -128,7 +129,20 @@ expr:
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | NOT expr         { Unop(Not, $2) }
   | expr ASSIGN expr   { Assign($1, $3) } /*add to semant, check here only id and matrix indexing can be assigned to, left hand side can be multiple left value, right hand side can be not be expr COMMA expr */
-  | ID LBRACKET index_pair RBRACKET { Index($1, $3) }
+  | ID LBRACKET expr RBRACKET { match $3 with 
+                                  Comma([e1;e2]) ->
+                                    let r1 = 
+                                      (match e1 with 
+                                        Range(_,_) -> e1
+                                      | _ -> Range(ExprInd(e1), ExprInd(e1)))
+                                    and r2 = 
+                                      (match e2 with 
+                                        Range(_,_) -> e2
+                                      | _ -> Range(ExprInd(e2), ExprInd(e2)))
+                                    in
+                                    Index($1, (r1,r2))
+                                | _ -> failwith("wrong indexing expression")
+                               }
   | ID LPAREN expr_opt RPAREN { let actuals = 
                                   match $3 with
                                     Comma e1 -> e1
@@ -137,16 +151,12 @@ expr:
                                 in
                                 Call($1, actuals) }
   | LPAREN expr RPAREN { $2 } 
-
-index_pair: 
-    index_ran COMMA index_ran { ($1, $3) }
-
-index_ran:
-    INT_LITERAL                   { Range(IntInd($1), IntInd($1)) }
-  | INT_LITERAL COLON             { Range(IntInd($1), End) }
-  | INT_LITERAL COLON INT_LITERAL { Range(IntInd($1), IntInd($3)) }
-  | COLON INT_LITERAL             { Range(Beg, IntInd($2)) }
+  /* expr below are for matrix indexing only */
+  | expr COLON             { Range(ExprInd($1), End) }
+  | expr COLON expr        { Range(ExprInd($1), ExprInd($3)) }
+  | COLON expr             { Range(Beg, ExprInd($2)) }
   | COLON                         { Range(Beg, End) }
+
 
 double_mat_literal: /* matrix parsing */
     LBRACKET RBRACKET { [|[| |]|], (0, 0) } /* empty matrix */
@@ -157,6 +167,10 @@ double_mat_rows: /* double_mat_rows is a tuple, its first element is an array of
   | double_mat_rows SEMI double_mat_row { Array.append (fst $1) [| fst $3 |], (fst (snd $1) + 1,snd (snd $1)) } 
 
 double_mat_row:
-    DOUBLE_LITERAL { [| $1 |], 1 }
-  | double_mat_row COMMA DOUBLE_LITERAL { Array.append (fst $1) [| $3 |], snd $1 + 1 }
+    element { [| $1 |], 1 }
+  | double_mat_row COMMA element { Array.append (fst $1) [| $3 |], snd $1 + 1 }
+
+element:
+    DOUBLE_LITERAL { $1 }
+  | MINUS DOUBLE_LITERAL %prec NEG { -. $2 }
 

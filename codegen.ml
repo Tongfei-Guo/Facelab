@@ -331,15 +331,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     L.build_call printf_func [| string_format_str ; empty_str |] "printf" !builder
   in
 
-  (* convert A.index type to corresponding integral index in a matrix of size r by c *)
-  let index_converter d ind r c builder= 
-    match ind with
-      A.Beg -> L.const_int i32_t 0
-    | A.End -> (match d with
-                 "x" -> L.build_sub r (L.const_int i32_t 1) "tmp" !builder
-               | "y" -> L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
-    | A.IntInd(i) -> L.const_int i32_t i
-  in
+  
  (* matrix matrix element wise operation *)
   let mat_mat_element_wise m1_mat m2_mat operator function_ptr builder=
     let m1 = L.build_load (L.build_struct_gep m1_mat 0 "m_mat" !builder) "mat_mat" !builder in
@@ -532,7 +524,6 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 (* Return the value for a variable or formal argument *)
     
     let rec expr builder e=
-
      (*expr builder e auxiliaries *)
       let return_aux e t = 
         match t with
@@ -553,7 +544,17 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             (try (H.find map n, map)
             with Not_found -> lookup n prev_access)
         | Null -> failwith("variable " ^ n ^ " not declared")
+      in 
+      (* convert A.index type to corresponding integral index in a matrix of size r by c *)
+      let index_converter d ind r c builder= 
+        match ind with
+          A.Beg -> L.const_int i32_t 0
+        | A.End -> (match d with
+                     "x" -> L.build_sub r (L.const_int i32_t 1) "tmp" !builder
+                   | "y" -> L.build_sub c (L.const_int i32_t 1) "tmp" !builder)
+        | A.ExprInd(e) -> expr builder e
       in
+
 
       match e with
         A.IntLit i -> L.const_int i32_t i
