@@ -5,6 +5,8 @@ source_filename = "MicroC"
 %return_t.0 = type { i8* }
 %matrix_t = type { double*, i32, i32 }
 %return_t.1 = type { %matrix_t* }
+%matrix_size_t = type { i32, i32 }
+%zero_matrix_t = type { %matrix_t* }
 
 @fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
 @fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
@@ -380,6 +382,84 @@ merge195:                                         ; preds = %while174
 
 declare i32 @printf(i8*, ...)
 
+define %matrix_size_t* @size(%matrix_t*) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 trunc (i64 mul nuw (i64 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i64), i64 2) to i32))
+  %return = bitcast i8* %malloccall to %matrix_size_t*
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r
+  %row_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 0
+  store i32 %r_mat, i32* %row_size
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c
+  %col_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 1
+  store i32 %c_mat, i32* %col_size
+  ret %matrix_size_t* %return
+}
+
+declare noalias i8* @malloc(i32)
+
+define %zero_matrix_t* @zeros(i32, i32) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %zero_matrix_t*
+  %size = mul i32 %0, %1
+  %mallocsize = mul i32 %size, ptrtoint (double* getelementptr (double, double* null, i32 1) to i32)
+  %malloccall1 = tail call i8* @malloc(i32 %mallocsize)
+  %system_mat = bitcast i8* %malloccall1 to double*
+  %malloccall2 = tail call i8* @malloc(i32 ptrtoint (%matrix_t* getelementptr (%matrix_t, %matrix_t* null, i32 1) to i32))
+  %m = bitcast i8* %malloccall2 to %matrix_t*
+  %m_mat = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  store double* %system_mat, double** %m_mat
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  store i32 %0, i32* %m_r
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  store i32 %1, i32* %m_c
+  %tmp = sub i32 %0, 1
+  %tmp3 = sub i32 %1, 1
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %i_v13 = load i32, i32* %i
+  %bool_val14 = icmp sle i32 %i_v13, %tmp
+  br i1 %bool_val14, label %while_body, label %merge12
+
+while_body:                                       ; preds = %while
+  %j = alloca i32
+  store i32 0, i32* %j
+  br label %while4
+
+while4:                                           ; preds = %while_body5, %while_body
+  %j_v9 = load i32, i32* %j
+  %bool_val = icmp sle i32 %j_v9, %tmp3
+  br i1 %bool_val, label %while_body5, label %merge
+
+while_body5:                                      ; preds = %while4
+  %j_v = load i32, i32* %j
+  %i_v = load i32, i32* %i
+  %tmp6 = mul i32 %1, %i_v
+  %index = add i32 %j_v, %tmp6
+  %element_ptr = getelementptr double, double* %system_mat, i32 %index
+  store double 0.000000e+00, double* %element_ptr
+  %j_v7 = load i32, i32* %j
+  %tmp8 = add i32 %j_v7, 1
+  store i32 %tmp8, i32* %j
+  br label %while4
+
+merge:                                            ; preds = %while4
+  %i_v10 = load i32, i32* %i
+  %tmp11 = add i32 %i_v10, 1
+  store i32 %tmp11, i32* %i
+  br label %while
+
+merge12:                                          ; preds = %while
+  %m15 = getelementptr inbounds %zero_matrix_t, %zero_matrix_t* %return, i32 0, i32 0
+  store %matrix_t* %m, %matrix_t** %m15
+  ret %zero_matrix_t* %return
+}
+
 define %return_t* @f1() {
 entry:
   %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 1)
@@ -391,8 +471,6 @@ entry:
   %tmp = alloca %return_t
   ret %return_t* %tmp
 }
-
-declare noalias i8* @malloc(i32)
 
 declare void @free(i8*)
 

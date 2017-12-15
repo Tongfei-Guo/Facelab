@@ -584,34 +584,43 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           (match (is_matrix exp1, is_matrix exp2) with
             (false, false)->
               (let typ1 = L.string_of_lltype (L.type_of exp1) 
-              and typ2 = L.string_of_lltype (L.type_of exp2) in 
-              let build_op_by_type opf opi = (match (typ1, typ2) with
-                  ("double", "double") -> opf
-                | ("i32", "i32") -> opi
-                | ("double", "i32") ->
-                    (fun e1 e2 n bdr -> let e2' = L.build_sitofp e2 double_t n bdr in
-                                         opf e1 e2' "tmp" bdr)
-                | ("i32", "double") ->
-                    (fun e1 e2 n bdr -> let e1' = L.build_sitofp e1 double_t n bdr in
-                                         opf e1' e2 "tmp" bdr)
-                | _ -> raise (Failure "not a valid type") ) 
-              in
-              (match op with
-                A.Add     -> build_op_by_type L.build_fadd L.build_add
-              | A.Sub     -> build_op_by_type L.build_fsub L.build_sub
-              | A.Mult    -> build_op_by_type L.build_fmul L.build_mul
-              | A.Div     -> build_op_by_type L.build_fdiv L.build_sdiv
-              | A.Rmdr    -> L.build_srem
-	      | A.And     -> L.build_and
-	      | A.Or      -> L.build_or
-	      | A.Equal   -> L.build_icmp L.Icmp.Eq
-	      | A.Neq     -> L.build_icmp L.Icmp.Ne
-	      | A.Less    -> L.build_icmp L.Icmp.Slt
-	      | A.Leq     -> L.build_icmp L.Icmp.Sle
-	      | A.Greater -> L.build_icmp L.Icmp.Sgt
-	      | A.Geq     -> L.build_icmp L.Icmp.Sge
-              | _ -> failwith ("Semantic error : wrong operator used on numerical operation.")
-	      ) exp1 exp2 "tmp" !builder)
+              and typ2 = L.string_of_lltype (L.type_of exp2) in
+              (match (typ1, typ2) with
+                ("i1", "i1") -> (match op with
+	                          A.And     -> L.build_and
+	                        | A.Or      -> L.build_or
+	                        | A.Equal   -> L.build_icmp L.Icmp.Eq
+	                        | A.Neq     -> L.build_icmp L.Icmp.Ne
+                                | _         -> failwith("Semantic error : wrong operator used on boolean operands.")
+                                ) exp1 exp2 "tmp" !builder
+              | ("double", "double") | ("i32", "i32") | ("double", "i32") | ("i32", "double") ->
+                let build_op_by_type opf opi = 
+                  (match (typ1, typ2) with
+                    ("double", "double") -> opf
+                  | ("i32", "i32") -> opi
+                  | ("double", "i32") ->
+                      (fun e1 e2 n bdr -> let e2' = L.build_sitofp e2 double_t n bdr in
+                                           opf e1 e2' "tmp" bdr)
+                  | ("i32", "double") ->
+                      (fun e1 e2 n bdr -> let e1' = L.build_sitofp e1 double_t n bdr in
+                                           opf e1' e2 "tmp" bdr)
+                  | _ -> failwith ("Compiler error : numerical operation matching error at build_op_by_type.") )
+                in
+                (match op with
+                  A.Add     -> build_op_by_type L.build_fadd L.build_add
+                | A.Sub     -> build_op_by_type L.build_fsub L.build_sub
+                | A.Mult    -> build_op_by_type L.build_fmul L.build_mul
+                | A.Div     -> build_op_by_type L.build_fdiv L.build_sdiv
+                | A.Rmdr    -> build_op_by_type L.build_frem L.build_srem 
+	        | A.Equal   -> build_op_by_type (L.build_fcmp L.Fcmp.Ueq) (L.build_icmp L.Icmp.Eq) 
+	        | A.Neq     -> build_op_by_type (L.build_fcmp L.Fcmp.Une) (L.build_icmp L.Icmp.Ne) 
+	        | A.Less    -> build_op_by_type (L.build_fcmp L.Fcmp.Ult) (L.build_icmp L.Icmp.Slt)  
+	        | A.Leq     -> build_op_by_type (L.build_fcmp L.Fcmp.Ule) (L.build_icmp L.Icmp.Sle) 
+	        | A.Greater -> build_op_by_type (L.build_fcmp L.Fcmp.Ugt) (L.build_icmp L.Icmp.Sgt) 
+	        | A.Geq     -> build_op_by_type (L.build_fcmp L.Fcmp.Uge) (L.build_icmp L.Icmp.Sge) 
+                | _ -> failwith ("Semantic error : wrong operator used on numerical operands.")
+	        ) exp1 exp2 "tmp" !builder
+              | _ -> failwith ("semantic error : invalid numerical operation on between type " ^ typ1 ^ " and " ^ typ2)))
           |_ -> (* matrix operation *)
             (match op with
               A.Matprod -> mat_mat_product exp1 exp2 function_ptr builder
