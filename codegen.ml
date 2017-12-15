@@ -158,7 +158,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
-
+ 
+  (* use to interrupt the function flow and throw run-time exception *)
+  let abort_func = L.declare_function "abort" (L.function_type void_t [||]) the_module in
 
   (* Invoke "f builder" if the current block doesn't already
        have a terminal (e.g., a branch). *)
@@ -177,7 +179,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   let empty_str = L.build_global_stringptr "" "fmt_str" !main_builder in
   let true_str = L.build_global_stringptr "true" "fmt_str" !main_builder in
   let false_str = L.build_global_stringptr "false" "fmt_str" !main_builder in
-
+  let mat_dim_err_str = L.build_global_stringptr "Semantic error : wrong dimension of operands of matrix operation." "fmt_str" !main_builder in
+  let mat_bound_err_str = L.build_global_stringptr "Semantic error : matrix index out of bounds." "fmt_str" !main_builder in
+  let mat_assign_err_str = L.build_global_stringptr "Semantic error : matrix block assignment must have agreeable dimension on both sides." "fmt_str" !main_builder in
   (* following function builds llvm control flow *)
   (* llvm if *)
   let llvm_if function_ptr builder (predicate, then_stmt, else_stmt) =
@@ -513,6 +517,18 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
         | Null -> failwith("Semantic error : variable " ^ n ^ " not declared")
       in 
       (* convert A.index type to corresponding integral index in a matrix of size r by c *)
+      
+      (* for run time dimension check on matrix *)
+      let run_time_property_check function_ptr builder err_msg v1 op v2 else_stmt =
+        let predicate builder= op v1 v2 "tmp" !builder in
+        let then_stmt builder = ignore(L.build_call printf_func [| string_format_str ; err_msg |] "printf" !builder);
+                                ignore(L.build_call abort_func [| |] "" !builder); builder in
+        llvm_if function_ptr builder (predicate, then_stmt, else_stmt)
+      in
+      let run_time_dim_check function_ptr builder v1 op v2 else_stmt =
+        run_time_property_check function_ptr builder mat_dim_err_str v1 op v2 else_stmt
+      in
+ 
       let index_converter d ind r c builder= 
         match ind with
           A.Beg -> L.const_int i32_t 0
@@ -520,9 +536,17 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                      "x" -> L.build_sub r (L.const_int i32_t 1) "tmp" !builder
                    | "y" -> L.build_sub c (L.const_int i32_t 1) "tmp" !builder
                    | _ -> failwith ("Compiler error : index_converter wrong dimension symbol. "))
-        | A.ExprInd(e) -> expr builder e
+        | A.ExprInd(e) -> let e' = expr builder e in
+                          if (L.string_of_lltype (L.type_of e')) <> "i32" then failwith ("Semantic error : matrix index must be integer.");
+                          let else_stmt builder = builder in
+                          (match d with
+                            "x" -> ignore(run_time_property_check function_ptr builder mat_bound_err_str (L.const_int i32_t 0) (L.build_icmp L.Icmp.Sgt) e' else_stmt);
+                                   ignore(run_time_property_check function_ptr builder mat_bound_err_str (L.build_sub r (L.const_int i32_t 1) "tmp" !builder) (L.build_icmp L.Icmp.Slt) e' else_stmt);
+                          | "y" -> ignore(run_time_property_check function_ptr builder mat_bound_err_str (L.const_int i32_t 0) (L.build_icmp L.Icmp.Sgt) e' else_stmt);
+                                   ignore(run_time_property_check function_ptr builder mat_bound_err_str (L.build_sub c (L.const_int i32_t 1) "tmp" !builder) (L.build_icmp L.Icmp.Slt) e' else_stmt);
+                          | _ -> failwith ("Compiler error : index_converter wrong dimension symbol. ")); e'
       in
-
+      
 
       match e with
         A.IntLit i -> L.const_int i32_t i
@@ -541,7 +565,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
           let exp1 = expr builder e1
           and exp2 = expr builder e2 in
           (match (is_matrix exp1, is_matrix exp2) with
-            (false, false)->
+            (false, false)-> 
               (let typ1 = L.string_of_lltype (L.type_of exp1) 
               and typ2 = L.string_of_lltype (L.type_of exp2) in
               (match (typ1, typ2) with
@@ -571,41 +595,76 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                 | A.Mult    -> build_op_by_type L.build_fmul L.build_mul
                 | A.Div     -> build_op_by_type L.build_fdiv L.build_sdiv
                 | A.Rmdr    -> build_op_by_type L.build_frem L.build_srem 
-	        | A.Equal   -> build_op_by_type (L.build_fcmp L.Fcmp.Ueq) (L.build_icmp L.Icmp.Eq) 
-	        | A.Neq     -> build_op_by_type (L.build_fcmp L.Fcmp.Une) (L.build_icmp L.Icmp.Ne) 
-	        | A.Less    -> build_op_by_type (L.build_fcmp L.Fcmp.Ult) (L.build_icmp L.Icmp.Slt)  
-	        | A.Leq     -> build_op_by_type (L.build_fcmp L.Fcmp.Ule) (L.build_icmp L.Icmp.Sle) 
-	        | A.Greater -> build_op_by_type (L.build_fcmp L.Fcmp.Ugt) (L.build_icmp L.Icmp.Sgt) 
-	        | A.Geq     -> build_op_by_type (L.build_fcmp L.Fcmp.Uge) (L.build_icmp L.Icmp.Sge) 
+	        | A.Equal   -> build_op_by_type (L.build_fcmp L.Fcmp.Oeq) (L.build_icmp L.Icmp.Eq) 
+	        | A.Neq     -> build_op_by_type (L.build_fcmp L.Fcmp.One) (L.build_icmp L.Icmp.Ne) 
+	        | A.Less    -> build_op_by_type (L.build_fcmp L.Fcmp.Olt) (L.build_icmp L.Icmp.Slt)  
+	        | A.Leq     -> build_op_by_type (L.build_fcmp L.Fcmp.Ole) (L.build_icmp L.Icmp.Sle) 
+	        | A.Greater -> build_op_by_type (L.build_fcmp L.Fcmp.Ogt) (L.build_icmp L.Icmp.Sgt) 
+	        | A.Geq     -> build_op_by_type (L.build_fcmp L.Fcmp.Oge) (L.build_icmp L.Icmp.Sge) 
                 | _ -> failwith ("Semantic error : wrong operator used on numerical operands.")
 	        ) exp1 exp2 "tmp" !builder
-              | _ -> failwith ("semantic error : invalid numerical operation on between type " ^ typ1 ^ " and " ^ typ2)))
-          |_ -> (* matrix operation *)
-            (match op with
-              A.Filter -> expr builder (A.Call("filter",[e1; e2]))
-            | A.Matprod -> mat_mat_product exp1 exp2 function_ptr builder
-            | A.Equal -> mat_equal exp1 exp2 function_ptr builder
-            | A.Neq -> mat_not_equal exp1 exp2 function_ptr builder
-            | _ ->
-                let operator = 
-                  (match op with
-                    A.Add     -> L.build_fadd 
-                  | A.Sub     -> L.build_fsub 
-                  | A.Mult    -> L.build_fmul 
-                  | A.Div     -> L.build_fdiv
-                  | _         -> failwith ("Semantic error : wrong operator used on matrix operation.")
-                  )
-                in
-                (match (is_matrix exp1, is_matrix exp2) with
-                  (true, true) -> mat_mat_element_wise exp1 exp2 operator function_ptr builder
-                | (true, false) -> mat_num_element_wise exp1 exp2 operator function_ptr builder
-                | (false, true) -> mat_num_element_wise exp2 exp1 operator function_ptr builder
-                | _ -> failwith("Compiler error : Binop operator matching error."))))
+              | _ -> failwith ("semantic error : invalid numerical operation between type " ^ typ1 ^ " and " ^ typ2)))
+          (* matrix operation *)
+          | (true, false) | (false, true) -> 
+              let operator = 
+                (match op with
+                  A.Add     -> L.build_fadd 
+                | A.Sub     -> L.build_fsub 
+                | A.Mult    -> L.build_fmul 
+                | A.Div     -> L.build_fdiv
+                | _         -> failwith ("Semantic error : wrong operator used on matrix non-matrix operation.")
+                )
+              in
+              (match (is_matrix exp1, is_matrix exp2) with
+              | (true, false) -> let typ2 = L.string_of_lltype (L.type_of exp2) in
+                                 (match typ2 with
+                                   "double" -> mat_num_element_wise exp1 exp2 operator function_ptr builder
+                                 | _ -> failwith("Semantic error : invalid numerical operation between type matrix and "^ typ2))
+              | (false, true) -> let typ1 = L.string_of_lltype (L.type_of exp1) in
+                                 (match typ1 with
+                                   "double" -> mat_num_element_wise exp2 exp1 operator function_ptr builder
+                                 | _ -> failwith("Semantic error : invalid numerical operation between type " ^ typ1 ^ " and matrix."))
+              | _ -> failwith("Compiler error : Binop operator matching error."))
+          | (true, true) -> 
+              (match op with 
+                A.Filter -> expr builder (A.Call("filter",[e1; e2]))
+              | A.Matprod -> 
+                  let j1 = L.build_load (L.build_struct_gep exp1 2 "m_c" !builder) "c_mat" !builder in 
+                  let i2 = L.build_load (L.build_struct_gep exp2 1 "m_r" !builder) "r_mat" !builder in 
+                  let else_stmt builder= builder in 
+                  ignore(run_time_dim_check function_ptr builder j1 (L.build_icmp L.Icmp.Ne) i2 else_stmt);
+                  mat_mat_product exp1 exp2 function_ptr builder
+              | _ ->
+                  let i1 = L.build_load (L.build_struct_gep exp1 1 "m_r" !builder) "r_mat" !builder in
+                  let i2 = L.build_load (L.build_struct_gep exp2 1 "m_r" !builder) "r_mat" !builder in
+                  let else_stmt builder = 
+                    let j1 = L.build_load (L.build_struct_gep exp1 2 "m_c" !builder) "c_mat" !builder in
+                    let j2 = L.build_load (L.build_struct_gep exp2 2 "m_c" !builder) "c_mat" !builder in
+                    let else_stmt builder = 
+                      builder
+                    in
+                    run_time_dim_check function_ptr builder j1 (L.build_icmp L.Icmp.Ne) j2 else_stmt
+                  in
+                  ignore(run_time_dim_check function_ptr builder i1 (L.build_icmp L.Icmp.Ne) i2 else_stmt);
+                  (match op with 
+                        A.Equal -> mat_equal exp1 exp2 function_ptr builder
+                      | A.Neq -> mat_not_equal exp1 exp2 function_ptr builder
+                      | A.Add     -> mat_mat_element_wise exp1 exp2 L.build_fadd function_ptr builder 
+                      | A.Sub     -> mat_mat_element_wise exp1 exp2 L.build_fsub function_ptr builder  
+                      | A.Mult    -> mat_mat_element_wise exp1 exp2 L.build_fmul function_ptr builder  
+                      | A.Div     -> mat_mat_element_wise exp1 exp2 L.build_fdiv function_ptr builder 
+                      | _         -> failwith ("Semantic error : wrong operator used on matrix operation.")) ))
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
+          let typ = L.string_of_lltype (L.type_of e') in
 	  (match op with
-	    A.Neg     -> L.build_neg
-          | A.Not     -> L.build_not) e' "tmp" !builder
+	    A.Neg -> 
+              (match typ with
+                "i32" -> L.build_neg
+              | "double" -> L.build_fneg
+              | _ -> failwith ("Semantic error : wrong operands for unary negation operator."))
+          | A.Not when typ = "i1"-> L.build_not 
+          | _ -> failwith ("Semantic error : illegal unary operation.") )e' "tmp" !builder
       | A.Assign (e1, e2) -> 
           let single_assign e1 value = 
             (match e1 with
@@ -613,6 +672,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                 let ptr,map = lookup s local_vars in
                 (match (is_matrix ptr) with
                   true -> 
+                    if (L.string_of_lltype (L.type_of value) <> "%matrix_t*") 
+                    then failwith("Semantic error : matrix must be assigned to a matrix.");
                     let r = L.build_load (L.build_struct_gep value 1 "m_r" !builder) "r_mat" !builder in
                     let c = L.build_load (L.build_struct_gep value 2 "m_c" !builder) "c_mat" !builder in 
                     let m = stack_build_mat_init r c function_ptr builder in
@@ -620,7 +681,11 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                     ignore(mat_assign m (L.const_int i32_t 0) (L.build_sub r (L.const_int i32_t 1) "tmp" !builder) 
                                    (L.const_int i32_t 0) (L.build_sub c (L.const_int i32_t 1) "tmp" !builder) 
                                    value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder); value
-                | false -> ignore(L.build_store value ptr !builder); value)
+                | false -> 
+                    let typ1 = L.string_of_lltype (L.type_of (L.build_load ptr "tmp" !builder)) in
+                    let typ2 = L.string_of_lltype (L.type_of value) in
+                    if (typ1 <> typ2) then failwith ("Semantic error : type "^typ1^" is assigned with type " ^typ2);
+                    ignore(L.build_store value ptr !builder); value)
             | A.Index (s, (A.Range(x_low, x_high), A.Range(y_low, y_high))) ->
                 let ptr,_ = lookup s local_vars in
                 let r = L.build_load (L.build_struct_gep ptr 1 "m_r" !builder) "r_mat" !builder in
@@ -631,9 +696,16 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                 let y_h = index_converter "y" y_high r c builder in              
                 if ((x_low = x_high) && (y_low = y_high))
                 then (
+                  if (L.string_of_lltype (L.type_of value)) <> "double" then failwith ("Syntax error : single matrix entry must be assigned with a double");
                   let mat = L.build_load (L.build_struct_gep ptr 0 "mat" !builder) "mat" !builder in
                   L.build_store value (access mat r c x_l y_l builder) !builder) 
                 else (
+                  let i1 = L.build_add (L.build_sub x_h x_l "tmp" !builder) (L.const_int i32_t 1) "tmp" !builder in
+                  let i2 = L.build_load (L.build_struct_gep value 1 "m_r" !builder) "r_mat" !builder in
+                  ignore(run_time_property_check function_ptr builder mat_assign_err_str i1 (L.build_icmp L.Icmp.Ne) i2 (fun builder -> builder));
+                  let j1 = L.build_add (L.build_sub y_h y_l "tmp" !builder) (L.const_int i32_t 1) "tmp" !builder in
+                  let j2 = L.build_load (L.build_struct_gep value 2 "m_r" !builder) "r_mat" !builder in
+                  ignore(run_time_property_check function_ptr builder mat_assign_err_str j1 (L.build_icmp L.Icmp.Ne) j2 (fun builder -> builder));
                   ignore(mat_assign ptr x_l x_h y_l y_h value (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder); value)
             | _ -> failwith ("Semantic error : only variable and matrix indexing can be assigned to."))             
           in

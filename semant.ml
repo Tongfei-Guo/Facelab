@@ -9,7 +9,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check (functions, main_stmt) =
+let check (globals, functions, main_stmt) =
 
   (* Raise an exception if the given list has a duplicate *)
   let report_duplicate exceptf list =
@@ -31,11 +31,13 @@ let check (functions, main_stmt) =
   let check_assign lvaluet rvaluet err =
      if lvaluet == rvaluet then lvaluet else raise err
   in
+   
 
   (**** Checking Functions ****)
 
-  report_duplicate (fun n -> "duplicate function " ^ n)
+  report_duplicate (fun n -> "Semantic error : duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
+
 
   let check_function func =
 
@@ -44,46 +46,20 @@ let check (functions, main_stmt) =
 
     report_duplicate (fun n -> "duplicate formal " ^ n ^ " in " ^ func.fname)
       (List.map snd func.formals);
-
-    List.iter (check_not_void (fun n -> "illegal void local " ^ n ^
-      " in " ^ func.fname)) func.locals;
-
-    report_duplicate (fun n -> "duplicate local " ^ n ^ " in " ^ func.fname)
-      (List.map snd func.locals);
-
-    (* Type of each variable (global, formal, or local *)
-    let symbols = List.fold_left (fun m (t, n) -> StringMap.add n t m)
-	StringMap.empty (globals @ func.formals @ func.locals )
+    (* check built-in functions names are not used by users *)
+    let report_built_in_duplicate list =
+      let rec helper = function
+	"size" :: t -> raise (Failure ("Semantic error : name size is reserved."))
+      | "zeros" :: t -> raise (Failure ("Semantic error : name zeros is reserved."))
+      | _ :: t -> helper t
+      | [] -> ()
+      in helper list
     in
-
-    let type_of_identifier s =
-      try StringMap.find s symbols
-      with Not_found -> raise (Failure ("undeclared identifier " ^ s))
-    in
+    report_built_in_duplicate (List.map (fun fd -> fd.fname) functions);
+      
 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
-	      IntLit _ -> Int
-      | StringLit _ -> String
-      | BoolLit _ -> Bool
-      | Id s -> type_of_identifier s
-      | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
-	(match op with
-          Add | Sub | Mult | Div when t1 = Int && t2 = Int -> Int
-	| Equal | Neq when t1 = t2 -> Bool
-	| Less | Leq | Greater | Geq when t1 = Int && t2 = Int -> Bool
-	| And | Or when t1 = Bool && t2 = Bool -> Bool
-        | _ -> raise (Failure ("illegal binary operator " ^
-              string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
-              string_of_typ t2 ^ " in " ^ string_of_expr e))
-        )
-      | Unop(op, e) as ex -> let t = expr e in
-	 (match op with
-	   Neg when t = Int -> Int
-	 | Not when t = Bool -> Bool
-         | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
-	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
-      | Noexpr -> Void
       | Assign(var, e) as ex -> let lt = type_of_identifier var
                                 and rt = expr e in
         check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^
