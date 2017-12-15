@@ -18,12 +18,12 @@ let _ =
   let channel = ref stdin in
   Arg.parse speclist (fun filename -> channel := open_in filename) usage_msg;
   let lexbuf = Lexing.from_channel !channel in
-  let (global2, fdecl2, stmt2) = Parser.program Scanner.token lexbuf in
+  let (fdecl2, stmt2) = Parser.program Scanner.token lexbuf in
   (*let lexbuf2 = Lexing.from_string (process.process_file Sys.argv.(1))in
   let (global2, fdecl2, stmt2) = Parser.program Scanner.token lexbuf2 in *)
   let lexbuf1 = Lexing.from_string (Preprocess.process_file "std.fb")in
-  let (_, fdecl1, _) = Parser.program Scanner.token lexbuf1 in
-  let ast = (global2, fdecl1@fdecl2, stmt2) in
+  let (fdecl1, _) = Parser.program Scanner.token lexbuf1 in
+  let ast = (fdecl1@fdecl2, stmt2) in
   (*Semant.check ast;*)
   match !action with
     Ast -> () (*print_string (Ast.string_of_program ast)*)

@@ -21,7 +21,7 @@ module StringMap = Map.Make(String)
 type ret_typ = Returnstruct of L.lltype | Lltypearray of L.lltype array | Voidtype of L.lltype | Maintype
 type access_link = Access of access_link * (string, L.llvalue) H.t | Null
 (* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication, and we force globals to be either uninitilized or initialized with literals *)
-let translate (globals, functions, main_stmt) =
+let translate (functions, main_stmt) =
 
 (* sample code structure *)
 (* 1. default value: int:0 ; double:0. ; bool:true ; string:"" ; matrix:[] *)
@@ -482,47 +482,6 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 
 
 
-(* 2. global variable declarations *)
-  let global_vars =
-    let global_var m (t, n, v) =
-      (match t with
-        A.Matrix ->
-          (match v with
-            A.Noassign -> let global = stack_build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) main_define main_builder in
-                          H.add m n global;m
-          | A.MatrixLit (mat,(r,c))-> 
-                let global = build_mat_lit (mat, (r,c)) main_builder in
-                H.add m n global;m
-          | _ -> failwith("Syntax error : global matrix can only be default initialized or assigned with a matrix literal.") )
-      | _ -> 
-          let global = L.build_alloca (ltype_of_typ t) n !main_builder in 
-          H.add m n global;
-          let init_v =
-            (match v with
-              A.Noassign ->
-                (match t with
-                  A.Int -> L.const_int i32_t 0
-                | A.Double -> L.const_float double_t 0.
-                | A.String -> L.build_global_stringptr "" "system_string" !main_builder (*empty string*)
-                | A.Bool -> L.const_int i1_t 0
-                | A.Void -> failwith("Semantic error : variable "^n^" has type void.")
-                | _ -> failwith("Compiler error : global_vars unknown type initilization? ") )
-            | A.IntLit i -> L.const_int i32_t i
-            | A.DoubleLit d -> L.const_float double_t d
-            | A.StringLit s -> L.build_global_stringptr s "system_string" !main_builder (*empty string*)
-            | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
-            | _ -> failwith("Syntax error : global variable can only be default initialized or assigned with a literal."))
-          in
-          ignore(L.build_store init_v global !main_builder);m
-      )
-    in
-    let global_access = Access(Null, H.create (List.length globals)) in
-    let map = match global_access with Access(_, map) -> map | Null -> failwith("Compiler error : global access link error.") in
-    ignore(List.fold_left global_var map globals); global_access
-  in
-
-
-
 
 
 (* 3. Statement construction *)
@@ -906,7 +865,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
             ignore (L.build_store p local !builder);
             H.add m n local;m(* local is a ptr? *)
         in
-        let func_local_access = Access(global_vars, H.create (1000 + List.length fdecl.A.formals)) in
+        let func_local_access = Access(Null, H.create (1000 + List.length fdecl.A.formals)) in
         let map = match func_local_access with Access(_, map) -> map | Null -> failwith("Compiler error : function local access link error") in
         ignore(List.fold_left2 add_formal map fdecl.A.formals (Array.to_list (L.params function_ptr))); func_local_access
       in
@@ -963,7 +922,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       } in
       
     
-    let local_vars = Access(global_vars, H.create 1000) in
+    let local_vars = Access(Null, H.create 1000) in
     main_builder := !(build_stmt (main_fdecl, main_define) local_vars main_builder (A.Block main_fdecl.A.body) current_return);
     (* Add a return if the last block falls off the end *)
 

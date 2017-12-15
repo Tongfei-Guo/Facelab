@@ -40,12 +40,8 @@ open Ast
 %%
 
 program:
-  globals_opt decls EOF { let glb = $1 and (fst, snd) = $2 in (List.rev glb, List.rev fst, List.rev snd) }
+  decls EOF { let (fst, snd) = $1 in (List.rev fst, List.rev snd) }
 
-globals_opt:
-   /* nothing */ { [] }
- | globals_opt GLOBAL typ ID SEMI { ($3, $4, Noassign) :: $1 }
- | globals_opt GLOBAL typ ID ASSIGN expr SEMI { ($3, $4, $6) :: $1 }
 decls:
    /* nothing */ { [], [] }
  | decls fdecl {  ($2 :: fst $1), snd $1 }

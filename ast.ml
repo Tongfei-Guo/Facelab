@@ -47,7 +47,7 @@ type func_decl = {
   }
 
  
-type program = (typ * string * expr) list * func_decl list *  stmt list
+type program = func_decl list *  stmt list
 
 (* Pretty-printing functions *)
 
