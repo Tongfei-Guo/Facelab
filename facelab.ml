@@ -24,7 +24,7 @@ let _ =
   let lexbuf1 = Lexing.from_string (Preprocess.process_file "std.fb")in
   let (fdecl1, _) = Parser.program Scanner.token lexbuf1 in
   let ast = (fdecl1@fdecl2, stmt2) in
-  (*Semant.check ast;*)
+  Semant.check ast;
   match !action with
     Ast -> () (*print_string (Ast.string_of_program ast)*)
   | LLVM_IR -> print_string (Llvm.string_of_llmodule (Codegen.translate ast))

@@ -5,6 +5,8 @@ source_filename = "MicroC"
 %matrix_size_t = type { i32, i32 }
 %matrix_t = type { double*, i32, i32 }
 %zero_matrix_t = type { %matrix_t* }
+%int_to_double_t = type { double }
+%double_to_int_t = type { i32 }
 %return_t = type { double }
 %return_t.0 = type { %matrix_t* }
 
@@ -115,6 +117,26 @@ merge12:                                          ; preds = %while
   %m15 = getelementptr inbounds %zero_matrix_t, %zero_matrix_t* %return, i32 0, i32 0
   store %matrix_t* %m, %matrix_t** %m15
   ret %zero_matrix_t* %return
+}
+
+define %int_to_double_t* @int2double(i32) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (double* getelementptr (double, double* null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %int_to_double_t*
+  %tmp = sitofp i32 %0 to double
+  %converted_double = getelementptr inbounds %int_to_double_t, %int_to_double_t* %return, i32 0, i32 0
+  store double %tmp, double* %converted_double
+  ret %int_to_double_t* %return
+}
+
+define %double_to_int_t* @double2int(double) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %double_to_int_t*
+  %tmp = fptosi double %0 to i32
+  %converted_int = getelementptr inbounds %double_to_int_t, %double_to_int_t* %return, i32 0, i32 0
+  store i32 %tmp, i32* %converted_int
+  ret %double_to_int_t* %return
 }
 
 define %return_t* @bitwise(%matrix_t*, %matrix_t*) {

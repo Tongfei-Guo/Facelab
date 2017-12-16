@@ -147,6 +147,48 @@ zeros:                                  # @zeros
 	.size	zeros, .Lfunc_end2-zeros
 	.cfi_endproc
                                         # -- End function
+	.globl	int2double              # -- Begin function int2double
+	.p2align	4, 0x90
+	.type	int2double,@function
+int2double:                             # @int2double
+	.cfi_startproc
+# BB#0:                                 # %entry
+	pushq	%rbx
+.Lcfi12:
+	.cfi_def_cfa_offset 16
+.Lcfi13:
+	.cfi_offset %rbx, -16
+	movl	%edi, %ebx
+	movl	$8, %edi
+	callq	malloc
+	cvtsi2sdl	%ebx, %xmm0
+	movsd	%xmm0, (%rax)
+	popq	%rbx
+	retq
+.Lfunc_end3:
+	.size	int2double, .Lfunc_end3-int2double
+	.cfi_endproc
+                                        # -- End function
+	.globl	double2int              # -- Begin function double2int
+	.p2align	4, 0x90
+	.type	double2int,@function
+double2int:                             # @double2int
+	.cfi_startproc
+# BB#0:                                 # %entry
+	pushq	%rax
+.Lcfi14:
+	.cfi_def_cfa_offset 16
+	movsd	%xmm0, (%rsp)           # 8-byte Spill
+	movl	$4, %edi
+	callq	malloc
+	cvttsd2si	(%rsp), %ecx    # 8-byte Folded Reload
+	movl	%ecx, (%rax)
+	popq	%rcx
+	retq
+.Lfunc_end4:
+	.size	double2int, .Lfunc_end4-double2int
+	.cfi_endproc
+                                        # -- End function
 	.globl	bitwise                 # -- Begin function bitwise
 	.p2align	4, 0x90
 	.type	bitwise,@function
@@ -154,12 +196,12 @@ bitwise:                                # @bitwise
 	.cfi_startproc
 # BB#0:                                 # %entry
 	pushq	%rbp
-.Lcfi12:
+.Lcfi15:
 	.cfi_def_cfa_offset 16
-.Lcfi13:
+.Lcfi16:
 	.cfi_offset %rbp, -16
 	movq	%rsp, %rbp
-.Lcfi14:
+.Lcfi17:
 	.cfi_def_cfa_register %rbp
 	pushq	%r15
 	pushq	%r14
@@ -167,15 +209,15 @@ bitwise:                                # @bitwise
 	pushq	%r12
 	pushq	%rbx
 	subq	$72, %rsp
-.Lcfi15:
-	.cfi_offset %rbx, -56
-.Lcfi16:
-	.cfi_offset %r12, -48
-.Lcfi17:
-	.cfi_offset %r13, -40
 .Lcfi18:
-	.cfi_offset %r14, -32
+	.cfi_offset %rbx, -56
 .Lcfi19:
+	.cfi_offset %r12, -48
+.Lcfi20:
+	.cfi_offset %r13, -40
+.Lcfi21:
+	.cfi_offset %r14, -32
+.Lcfi22:
 	.cfi_offset %r15, -24
 	movl	8(%rdi), %r9d
 	movl	12(%rdi), %r11d
@@ -194,26 +236,26 @@ bitwise:                                # @bitwise
 	leal	-1(%r11), %edx
 	movl	$0, -44(%rbp)
 	cmpl	%r9d, -44(%rbp)
-	jle	.LBB3_2
-	jmp	.LBB3_6
+	jle	.LBB5_2
+	jmp	.LBB5_6
 	.p2align	4, 0x90
-.LBB3_5:                                # %merge
-                                        #   in Loop: Header=BB3_2 Depth=1
+.LBB5_5:                                # %merge
+                                        #   in Loop: Header=BB5_2 Depth=1
 	incl	-44(%rbp)
 	cmpl	%r9d, -44(%rbp)
-	jg	.LBB3_6
-.LBB3_2:                                # %while_body
+	jg	.LBB5_6
+.LBB5_2:                                # %while_body
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB3_4 Depth 2
+                                        #     Child Loop BB5_4 Depth 2
 	movq	%rsp, %r10
 	leaq	-16(%r10), %rcx
 	movq	%rcx, %rsp
 	movl	$0, -16(%r10)
 	cmpl	%edx, (%rcx)
-	jg	.LBB3_5
+	jg	.LBB5_5
 	.p2align	4, 0x90
-.LBB3_4:                                # %while_body5
-                                        #   Parent Loop BB3_2 Depth=1
+.LBB5_4:                                # %while_body5
+                                        #   Parent Loop BB5_2 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	-44(%rbp), %ebx
 	imull	%r11d, %ebx
@@ -222,9 +264,9 @@ bitwise:                                # @bitwise
 	movq	$0, (%rax,%rbx,8)
 	incl	(%rcx)
 	cmpl	%edx, (%rcx)
-	jle	.LBB3_4
-	jmp	.LBB3_5
-.LBB3_6:                                # %merge12
+	jle	.LBB5_4
+	jmp	.LBB5_5
+.LBB5_6:                                # %merge12
 	movq	-80(%rbp), %r10
 	movl	-68(%rbp), %r11d
 	movq	(%rdi), %r15
@@ -234,26 +276,26 @@ bitwise:                                # @bitwise
 	movq	%r13, %rsp
 	movl	$0, -16(%rcx)
 	cmpl	%r9d, (%r13)
-	jle	.LBB3_8
-	jmp	.LBB3_12
+	jle	.LBB5_8
+	jmp	.LBB5_12
 	.p2align	4, 0x90
-.LBB3_11:                               # %merge47
-                                        #   in Loop: Header=BB3_8 Depth=1
+.LBB5_11:                               # %merge47
+                                        #   in Loop: Header=BB5_8 Depth=1
 	incl	(%r13)
 	cmpl	%r9d, (%r13)
-	jg	.LBB3_12
-.LBB3_8:                                # %while_body27
+	jg	.LBB5_12
+.LBB5_8:                                # %while_body27
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB3_10 Depth 2
+                                        #     Child Loop BB5_10 Depth 2
 	movq	%rsp, %r14
 	leaq	-16(%r14), %rcx
 	movq	%rcx, %rsp
 	movl	$0, -16(%r14)
 	cmpl	%edx, (%rcx)
-	jg	.LBB3_11
+	jg	.LBB5_11
 	.p2align	4, 0x90
-.LBB3_10:                               # %while_body30
-                                        #   Parent Loop BB3_8 Depth=1
+.LBB5_10:                               # %while_body30
+                                        #   Parent Loop BB5_8 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rcx), %eax
 	movl	(%r13), %edi
@@ -268,9 +310,9 @@ bitwise:                                # @bitwise
 	movsd	%xmm0, (%r10,%rbx,8)
 	incl	(%rcx)
 	cmpl	%edx, (%rcx)
-	jle	.LBB3_10
-	jmp	.LBB3_11
-.LBB3_12:                               # %merge52
+	jle	.LBB5_10
+	jmp	.LBB5_11
+.LBB5_12:                               # %merge52
 	movl	8(%rsi), %r9d
 	movl	12(%rsi), %r10d
 	movl	%r9d, %eax
@@ -294,26 +336,26 @@ bitwise:                                # @bitwise
 	movq	%rax, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%r9d, (%rax)
-	jle	.LBB3_14
-	jmp	.LBB3_18
+	jle	.LBB5_14
+	jmp	.LBB5_18
 	.p2align	4, 0x90
-.LBB3_17:                               # %merge80
-                                        #   in Loop: Header=BB3_14 Depth=1
+.LBB5_17:                               # %merge80
+                                        #   in Loop: Header=BB5_14 Depth=1
 	incl	(%rax)
 	cmpl	%r9d, (%rax)
-	jg	.LBB3_18
-.LBB3_14:                               # %while_body69
+	jg	.LBB5_18
+.LBB5_14:                               # %while_body69
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB3_16 Depth 2
+                                        #     Child Loop BB5_16 Depth 2
 	movq	%rsp, %r8
 	leaq	-16(%r8), %rbx
 	movq	%rbx, %rsp
 	movl	$0, -16(%r8)
 	cmpl	%ecx, (%rbx)
-	jg	.LBB3_17
+	jg	.LBB5_17
 	.p2align	4, 0x90
-.LBB3_16:                               # %while_body72
-                                        #   Parent Loop BB3_14 Depth=1
+.LBB5_16:                               # %while_body72
+                                        #   Parent Loop BB5_14 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rax), %edx
 	imull	%r10d, %edx
@@ -322,9 +364,9 @@ bitwise:                                # @bitwise
 	movq	$0, (%rdi,%rdx,8)
 	incl	(%rbx)
 	cmpl	%ecx, (%rbx)
-	jle	.LBB3_16
-	jmp	.LBB3_17
-.LBB3_18:                               # %merge85
+	jle	.LBB5_16
+	jmp	.LBB5_17
+.LBB5_18:                               # %merge85
 	movq	-64(%rbp), %rax         # 8-byte Reload
 	movq	(%rax), %r8
 	movl	12(%rax), %r11d
@@ -335,26 +377,26 @@ bitwise:                                # @bitwise
 	movq	%rax, %rsp
 	movl	$0, -16(%rdx)
 	cmpl	%r9d, (%rax)
-	jle	.LBB3_20
-	jmp	.LBB3_24
+	jle	.LBB5_20
+	jmp	.LBB5_24
 	.p2align	4, 0x90
-.LBB3_23:                               # %merge125
-                                        #   in Loop: Header=BB3_20 Depth=1
+.LBB5_23:                               # %merge125
+                                        #   in Loop: Header=BB5_20 Depth=1
 	incl	(%rax)
 	cmpl	%r9d, (%rax)
-	jg	.LBB3_24
-.LBB3_20:                               # %while_body104
+	jg	.LBB5_24
+.LBB5_20:                               # %while_body104
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB3_22 Depth 2
+                                        #     Child Loop BB5_22 Depth 2
 	movq	%rsp, %r10
 	leaq	-16(%r10), %rdx
 	movq	%rdx, %rsp
 	movl	$0, -16(%r10)
 	cmpl	%ecx, (%rdx)
-	jg	.LBB3_23
+	jg	.LBB5_23
 	.p2align	4, 0x90
-.LBB3_22:                               # %while_body107
-                                        #   Parent Loop BB3_20 Depth=1
+.LBB5_22:                               # %while_body107
+                                        #   Parent Loop BB5_20 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rdx), %edi
 	movl	(%rax), %ebx
@@ -369,9 +411,9 @@ bitwise:                                # @bitwise
 	movsd	%xmm0, (%r8,%rsi,8)
 	incl	(%rdx)
 	cmpl	%ecx, (%rdx)
-	jle	.LBB3_22
-	jmp	.LBB3_23
-.LBB3_24:                               # %merge130
+	jle	.LBB5_22
+	jmp	.LBB5_23
+.LBB5_24:                               # %merge130
 	movq	%rsp, %rax
 	leaq	-16(%rax), %rbx
 	movq	%rbx, %rsp
@@ -389,24 +431,24 @@ bitwise:                                # @bitwise
 	movq	%r13, -88(%rbp)         # 8-byte Spill
 	movq	%rdx, -56(%rbp)         # 8-byte Spill
 	cmpl	$2, (%r13)
-	jle	.LBB3_26
-	jmp	.LBB3_47
+	jle	.LBB5_26
+	jmp	.LBB5_47
 	.p2align	4, 0x90
-.LBB3_46:                               # %merge266
-                                        #   in Loop: Header=BB3_26 Depth=1
+.LBB5_46:                               # %merge266
+                                        #   in Loop: Header=BB5_26 Depth=1
 	incl	(%r13)
 	cmpl	$2, (%r13)
-	jg	.LBB3_47
-.LBB3_26:                               # %while_body142
+	jg	.LBB5_47
+.LBB5_26:                               # %while_body142
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB3_28 Depth 2
+                                        #     Child Loop BB5_28 Depth 2
 	movl	$0, (%rdx)
 	cmpl	$2, (%rdx)
-	jle	.LBB3_28
-	jmp	.LBB3_46
+	jle	.LBB5_28
+	jmp	.LBB5_46
 	.p2align	4, 0x90
-.LBB3_44:                               # %merge249
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_44:                               # %merge249
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movq	-64(%rbp), %rax         # 8-byte Reload
 	movq	(%rax), %rax
 	imull	%r14d, %r15d
@@ -424,9 +466,9 @@ bitwise:                                # @bitwise
 	incl	(%rdx)
 	movq	-88(%rbp), %r13         # 8-byte Reload
 	cmpl	$2, (%rdx)
-	jg	.LBB3_46
-.LBB3_28:                               # %while_body147
-                                        #   Parent Loop BB3_26 Depth=1
+	jg	.LBB5_46
+.LBB5_28:                               # %while_body147
+                                        #   Parent Loop BB5_26 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movsd	(%rbx), %xmm0           # xmm0 = mem[0],zero
 	movsd	%xmm0, -112(%rbp)       # 8-byte Spill
@@ -434,100 +476,100 @@ bitwise:                                # @bitwise
 	movl	-68(%rbp), %r12d
 	movl	(%r13), %r14d
 	testl	%r14d, %r14d
-	jns	.LBB3_29
+	jns	.LBB5_29
 # BB#48:                                # %then
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_29:                               # %merge154
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_29:                               # %merge154
+                                        #   in Loop: Header=BB5_28 Depth=2
 	decl	%r15d
 	cmpl	%r14d, %r15d
-	jge	.LBB3_30
+	jge	.LBB5_30
 # BB#49:                                # %then158
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_30:                               # %merge157
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_30:                               # %merge157
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	(%r13), %ebx
 	testl	%ebx, %ebx
-	jns	.LBB3_31
+	jns	.LBB5_31
 # BB#50:                                # %then164
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_31:                               # %merge163
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_31:                               # %merge163
+                                        #   in Loop: Header=BB5_28 Depth=2
 	cmpl	%ebx, %r15d
-	jge	.LBB3_32
+	jge	.LBB5_32
 # BB#51:                                # %then170
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_32:                               # %merge169
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_32:                               # %merge169
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movq	-56(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %r15d
 	testl	%r15d, %r15d
-	jns	.LBB3_33
+	jns	.LBB5_33
 # BB#52:                                # %then176
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_33:                               # %merge175
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_33:                               # %merge175
+                                        #   in Loop: Header=BB5_28 Depth=2
 	leal	-1(%r12), %ebx
 	cmpl	%r15d, %ebx
-	jge	.LBB3_34
+	jge	.LBB5_34
 # BB#53:                                # %then182
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_34:                               # %merge181
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_34:                               # %merge181
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movq	-56(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %r13d
 	testl	%r13d, %r13d
-	jns	.LBB3_35
+	jns	.LBB5_35
 # BB#54:                                # %then188
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_35:                               # %merge187
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_35:                               # %merge187
+                                        #   in Loop: Header=BB5_28 Depth=2
 	cmpl	%r13d, %ebx
-	jge	.LBB3_36
+	jge	.LBB5_36
 # BB#55:                                # %then194
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_36:                               # %merge193
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_36:                               # %merge193
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movq	-80(%rbp), %rax
 	imull	%r14d, %r12d
 	addl	%r12d, %r15d
@@ -540,100 +582,100 @@ bitwise:                                # @bitwise
 	movq	-88(%rbp), %rbx         # 8-byte Reload
 	movl	(%rbx), %r14d
 	testl	%r14d, %r14d
-	jns	.LBB3_37
+	jns	.LBB5_37
 # BB#56:                                # %then208
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_37:                               # %merge207
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_37:                               # %merge207
+                                        #   in Loop: Header=BB5_28 Depth=2
 	decl	%r12d
 	cmpl	%r14d, %r12d
-	jge	.LBB3_38
+	jge	.LBB5_38
 # BB#57:                                # %then214
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_38:                               # %merge213
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_38:                               # %merge213
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	(%rbx), %ebx
 	testl	%ebx, %ebx
-	jns	.LBB3_39
+	jns	.LBB5_39
 # BB#58:                                # %then220
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_39:                               # %merge219
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_39:                               # %merge219
+                                        #   in Loop: Header=BB5_28 Depth=2
 	cmpl	%ebx, %r12d
-	jge	.LBB3_40
+	jge	.LBB5_40
 # BB#59:                                # %then226
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_40:                               # %merge225
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_40:                               # %merge225
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movq	-56(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %r13d
 	testl	%r13d, %r13d
-	jns	.LBB3_41
+	jns	.LBB5_41
 # BB#60:                                # %then232
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_41:                               # %merge231
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_41:                               # %merge231
+                                        #   in Loop: Header=BB5_28 Depth=2
 	leal	-1(%r15), %r12d
 	cmpl	%r13d, %r12d
-	jge	.LBB3_42
+	jge	.LBB5_42
 # BB#61:                                # %then238
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_42:                               # %merge237
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_42:                               # %merge237
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movq	-56(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %ebx
 	testl	%ebx, %ebx
-	jns	.LBB3_43
+	jns	.LBB5_43
 # BB#62:                                # %then244
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB3_43:                               # %merge243
-                                        #   in Loop: Header=BB3_28 Depth=2
+.LBB5_43:                               # %merge243
+                                        #   in Loop: Header=BB5_28 Depth=2
 	cmpl	%ebx, %r12d
-	jge	.LBB3_44
+	jge	.LBB5_44
 # BB#45:                                # %then250
-                                        #   in Loop: Header=BB3_28 Depth=2
+                                        #   in Loop: Header=BB5_28 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-	jmp	.LBB3_44
-.LBB3_47:                               # %merge272
+	jmp	.LBB5_44
+.LBB5_47:                               # %merge272
 	movl	$8, %edi
 	callq	malloc
 	movsd	(%rbx), %xmm0           # xmm0 = mem[0],zero
@@ -646,8 +688,8 @@ bitwise:                                # @bitwise
 	popq	%r15
 	popq	%rbp
 	retq
-.Lfunc_end3:
-	.size	bitwise, .Lfunc_end3-bitwise
+.Lfunc_end5:
+	.size	bitwise, .Lfunc_end5-bitwise
 	.cfi_endproc
                                         # -- End function
 	.globl	filter                  # -- Begin function filter
@@ -657,12 +699,12 @@ filter:                                 # @filter
 	.cfi_startproc
 # BB#0:                                 # %entry
 	pushq	%rbp
-.Lcfi20:
+.Lcfi23:
 	.cfi_def_cfa_offset 16
-.Lcfi21:
+.Lcfi24:
 	.cfi_offset %rbp, -16
 	movq	%rsp, %rbp
-.Lcfi22:
+.Lcfi25:
 	.cfi_def_cfa_register %rbp
 	pushq	%r15
 	pushq	%r14
@@ -670,15 +712,15 @@ filter:                                 # @filter
 	pushq	%r12
 	pushq	%rbx
 	subq	$104, %rsp
-.Lcfi23:
-	.cfi_offset %rbx, -56
-.Lcfi24:
-	.cfi_offset %r12, -48
-.Lcfi25:
-	.cfi_offset %r13, -40
 .Lcfi26:
-	.cfi_offset %r14, -32
+	.cfi_offset %rbx, -56
 .Lcfi27:
+	.cfi_offset %r12, -48
+.Lcfi28:
+	.cfi_offset %r13, -40
+.Lcfi29:
+	.cfi_offset %r14, -32
+.Lcfi30:
 	.cfi_offset %r15, -24
 	movl	8(%rdi), %r8d
 	movl	12(%rdi), %r10d
@@ -697,26 +739,26 @@ filter:                                 # @filter
 	leal	-1(%r10), %ecx
 	movl	$0, -52(%rbp)
 	cmpl	%r8d, -52(%rbp)
-	jle	.LBB4_2
-	jmp	.LBB4_6
+	jle	.LBB6_2
+	jmp	.LBB6_6
 	.p2align	4, 0x90
-.LBB4_5:                                # %merge
-                                        #   in Loop: Header=BB4_2 Depth=1
+.LBB6_5:                                # %merge
+                                        #   in Loop: Header=BB6_2 Depth=1
 	incl	-52(%rbp)
 	cmpl	%r8d, -52(%rbp)
-	jg	.LBB4_6
-.LBB4_2:                                # %while_body
+	jg	.LBB6_6
+.LBB6_2:                                # %while_body
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_4 Depth 2
+                                        #     Child Loop BB6_4 Depth 2
 	movq	%rsp, %r9
 	leaq	-16(%r9), %rbx
 	movq	%rbx, %rsp
 	movl	$0, -16(%r9)
 	cmpl	%ecx, (%rbx)
-	jg	.LBB4_5
+	jg	.LBB6_5
 	.p2align	4, 0x90
-.LBB4_4:                                # %while_body5
-                                        #   Parent Loop BB4_2 Depth=1
+.LBB6_4:                                # %while_body5
+                                        #   Parent Loop BB6_2 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	-52(%rbp), %edx
 	imull	%r10d, %edx
@@ -725,9 +767,9 @@ filter:                                 # @filter
 	movq	$0, (%rax,%rdx,8)
 	incl	(%rbx)
 	cmpl	%ecx, (%rbx)
-	jle	.LBB4_4
-	jmp	.LBB4_5
-.LBB4_6:                                # %merge12
+	jle	.LBB6_4
+	jmp	.LBB6_5
+.LBB6_6:                                # %merge12
 	movq	-104(%rbp), %r9
 	movl	-92(%rbp), %r10d
 	movq	(%rdi), %r14
@@ -737,26 +779,26 @@ filter:                                 # @filter
 	movq	%r12, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%r8d, (%r12)
-	jle	.LBB4_8
-	jmp	.LBB4_12
+	jle	.LBB6_8
+	jmp	.LBB6_12
 	.p2align	4, 0x90
-.LBB4_11:                               # %merge47
-                                        #   in Loop: Header=BB4_8 Depth=1
+.LBB6_11:                               # %merge47
+                                        #   in Loop: Header=BB6_8 Depth=1
 	incl	(%r12)
 	cmpl	%r8d, (%r12)
-	jg	.LBB4_12
-.LBB4_8:                                # %while_body27
+	jg	.LBB6_12
+.LBB6_8:                                # %while_body27
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_10 Depth 2
+                                        #     Child Loop BB6_10 Depth 2
 	movq	%rsp, %r11
 	leaq	-16(%r11), %rbx
 	movq	%rbx, %rsp
 	movl	$0, -16(%r11)
 	cmpl	%ecx, (%rbx)
-	jg	.LBB4_11
+	jg	.LBB6_11
 	.p2align	4, 0x90
-.LBB4_10:                               # %while_body30
-                                        #   Parent Loop BB4_8 Depth=1
+.LBB6_10:                               # %while_body30
+                                        #   Parent Loop BB6_8 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rbx), %eax
 	movl	(%r12), %edi
@@ -771,9 +813,9 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rdx,8)
 	incl	(%rbx)
 	cmpl	%ecx, (%rbx)
-	jle	.LBB4_10
-	jmp	.LBB4_11
-.LBB4_12:                               # %merge52
+	jle	.LBB6_10
+	jmp	.LBB6_11
+.LBB6_12:                               # %merge52
 	movl	8(%rsi), %r8d
 	movl	12(%rsi), %r10d
 	movl	%r8d, %eax
@@ -798,26 +840,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_14
-	jmp	.LBB4_18
+	jle	.LBB6_14
+	jmp	.LBB6_18
 	.p2align	4, 0x90
-.LBB4_17:                               # %merge80
-                                        #   in Loop: Header=BB4_14 Depth=1
+.LBB6_17:                               # %merge80
+                                        #   in Loop: Header=BB6_14 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_18
-.LBB4_14:                               # %while_body69
+	jg	.LBB6_18
+.LBB6_14:                               # %while_body69
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_16 Depth 2
+                                        #     Child Loop BB6_16 Depth 2
 	movq	%rsp, %r9
 	leaq	-16(%r9), %rbx
 	movq	%rbx, %rsp
 	movl	$0, -16(%r9)
 	cmpl	%ecx, (%rbx)
-	jg	.LBB4_17
+	jg	.LBB6_17
 	.p2align	4, 0x90
-.LBB4_16:                               # %while_body72
-                                        #   Parent Loop BB4_14 Depth=1
+.LBB6_16:                               # %while_body72
+                                        #   Parent Loop BB6_14 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rax), %edx
 	imull	%r10d, %edx
@@ -826,9 +868,9 @@ filter:                                 # @filter
 	movq	$0, (%rdi,%rdx,8)
 	incl	(%rbx)
 	cmpl	%ecx, (%rbx)
-	jle	.LBB4_16
-	jmp	.LBB4_17
-.LBB4_18:                               # %merge85
+	jle	.LBB6_16
+	jmp	.LBB6_17
+.LBB6_18:                               # %merge85
 	movq	-128(%rbp), %rax        # 8-byte Reload
 	movq	(%rax), %r9
 	movl	12(%rax), %r11d
@@ -839,26 +881,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rdx)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_20
-	jmp	.LBB4_24
+	jle	.LBB6_20
+	jmp	.LBB6_24
 	.p2align	4, 0x90
-.LBB4_23:                               # %merge125
-                                        #   in Loop: Header=BB4_20 Depth=1
+.LBB6_23:                               # %merge125
+                                        #   in Loop: Header=BB6_20 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_24
-.LBB4_20:                               # %while_body104
+	jg	.LBB6_24
+.LBB6_20:                               # %while_body104
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_22 Depth 2
+                                        #     Child Loop BB6_22 Depth 2
 	movq	%rsp, %r10
 	leaq	-16(%r10), %rdx
 	movq	%rdx, %rsp
 	movl	$0, -16(%r10)
 	cmpl	%ecx, (%rdx)
-	jg	.LBB4_23
+	jg	.LBB6_23
 	.p2align	4, 0x90
-.LBB4_22:                               # %while_body107
-                                        #   Parent Loop BB4_20 Depth=1
+.LBB6_22:                               # %while_body107
+                                        #   Parent Loop BB6_20 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rdx), %edi
 	movl	(%rax), %ebx
@@ -873,9 +915,9 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rsi,8)
 	incl	(%rdx)
 	cmpl	%ecx, (%rdx)
-	jle	.LBB4_22
-	jmp	.LBB4_23
-.LBB4_24:                               # %merge130
+	jle	.LBB6_22
+	jmp	.LBB6_23
+.LBB6_24:                               # %merge130
 	movq	%rsp, %r14
 	leaq	-16(%r14), %rax
 	movq	%rax, -80(%rbp)         # 8-byte Spill
@@ -926,26 +968,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_26
-	jmp	.LBB4_30
+	jle	.LBB6_26
+	jmp	.LBB6_30
 	.p2align	4, 0x90
-.LBB4_29:                               # %merge172
-                                        #   in Loop: Header=BB4_26 Depth=1
+.LBB6_29:                               # %merge172
+                                        #   in Loop: Header=BB6_26 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_30
-.LBB4_26:                               # %while_body161
+	jg	.LBB6_30
+.LBB6_26:                               # %while_body161
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_28 Depth 2
+                                        #     Child Loop BB6_28 Depth 2
 	movq	%rsp, %r9
 	leaq	-16(%r9), %rbx
 	movq	%rbx, %rsp
 	movl	$0, -16(%r9)
 	cmpl	%ecx, (%rbx)
-	jg	.LBB4_29
+	jg	.LBB6_29
 	.p2align	4, 0x90
-.LBB4_28:                               # %while_body164
-                                        #   Parent Loop BB4_26 Depth=1
+.LBB6_28:                               # %while_body164
+                                        #   Parent Loop BB6_26 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rax), %edx
 	imull	%r10d, %edx
@@ -954,9 +996,9 @@ filter:                                 # @filter
 	movq	$0, (%rsi,%rdx,8)
 	incl	(%rbx)
 	cmpl	%ecx, (%rbx)
-	jle	.LBB4_28
-	jmp	.LBB4_29
-.LBB4_30:                               # %merge177
+	jle	.LBB6_28
+	jmp	.LBB6_29
+.LBB6_30:                               # %merge177
 	movq	(%r11), %r9
 	movq	%r11, -48(%rbp)         # 8-byte Spill
 	movl	12(%r11), %r10d
@@ -967,26 +1009,26 @@ filter:                                 # @filter
 	movq	%r15, %rsp
 	movl	$0, -16(%rsi)
 	cmpl	%r8d, (%r15)
-	jle	.LBB4_32
-	jmp	.LBB4_36
+	jle	.LBB6_32
+	jmp	.LBB6_36
 	.p2align	4, 0x90
-.LBB4_35:                               # %merge217
-                                        #   in Loop: Header=BB4_32 Depth=1
+.LBB6_35:                               # %merge217
+                                        #   in Loop: Header=BB6_32 Depth=1
 	incl	(%r15)
 	cmpl	%r8d, (%r15)
-	jg	.LBB4_36
-.LBB4_32:                               # %while_body196
+	jg	.LBB6_36
+.LBB6_32:                               # %while_body196
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_34 Depth 2
+                                        #     Child Loop BB6_34 Depth 2
 	movq	%rsp, %r11
 	leaq	-16(%r11), %rsi
 	movq	%rsi, %rsp
 	movl	$0, -16(%r11)
 	cmpl	%ecx, (%rsi)
-	jg	.LBB4_35
+	jg	.LBB6_35
 	.p2align	4, 0x90
-.LBB4_34:                               # %while_body199
-                                        #   Parent Loop BB4_32 Depth=1
+.LBB6_34:                               # %while_body199
+                                        #   Parent Loop BB6_32 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rsi), %ebx
 	movl	(%r15), %eax
@@ -1001,9 +1043,9 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rdx,8)
 	incl	(%rsi)
 	cmpl	%ecx, (%rsi)
-	jle	.LBB4_34
-	jmp	.LBB4_35
-.LBB4_36:                               # %merge222
+	jle	.LBB6_34
+	jmp	.LBB6_35
+.LBB6_36:                               # %merge222
 	callq	free
 	movq	%r14, %rdi
 	callq	free
@@ -1032,26 +1074,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rdi)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_38
-	jmp	.LBB4_42
+	jle	.LBB6_38
+	jmp	.LBB6_42
 	.p2align	4, 0x90
-.LBB4_41:                               # %merge250
-                                        #   in Loop: Header=BB4_38 Depth=1
+.LBB6_41:                               # %merge250
+                                        #   in Loop: Header=BB6_38 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_42
-.LBB4_38:                               # %while_body239
+	jg	.LBB6_42
+.LBB6_38:                               # %while_body239
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_40 Depth 2
+                                        #     Child Loop BB6_40 Depth 2
 	movq	%rsp, %rbx
 	leaq	-16(%rbx), %rdi
 	movq	%rdi, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%ecx, (%rdi)
-	jg	.LBB4_41
+	jg	.LBB6_41
 	.p2align	4, 0x90
-.LBB4_40:                               # %while_body242
-                                        #   Parent Loop BB4_38 Depth=1
+.LBB6_40:                               # %while_body242
+                                        #   Parent Loop BB6_38 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rax), %ebx
 	imull	%edx, %ebx
@@ -1060,9 +1102,9 @@ filter:                                 # @filter
 	movq	$0, (%rsi,%rbx,8)
 	incl	(%rdi)
 	cmpl	%ecx, (%rdi)
-	jle	.LBB4_40
-	jmp	.LBB4_41
-.LBB4_42:                               # %merge255
+	jle	.LBB6_40
+	jmp	.LBB6_41
+.LBB6_42:                               # %merge255
 	movq	-72(%rbp), %rax         # 8-byte Reload
 	movq	(%rax), %r9
 	movl	12(%rax), %r11d
@@ -1073,26 +1115,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rdx)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_44
-	jmp	.LBB4_48
+	jle	.LBB6_44
+	jmp	.LBB6_48
 	.p2align	4, 0x90
-.LBB4_47:                               # %merge295
-                                        #   in Loop: Header=BB4_44 Depth=1
+.LBB6_47:                               # %merge295
+                                        #   in Loop: Header=BB6_44 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_48
-.LBB4_44:                               # %while_body274
+	jg	.LBB6_48
+.LBB6_44:                               # %while_body274
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_46 Depth 2
+                                        #     Child Loop BB6_46 Depth 2
 	movq	%rsp, %r10
 	leaq	-16(%r10), %rdx
 	movq	%rdx, %rsp
 	movl	$0, -16(%r10)
 	cmpl	%ecx, (%rdx)
-	jg	.LBB4_47
+	jg	.LBB6_47
 	.p2align	4, 0x90
-.LBB4_46:                               # %while_body277
-                                        #   Parent Loop BB4_44 Depth=1
+.LBB6_46:                               # %while_body277
+                                        #   Parent Loop BB6_44 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rdx), %esi
 	movl	(%rax), %edi
@@ -1107,9 +1149,9 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rbx,8)
 	incl	(%rdx)
 	cmpl	%ecx, (%rdx)
-	jle	.LBB4_46
-	jmp	.LBB4_47
-.LBB4_48:                               # %merge300
+	jle	.LBB6_46
+	jmp	.LBB6_47
+.LBB6_48:                               # %merge300
 	movq	-88(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %esi
 	movq	-80(%rbp), %rax         # 8-byte Reload
@@ -1142,26 +1184,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_50
-	jmp	.LBB4_54
+	jle	.LBB6_50
+	jmp	.LBB6_54
 	.p2align	4, 0x90
-.LBB4_53:                               # %merge335
-                                        #   in Loop: Header=BB4_50 Depth=1
+.LBB6_53:                               # %merge335
+                                        #   in Loop: Header=BB6_50 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_54
-.LBB4_50:                               # %while_body324
+	jg	.LBB6_54
+.LBB6_50:                               # %while_body324
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_52 Depth 2
+                                        #     Child Loop BB6_52 Depth 2
 	movq	%rsp, %r9
 	leaq	-16(%r9), %rbx
 	movq	%rbx, %rsp
 	movl	$0, -16(%r9)
 	cmpl	%ecx, (%rbx)
-	jg	.LBB4_53
+	jg	.LBB6_53
 	.p2align	4, 0x90
-.LBB4_52:                               # %while_body327
-                                        #   Parent Loop BB4_50 Depth=1
+.LBB6_52:                               # %while_body327
+                                        #   Parent Loop BB6_50 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rax), %edx
 	imull	%r10d, %edx
@@ -1170,9 +1212,9 @@ filter:                                 # @filter
 	movq	$0, (%rsi,%rdx,8)
 	incl	(%rbx)
 	cmpl	%ecx, (%rbx)
-	jle	.LBB4_52
-	jmp	.LBB4_53
-.LBB4_54:                               # %merge340
+	jle	.LBB6_52
+	jmp	.LBB6_53
+.LBB6_54:                               # %merge340
 	movq	(%r11), %r9
 	movq	%r11, -48(%rbp)         # 8-byte Spill
 	movl	12(%r11), %r10d
@@ -1183,26 +1225,26 @@ filter:                                 # @filter
 	movq	%r15, %rsp
 	movl	$0, -16(%rsi)
 	cmpl	%r8d, (%r15)
-	jle	.LBB4_56
-	jmp	.LBB4_60
+	jle	.LBB6_56
+	jmp	.LBB6_60
 	.p2align	4, 0x90
-.LBB4_59:                               # %merge380
-                                        #   in Loop: Header=BB4_56 Depth=1
+.LBB6_59:                               # %merge380
+                                        #   in Loop: Header=BB6_56 Depth=1
 	incl	(%r15)
 	cmpl	%r8d, (%r15)
-	jg	.LBB4_60
-.LBB4_56:                               # %while_body359
+	jg	.LBB6_60
+.LBB6_56:                               # %while_body359
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_58 Depth 2
+                                        #     Child Loop BB6_58 Depth 2
 	movq	%rsp, %r11
 	leaq	-16(%r11), %rsi
 	movq	%rsi, %rsp
 	movl	$0, -16(%r11)
 	cmpl	%ecx, (%rsi)
-	jg	.LBB4_59
+	jg	.LBB6_59
 	.p2align	4, 0x90
-.LBB4_58:                               # %while_body362
-                                        #   Parent Loop BB4_56 Depth=1
+.LBB6_58:                               # %while_body362
+                                        #   Parent Loop BB6_56 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rsi), %ebx
 	movl	(%r15), %eax
@@ -1217,9 +1259,9 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rdx,8)
 	incl	(%rsi)
 	cmpl	%ecx, (%rsi)
-	jle	.LBB4_58
-	jmp	.LBB4_59
-.LBB4_60:                               # %merge385
+	jle	.LBB6_58
+	jmp	.LBB6_59
+.LBB6_60:                               # %merge385
 	callq	free
 	movq	%r14, %rdi
 	callq	free
@@ -1248,26 +1290,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rdi)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_62
-	jmp	.LBB4_66
+	jle	.LBB6_62
+	jmp	.LBB6_66
 	.p2align	4, 0x90
-.LBB4_65:                               # %merge413
-                                        #   in Loop: Header=BB4_62 Depth=1
+.LBB6_65:                               # %merge413
+                                        #   in Loop: Header=BB6_62 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_66
-.LBB4_62:                               # %while_body402
+	jg	.LBB6_66
+.LBB6_62:                               # %while_body402
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_64 Depth 2
+                                        #     Child Loop BB6_64 Depth 2
 	movq	%rsp, %rbx
 	leaq	-16(%rbx), %rdi
 	movq	%rdi, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%ecx, (%rdi)
-	jg	.LBB4_65
+	jg	.LBB6_65
 	.p2align	4, 0x90
-.LBB4_64:                               # %while_body405
-                                        #   Parent Loop BB4_62 Depth=1
+.LBB6_64:                               # %while_body405
+                                        #   Parent Loop BB6_62 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rax), %ebx
 	imull	%edx, %ebx
@@ -1276,9 +1318,9 @@ filter:                                 # @filter
 	movq	$0, (%rsi,%rbx,8)
 	incl	(%rdi)
 	cmpl	%ecx, (%rdi)
-	jle	.LBB4_64
-	jmp	.LBB4_65
-.LBB4_66:                               # %merge418
+	jle	.LBB6_64
+	jmp	.LBB6_65
+.LBB6_66:                               # %merge418
 	movq	-64(%rbp), %rax         # 8-byte Reload
 	movq	(%rax), %r9
 	movl	12(%rax), %r11d
@@ -1289,26 +1331,26 @@ filter:                                 # @filter
 	movq	%rax, %rsp
 	movl	$0, -16(%rdx)
 	cmpl	%r8d, (%rax)
-	jle	.LBB4_68
-	jmp	.LBB4_72
+	jle	.LBB6_68
+	jmp	.LBB6_72
 	.p2align	4, 0x90
-.LBB4_71:                               # %merge458
-                                        #   in Loop: Header=BB4_68 Depth=1
+.LBB6_71:                               # %merge458
+                                        #   in Loop: Header=BB6_68 Depth=1
 	incl	(%rax)
 	cmpl	%r8d, (%rax)
-	jg	.LBB4_72
-.LBB4_68:                               # %while_body437
+	jg	.LBB6_72
+.LBB6_68:                               # %while_body437
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_70 Depth 2
+                                        #     Child Loop BB6_70 Depth 2
 	movq	%rsp, %r10
 	leaq	-16(%r10), %rdx
 	movq	%rdx, %rsp
 	movl	$0, -16(%r10)
 	cmpl	%ecx, (%rdx)
-	jg	.LBB4_71
+	jg	.LBB6_71
 	.p2align	4, 0x90
-.LBB4_70:                               # %while_body440
-                                        #   Parent Loop BB4_68 Depth=1
+.LBB6_70:                               # %while_body440
+                                        #   Parent Loop BB6_68 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rdx), %esi
 	movl	(%rax), %edi
@@ -1323,51 +1365,51 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rbx,8)
 	incl	(%rdx)
 	cmpl	%ecx, (%rdx)
-	jle	.LBB4_70
-	jmp	.LBB4_71
-.LBB4_72:                               # %merge470
+	jle	.LBB6_70
+	jmp	.LBB6_71
+.LBB6_72:                               # %merge470
 	movl	-96(%rbp), %ebx
 	movl	-92(%rbp), %r14d
 	decl	%ebx
-	jns	.LBB4_73
+	jns	.LBB6_73
 # BB#154:                               # %then473
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_73:                               # %merge472
+.LBB6_73:                               # %merge472
 	movq	-80(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %r15d
 	decl	%r15d
-	js	.LBB4_155
+	js	.LBB6_155
 # BB#74:                                # %merge479
 	cmpl	%r15d, %ebx
-	jl	.LBB4_75
-.LBB4_76:                               # %merge490
+	jl	.LBB6_75
+.LBB6_76:                               # %merge490
 	decl	%r14d
-	js	.LBB4_156
-.LBB4_77:                               # %merge495
+	js	.LBB6_156
+.LBB6_77:                               # %merge495
 	movq	-88(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %r12d
 	decl	%r12d
-	jns	.LBB4_78
+	jns	.LBB6_78
 # BB#157:                               # %then503
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_78:                               # %merge502
+.LBB6_78:                               # %merge502
 	cmpl	%r12d, %r14d
-	jge	.LBB4_79
+	jge	.LBB6_79
 # BB#158:                               # %then509
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_79:                               # %merge508
+.LBB6_79:                               # %merge508
 	leal	1(%r12), %eax
 	leal	1(%r15), %edx
 	movl	%edx, %ecx
@@ -1389,26 +1431,26 @@ filter:                                 # @filter
 	movq	%rdx, %rsp
 	movl	$0, -16(%rsi)
 	cmpl	%r15d, (%rdx)
-	jle	.LBB4_81
-	jmp	.LBB4_85
+	jle	.LBB6_81
+	jmp	.LBB6_85
 	.p2align	4, 0x90
-.LBB4_84:                               # %merge538
-                                        #   in Loop: Header=BB4_81 Depth=1
+.LBB6_84:                               # %merge538
+                                        #   in Loop: Header=BB6_81 Depth=1
 	incl	(%rdx)
 	cmpl	%r15d, (%rdx)
-	jg	.LBB4_85
-.LBB4_81:                               # %while_body527
+	jg	.LBB6_85
+.LBB6_81:                               # %while_body527
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_83 Depth 2
+                                        #     Child Loop BB6_83 Depth 2
 	movq	%rsp, %rdi
 	leaq	-16(%rdi), %rsi
 	movq	%rsi, %rsp
 	movl	$0, -16(%rdi)
 	cmpl	%r12d, (%rsi)
-	jg	.LBB4_84
+	jg	.LBB6_84
 	.p2align	4, 0x90
-.LBB4_83:                               # %while_body530
-                                        #   Parent Loop BB4_81 Depth=1
+.LBB6_83:                               # %while_body530
+                                        #   Parent Loop BB6_81 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rdx), %edi
 	imull	%eax, %edi
@@ -1417,9 +1459,9 @@ filter:                                 # @filter
 	movq	$0, (%rcx,%rdi,8)
 	incl	(%rsi)
 	cmpl	%r12d, (%rsi)
-	jle	.LBB4_83
-	jmp	.LBB4_84
-.LBB4_85:                               # %merge543
+	jle	.LBB6_83
+	jmp	.LBB6_84
+.LBB6_85:                               # %merge543
 	movq	(%r14), %r9
 	movl	12(%r14), %r10d
 	movq	-104(%rbp), %r11
@@ -1429,26 +1471,26 @@ filter:                                 # @filter
 	movq	%rdi, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%r15d, (%rdi)
-	jle	.LBB4_87
-	jmp	.LBB4_91
+	jle	.LBB6_87
+	jmp	.LBB6_91
 	.p2align	4, 0x90
-.LBB4_90:                               # %merge581
-                                        #   in Loop: Header=BB4_87 Depth=1
+.LBB6_90:                               # %merge581
+                                        #   in Loop: Header=BB6_87 Depth=1
 	incl	(%rdi)
 	cmpl	%r15d, (%rdi)
-	jg	.LBB4_91
-.LBB4_87:                               # %while_body560
+	jg	.LBB6_91
+.LBB6_87:                               # %while_body560
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_89 Depth 2
+                                        #     Child Loop BB6_89 Depth 2
 	movq	%rsp, %r8
 	leaq	-16(%r8), %rbx
 	movq	%rbx, %rsp
 	movl	$0, -16(%r8)
 	cmpl	%r12d, (%rbx)
-	jg	.LBB4_90
+	jg	.LBB6_90
 	.p2align	4, 0x90
-.LBB4_89:                               # %while_body563
-                                        #   Parent Loop BB4_87 Depth=1
+.LBB6_89:                               # %while_body563
+                                        #   Parent Loop BB6_87 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rbx), %eax
 	movl	(%rdi), %ecx
@@ -1463,72 +1505,72 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rdx,8)
 	incl	(%rbx)
 	cmpl	%r12d, (%rbx)
-	jle	.LBB4_89
-	jmp	.LBB4_90
-.LBB4_91:                               # %merge593
+	jle	.LBB6_89
+	jmp	.LBB6_90
+.LBB6_91:                               # %merge593
 	movq	-72(%rbp), %rax         # 8-byte Reload
 	movl	8(%rax), %ebx
 	movl	12(%rax), %r12d
 	decl	%ebx
 	testl	%ebx, %ebx
-	jg	.LBB4_92
+	jg	.LBB6_92
 # BB#159:                               # %then599
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_92:                               # %merge598
+.LBB6_92:                               # %merge598
 	movq	-80(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %r15d
 	testl	%r15d, %r15d
-	jns	.LBB4_93
+	jns	.LBB6_93
 # BB#160:                               # %then605
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_93:                               # %merge604
+.LBB6_93:                               # %merge604
 	cmpl	%r15d, %ebx
-	jge	.LBB4_95
+	jge	.LBB6_95
 # BB#94:                                # %then611
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_95:                               # %merge615
+.LBB6_95:                               # %merge615
 	decl	%r12d
 	testl	%r12d, %r12d
-	jg	.LBB4_96
+	jg	.LBB6_96
 # BB#161:                               # %then621
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_96:                               # %merge620
+.LBB6_96:                               # %merge620
 	movq	-88(%rbp), %rax         # 8-byte Reload
 	movl	(%rax), %r13d
 	testl	%r13d, %r13d
-	js	.LBB4_162
+	js	.LBB6_162
 # BB#97:                                # %merge626
 	cmpl	%r13d, %r12d
-	jl	.LBB4_163
-.LBB4_98:                               # %merge632
+	jl	.LBB6_163
+.LBB6_98:                               # %merge632
 	cmpl	8(%r14), %r15d
-	jne	.LBB4_164
-.LBB4_99:                               # %merge641
+	jne	.LBB6_164
+.LBB6_99:                               # %merge641
 	cmpl	12(%r14), %r13d
-	je	.LBB4_100
-.LBB4_165:                              # %then651
+	je	.LBB6_100
+.LBB6_165:                              # %then651
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.8, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_100:                              # %merge650
+.LBB6_100:                              # %merge650
 	movq	-72(%rbp), %rax         # 8-byte Reload
 	movq	(%rax), %r9
 	movl	12(%rax), %r10d
@@ -1539,26 +1581,26 @@ filter:                                 # @filter
 	movq	%rdi, %rsp
 	movl	$1, -16(%rbx)
 	cmpl	%r15d, (%rdi)
-	jle	.LBB4_102
-	jmp	.LBB4_106
+	jle	.LBB6_102
+	jmp	.LBB6_106
 	.p2align	4, 0x90
-.LBB4_105:                              # %merge690
-                                        #   in Loop: Header=BB4_102 Depth=1
+.LBB6_105:                              # %merge690
+                                        #   in Loop: Header=BB6_102 Depth=1
 	incl	(%rdi)
 	cmpl	%r15d, (%rdi)
-	jg	.LBB4_106
-.LBB4_102:                              # %while_body669
+	jg	.LBB6_106
+.LBB6_102:                              # %while_body669
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_104 Depth 2
+                                        #     Child Loop BB6_104 Depth 2
 	movq	%rsp, %r8
 	leaq	-16(%r8), %rbx
 	movq	%rbx, %rsp
 	movl	$1, -16(%r8)
 	cmpl	%r13d, (%rbx)
-	jg	.LBB4_105
+	jg	.LBB6_105
 	.p2align	4, 0x90
-.LBB4_104:                              # %while_body672
-                                        #   Parent Loop BB4_102 Depth=1
+.LBB6_104:                              # %while_body672
+                                        #   Parent Loop BB6_102 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rbx), %eax
 	movl	(%rdi), %ecx
@@ -1574,9 +1616,9 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r9,%rdx,8)
 	incl	(%rbx)
 	cmpl	%r13d, (%rbx)
-	jle	.LBB4_104
-	jmp	.LBB4_105
-.LBB4_106:                              # %merge695
+	jle	.LBB6_104
+	jmp	.LBB6_105
+.LBB6_106:                              # %merge695
 	movq	%rsp, %rax
 	leaq	-16(%rax), %r13
 	movq	%r13, %rsp
@@ -1588,29 +1630,29 @@ filter:                                 # @filter
 	movl	$0, -16(%rax)
 	movq	%r13, -136(%rbp)        # 8-byte Spill
 	movq	%rdx, -112(%rbp)        # 8-byte Spill
-	jmp	.LBB4_107
+	jmp	.LBB6_107
 	.p2align	4, 0x90
-.LBB4_140:                              # %merge908
-                                        #   in Loop: Header=BB4_107 Depth=1
+.LBB6_140:                              # %merge908
+                                        #   in Loop: Header=BB6_107 Depth=1
 	incl	(%r13)
-.LBB4_107:                              # %while706
+.LBB6_107:                              # %while706
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_109 Depth 2
-                                        #       Child Loop BB4_120 Depth 3
-                                        #         Child Loop BB4_122 Depth 4
-                                        #       Child Loop BB4_126 Depth 3
-                                        #         Child Loop BB4_128 Depth 4
+                                        #     Child Loop BB6_109 Depth 2
+                                        #       Child Loop BB6_120 Depth 3
+                                        #         Child Loop BB6_122 Depth 4
+                                        #       Child Loop BB6_126 Depth 3
+                                        #         Child Loop BB6_128 Depth 4
 	movl	(%r13), %eax
 	movq	-80(%rbp), %rcx         # 8-byte Reload
 	cmpl	(%rcx), %eax
-	jge	.LBB4_141
+	jge	.LBB6_141
 # BB#108:                               # %while_body707
-                                        #   in Loop: Header=BB4_107 Depth=1
+                                        #   in Loop: Header=BB6_107 Depth=1
 	movl	$0, (%rdx)
-	jmp	.LBB4_109
+	jmp	.LBB6_109
 	.p2align	4, 0x90
-.LBB4_138:                              # %merge896
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_138:                              # %merge896
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movq	-64(%rbp), %rax         # 8-byte Reload
 	movq	(%rax), %rax
 	imull	%r14d, %r15d
@@ -1622,19 +1664,19 @@ filter:                                 # @filter
 	movq	-112(%rbp), %rdx        # 8-byte Reload
 	incl	(%rdx)
 	movq	-136(%rbp), %r13        # 8-byte Reload
-.LBB4_109:                              # %while712
-                                        #   Parent Loop BB4_107 Depth=1
+.LBB6_109:                              # %while712
+                                        #   Parent Loop BB6_107 Depth=1
                                         # =>  This Loop Header: Depth=2
-                                        #       Child Loop BB4_120 Depth 3
-                                        #         Child Loop BB4_122 Depth 4
-                                        #       Child Loop BB4_126 Depth 3
-                                        #         Child Loop BB4_128 Depth 4
+                                        #       Child Loop BB6_120 Depth 3
+                                        #         Child Loop BB6_122 Depth 4
+                                        #       Child Loop BB6_126 Depth 3
+                                        #         Child Loop BB6_128 Depth 4
 	movl	(%rdx), %eax
 	movq	-88(%rbp), %rcx         # 8-byte Reload
 	cmpl	(%rcx), %eax
-	jge	.LBB4_140
+	jge	.LBB6_140
 # BB#110:                               # %while_body713
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movq	%rsp, %rax
 	leaq	-16(%rax), %rcx
 	movq	%rcx, -144(%rbp)        # 8-byte Spill
@@ -1646,108 +1688,108 @@ filter:                                 # @filter
 	movl	%eax, -116(%rbp)        # 4-byte Spill
 	movl	(%r13), %r14d
 	testl	%r14d, %r14d
-	jns	.LBB4_111
+	jns	.LBB6_111
 # BB#166:                               # %then721
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_111:                              # %merge720
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_111:                              # %merge720
+                                        #   in Loop: Header=BB6_109 Depth=2
 	decl	%ebx
 	cmpl	%r14d, %ebx
-	jge	.LBB4_112
+	jge	.LBB6_112
 # BB#167:                               # %then727
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_112:                              # %merge726
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_112:                              # %merge726
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	(%r13), %r9d
 	addl	$2, %r9d
 	movq	%r9, -48(%rbp)          # 8-byte Spill
-	jns	.LBB4_113
+	jns	.LBB6_113
 # BB#168:                               # %then734
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	movq	-48(%rbp), %r9          # 8-byte Reload
-.LBB4_113:                              # %merge733
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_113:                              # %merge733
+                                        #   in Loop: Header=BB6_109 Depth=2
 	cmpl	%r9d, %ebx
-	jge	.LBB4_114
+	jge	.LBB6_114
 # BB#169:                               # %then740
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	movq	-48(%rbp), %r9          # 8-byte Reload
-.LBB4_114:                              # %merge739
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_114:                              # %merge739
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movq	-112(%rbp), %rbx        # 8-byte Reload
 	movl	(%rbx), %r15d
 	testl	%r15d, %r15d
-	jns	.LBB4_115
+	jns	.LBB6_115
 # BB#170:                               # %then746
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	movq	-48(%rbp), %r9          # 8-byte Reload
-.LBB4_115:                              # %merge745
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_115:                              # %merge745
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	-116(%rbp), %eax        # 4-byte Reload
 	decl	%eax
 	movl	%eax, %r12d
 	cmpl	%r15d, %eax
-	jge	.LBB4_116
+	jge	.LBB6_116
 # BB#171:                               # %then752
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	movq	-48(%rbp), %r9          # 8-byte Reload
-.LBB4_116:                              # %merge751
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_116:                              # %merge751
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	(%rbx), %r13d
 	addl	$2, %r13d
-	jns	.LBB4_117
+	jns	.LBB6_117
 # BB#172:                               # %then759
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	movq	-48(%rbp), %r9          # 8-byte Reload
-.LBB4_117:                              # %merge758
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_117:                              # %merge758
+                                        #   in Loop: Header=BB6_109 Depth=2
 	cmpl	%r13d, %r12d
-	jge	.LBB4_118
+	jge	.LBB6_118
 # BB#173:                               # %then765
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	movq	-48(%rbp), %r9          # 8-byte Reload
-.LBB4_118:                              # %merge764
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_118:                              # %merge764
+                                        #   in Loop: Header=BB6_109 Depth=2
 	subl	%r14d, %r9d
 	subl	%r15d, %r13d
 	leal	1(%r13), %eax
@@ -1771,30 +1813,30 @@ filter:                                 # @filter
 	movq	%rdx, %rsp
 	movl	$0, -16(%rsi)
 	cmpl	%r9d, (%rdx)
-	jle	.LBB4_120
-	jmp	.LBB4_124
+	jle	.LBB6_120
+	jmp	.LBB6_124
 	.p2align	4, 0x90
-.LBB4_123:                              # %merge794
-                                        #   in Loop: Header=BB4_120 Depth=3
+.LBB6_123:                              # %merge794
+                                        #   in Loop: Header=BB6_120 Depth=3
 	incl	(%rdx)
 	cmpl	%r9d, (%rdx)
-	jg	.LBB4_124
-.LBB4_120:                              # %while_body783
-                                        #   Parent Loop BB4_107 Depth=1
-                                        #     Parent Loop BB4_109 Depth=2
+	jg	.LBB6_124
+.LBB6_120:                              # %while_body783
+                                        #   Parent Loop BB6_107 Depth=1
+                                        #     Parent Loop BB6_109 Depth=2
                                         # =>    This Loop Header: Depth=3
-                                        #         Child Loop BB4_122 Depth 4
+                                        #         Child Loop BB6_122 Depth 4
 	movq	%rsp, %rbx
 	leaq	-16(%rbx), %rsi
 	movq	%rsi, %rsp
 	movl	$0, -16(%rbx)
 	cmpl	%r13d, (%rsi)
-	jg	.LBB4_123
+	jg	.LBB6_123
 	.p2align	4, 0x90
-.LBB4_122:                              # %while_body786
-                                        #   Parent Loop BB4_107 Depth=1
-                                        #     Parent Loop BB4_109 Depth=2
-                                        #       Parent Loop BB4_120 Depth=3
+.LBB6_122:                              # %while_body786
+                                        #   Parent Loop BB6_107 Depth=1
+                                        #     Parent Loop BB6_109 Depth=2
+                                        #       Parent Loop BB6_120 Depth=3
                                         # =>      This Inner Loop Header: Depth=4
 	movl	(%rdx), %ebx
 	imull	%eax, %ebx
@@ -1803,11 +1845,11 @@ filter:                                 # @filter
 	movq	$0, (%rcx,%rbx,8)
 	incl	(%rsi)
 	cmpl	%r13d, (%rsi)
-	jle	.LBB4_122
-	jmp	.LBB4_123
+	jle	.LBB6_122
+	jmp	.LBB6_123
 	.p2align	4, 0x90
-.LBB4_124:                              # %merge799
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_124:                              # %merge799
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movq	(%rdi), %r8
 	movq	%rdi, -48(%rbp)         # 8-byte Spill
 	movl	12(%rdi), %r10d
@@ -1819,32 +1861,32 @@ filter:                                 # @filter
 	movq	%rbx, %rsp
 	movl	$0, -16(%rax)
 	cmpl	%r9d, (%rbx)
-	jle	.LBB4_126
-	jmp	.LBB4_130
+	jle	.LBB6_126
+	jmp	.LBB6_130
 	.p2align	4, 0x90
-.LBB4_129:                              # %merge837
-                                        #   in Loop: Header=BB4_126 Depth=3
+.LBB6_129:                              # %merge837
+                                        #   in Loop: Header=BB6_126 Depth=3
 	incl	(%rbx)
 	movq	%rdi, %r9
 	cmpl	%r9d, (%rbx)
-	jg	.LBB4_130
-.LBB4_126:                              # %while_body816
-                                        #   Parent Loop BB4_107 Depth=1
-                                        #     Parent Loop BB4_109 Depth=2
+	jg	.LBB6_130
+.LBB6_126:                              # %while_body816
+                                        #   Parent Loop BB6_107 Depth=1
+                                        #     Parent Loop BB6_109 Depth=2
                                         # =>    This Loop Header: Depth=3
-                                        #         Child Loop BB4_128 Depth 4
+                                        #         Child Loop BB6_128 Depth 4
 	movq	%r9, %rdi
 	movq	%rsp, %r9
 	leaq	-16(%r9), %rax
 	movq	%rax, %rsp
 	movl	$0, -16(%r9)
 	cmpl	%r13d, (%rax)
-	jg	.LBB4_129
+	jg	.LBB6_129
 	.p2align	4, 0x90
-.LBB4_128:                              # %while_body819
-                                        #   Parent Loop BB4_107 Depth=1
-                                        #     Parent Loop BB4_109 Depth=2
-                                        #       Parent Loop BB4_126 Depth=3
+.LBB6_128:                              # %while_body819
+                                        #   Parent Loop BB6_107 Depth=1
+                                        #     Parent Loop BB6_109 Depth=2
+                                        #       Parent Loop BB6_126 Depth=3
                                         # =>      This Inner Loop Header: Depth=4
 	movl	(%rax), %ecx
 	movl	(%rbx), %edx
@@ -1861,11 +1903,11 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r8,%rsi,8)
 	incl	(%rax)
 	cmpl	%r13d, (%rax)
-	jle	.LBB4_128
-	jmp	.LBB4_129
+	jle	.LBB6_128
+	jmp	.LBB6_129
 	.p2align	4, 0x90
-.LBB4_130:                              # %merge842
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_130:                              # %merge842
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movq	-48(%rbp), %rdi         # 8-byte Reload
 	movq	-128(%rbp), %rsi        # 8-byte Reload
 	callq	bitwise
@@ -1883,99 +1925,99 @@ filter:                                 # @filter
 	movq	-136(%rbp), %rbx        # 8-byte Reload
 	movl	(%rbx), %r14d
 	testl	%r14d, %r14d
-	jns	.LBB4_131
+	jns	.LBB6_131
 # BB#174:                               # %then855
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_131:                              # %merge854
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_131:                              # %merge854
+                                        #   in Loop: Header=BB6_109 Depth=2
 	decl	%r12d
 	cmpl	%r14d, %r12d
-	jge	.LBB4_132
+	jge	.LBB6_132
 # BB#175:                               # %then861
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_132:                              # %merge860
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_132:                              # %merge860
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	(%rbx), %ebx
 	testl	%ebx, %ebx
-	jns	.LBB4_133
+	jns	.LBB6_133
 # BB#176:                               # %then867
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_133:                              # %merge866
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_133:                              # %merge866
+                                        #   in Loop: Header=BB6_109 Depth=2
 	cmpl	%ebx, %r12d
-	jge	.LBB4_134
+	jge	.LBB6_134
 # BB#177:                               # %then873
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_134:                              # %merge872
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_134:                              # %merge872
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movq	-112(%rbp), %rbx        # 8-byte Reload
 	movl	(%rbx), %r13d
 	testl	%r13d, %r13d
-	jns	.LBB4_135
+	jns	.LBB6_135
 # BB#178:                               # %then879
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_135:                              # %merge878
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_135:                              # %merge878
+                                        #   in Loop: Header=BB6_109 Depth=2
 	leal	-1(%r15), %r12d
 	cmpl	%r13d, %r12d
-	jge	.LBB4_136
+	jge	.LBB6_136
 # BB#179:                               # %then885
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_136:                              # %merge884
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_136:                              # %merge884
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	(%rbx), %ebx
 	testl	%ebx, %ebx
-	jns	.LBB4_137
+	jns	.LBB6_137
 # BB#180:                               # %then891
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-.LBB4_137:                              # %merge890
-                                        #   in Loop: Header=BB4_109 Depth=2
+.LBB6_137:                              # %merge890
+                                        #   in Loop: Header=BB6_109 Depth=2
 	cmpl	%ebx, %r12d
-	jge	.LBB4_138
+	jge	.LBB6_138
 # BB#139:                               # %then897
-                                        #   in Loop: Header=BB4_109 Depth=2
+                                        #   in Loop: Header=BB6_109 Depth=2
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-	jmp	.LBB4_138
-.LBB4_141:                              # %merge915
+	jmp	.LBB6_138
+.LBB6_141:                              # %merge915
 	movl	$8, %edi
 	callq	malloc
 	movq	%rax, %r15
@@ -1999,26 +2041,26 @@ filter:                                 # @filter
 	movq	%rdx, %rsp
 	movl	$0, -16(%rsi)
 	cmpl	%r14d, (%rdx)
-	jle	.LBB4_143
-	jmp	.LBB4_147
+	jle	.LBB6_143
+	jmp	.LBB6_147
 	.p2align	4, 0x90
-.LBB4_146:                              # %merge946
-                                        #   in Loop: Header=BB4_143 Depth=1
+.LBB6_146:                              # %merge946
+                                        #   in Loop: Header=BB6_143 Depth=1
 	incl	(%rdx)
 	cmpl	%r14d, (%rdx)
-	jg	.LBB4_147
-.LBB4_143:                              # %while_body935
+	jg	.LBB6_147
+.LBB6_143:                              # %while_body935
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_145 Depth 2
+                                        #     Child Loop BB6_145 Depth 2
 	movq	%rsp, %rdi
 	leaq	-16(%rdi), %rsi
 	movq	%rsi, %rsp
 	movl	$0, -16(%rdi)
 	cmpl	%ecx, (%rsi)
-	jg	.LBB4_146
+	jg	.LBB6_146
 	.p2align	4, 0x90
-.LBB4_145:                              # %while_body938
-                                        #   Parent Loop BB4_143 Depth=1
+.LBB6_145:                              # %while_body938
+                                        #   Parent Loop BB6_143 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rdx), %edi
 	imull	%r12d, %edi
@@ -2027,9 +2069,9 @@ filter:                                 # @filter
 	movq	$0, (%rbx,%rdi,8)
 	incl	(%rsi)
 	cmpl	%ecx, (%rsi)
-	jle	.LBB4_145
-	jmp	.LBB4_146
-.LBB4_147:                              # %merge951
+	jle	.LBB6_145
+	jmp	.LBB6_146
+.LBB6_147:                              # %merge951
 	movq	(%rax), %r8
 	movl	12(%rax), %r9d
 	movq	-64(%rbp), %rdx         # 8-byte Reload
@@ -2040,26 +2082,26 @@ filter:                                 # @filter
 	movq	%r13, %rsp
 	movl	$0, -16(%rsi)
 	cmpl	%r14d, (%r13)
-	jle	.LBB4_149
-	jmp	.LBB4_153
+	jle	.LBB6_149
+	jmp	.LBB6_153
 	.p2align	4, 0x90
-.LBB4_152:                              # %merge991
-                                        #   in Loop: Header=BB4_149 Depth=1
+.LBB6_152:                              # %merge991
+                                        #   in Loop: Header=BB6_149 Depth=1
 	incl	(%r13)
 	cmpl	%r14d, (%r13)
-	jg	.LBB4_153
-.LBB4_149:                              # %while_body970
+	jg	.LBB6_153
+.LBB6_149:                              # %while_body970
                                         # =>This Loop Header: Depth=1
-                                        #     Child Loop BB4_151 Depth 2
+                                        #     Child Loop BB6_151 Depth 2
 	movq	%rsp, %r10
 	leaq	-16(%r10), %rsi
 	movq	%rsi, %rsp
 	movl	$0, -16(%r10)
 	cmpl	%ecx, (%rsi)
-	jg	.LBB4_152
+	jg	.LBB6_152
 	.p2align	4, 0x90
-.LBB4_151:                              # %while_body973
-                                        #   Parent Loop BB4_149 Depth=1
+.LBB6_151:                              # %while_body973
+                                        #   Parent Loop BB6_149 Depth=1
                                         # =>  This Inner Loop Header: Depth=2
 	movl	(%rsi), %edi
 	movl	(%r13), %ebx
@@ -2074,9 +2116,9 @@ filter:                                 # @filter
 	movsd	%xmm0, (%r8,%rdx,8)
 	incl	(%rsi)
 	cmpl	%ecx, (%rsi)
-	jle	.LBB4_151
-	jmp	.LBB4_152
-.LBB4_153:                              # %merge996
+	jle	.LBB6_151
+	jmp	.LBB6_152
+.LBB6_153:                              # %merge996
 	movq	%rax, (%r15)
 	movq	%r15, %rax
 	leaq	-40(%rbp), %rsp
@@ -2087,56 +2129,56 @@ filter:                                 # @filter
 	popq	%r15
 	popq	%rbp
 	retq
-.LBB4_155:                              # %then480
+.LBB6_155:                              # %then480
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	cmpl	%r15d, %ebx
-	jge	.LBB4_76
-.LBB4_75:                               # %then486
+	jge	.LBB6_76
+.LBB6_75:                               # %then486
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	decl	%r14d
-	jns	.LBB4_77
-.LBB4_156:                              # %then496
+	jns	.LBB6_77
+.LBB6_156:                              # %then496
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
-	jmp	.LBB4_77
-.LBB4_162:                              # %then627
+	jmp	.LBB6_77
+.LBB6_162:                              # %then627
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	cmpl	%r13d, %r12d
-	jge	.LBB4_98
-.LBB4_163:                              # %then633
+	jge	.LBB6_98
+.LBB6_163:                              # %then633
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.7, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	cmpl	8(%r14), %r15d
-	je	.LBB4_99
-.LBB4_164:                              # %then642
+	je	.LBB6_99
+.LBB6_164:                              # %then642
 	movl	$.Lfmt_str, %edi
 	movl	$.Lfmt_str.8, %esi
 	xorl	%eax, %eax
 	callq	printf
 	callq	abort
 	cmpl	12(%r14), %r13d
-	jne	.LBB4_165
-	jmp	.LBB4_100
-.Lfunc_end4:
-	.size	filter, .Lfunc_end4-filter
+	jne	.LBB6_165
+	jmp	.LBB6_100
+.Lfunc_end6:
+	.size	filter, .Lfunc_end6-filter
 	.cfi_endproc
                                         # -- End function
 	.globl	gcd                     # -- Begin function gcd
@@ -2146,58 +2188,58 @@ gcd:                                    # @gcd
 	.cfi_startproc
 # BB#0:                                 # %entry
 	pushq	%rax
-.Lcfi28:
+.Lcfi31:
 	.cfi_def_cfa_offset 16
 	movl	%edi, (%rsp)
 	movl	%esi, 4(%rsp)
 	cmpl	$0, (%rsp)
-	jne	.LBB5_2
-	jmp	.LBB5_6
+	jne	.LBB7_2
+	jmp	.LBB7_6
 	.p2align	4, 0x90
-.LBB5_5:                                # %else
-                                        #   in Loop: Header=BB5_2 Depth=1
+.LBB7_5:                                # %else
+                                        #   in Loop: Header=BB7_2 Depth=1
 	movl	(%rsp), %eax
 	cltd
 	idivl	4(%rsp)
 	movl	%edx, (%rsp)
 	cmpl	$0, (%rsp)
-	je	.LBB5_6
-.LBB5_2:                                # %while
+	je	.LBB7_6
+.LBB7_2:                                # %while
                                         # =>This Inner Loop Header: Depth=1
 	movl	4(%rsp), %eax
 	testl	%eax, %eax
-	je	.LBB5_6
+	je	.LBB7_6
 # BB#3:                                 # %while_body
-                                        #   in Loop: Header=BB5_2 Depth=1
+                                        #   in Loop: Header=BB7_2 Depth=1
 	movl	4(%rsp), %eax
 	cmpl	(%rsp), %eax
-	jle	.LBB5_5
+	jle	.LBB7_5
 # BB#4:                                 # %then
-                                        #   in Loop: Header=BB5_2 Depth=1
+                                        #   in Loop: Header=BB7_2 Depth=1
 	movl	4(%rsp), %eax
 	cltd
 	idivl	(%rsp)
 	movl	%edx, 4(%rsp)
 	cmpl	$0, (%rsp)
-	jne	.LBB5_2
-.LBB5_6:                                # %merge19
+	jne	.LBB7_2
+.LBB7_6:                                # %merge19
 	cmpl	$0, (%rsp)
-	je	.LBB5_7
+	je	.LBB7_7
 # BB#9:                                 # %else30
 	movl	$4, %edi
 	callq	malloc
 	movl	(%rsp), %ecx
-	jmp	.LBB5_8
-.LBB5_7:                                # %then28
+	jmp	.LBB7_8
+.LBB7_7:                                # %then28
 	movl	$4, %edi
 	callq	malloc
 	movl	4(%rsp), %ecx
-.LBB5_8:                                # %then28
+.LBB7_8:                                # %then28
 	movl	%ecx, (%rax)
 	popq	%rcx
 	retq
-.Lfunc_end5:
-	.size	gcd, .Lfunc_end5-gcd
+.Lfunc_end7:
+	.size	gcd, .Lfunc_end7-gcd
 	.cfi_endproc
                                         # -- End function
 	.type	.Lfmt_str,@object       # @fmt_str

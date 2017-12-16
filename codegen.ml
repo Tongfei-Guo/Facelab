@@ -20,23 +20,29 @@ module H = Hashtbl
 module StringMap = Map.Make(String)
 type ret_typ = Returnstruct of L.lltype | Lltypearray of L.lltype array | Voidtype of L.lltype | Maintype
 type access_link = Access of access_link * (string, L.llvalue) H.t | Null
-(* globals cannot have string, otherwise the string assignment would fail due to some global pointer assignment complication, and we force globals to be either uninitilized or initialized with literals *)
 let translate (functions, main_stmt) =
 
-(* sample code structure *)
-(* 1. default value: int:0 ; double:0. ; bool:true ; string:"" ; matrix:[] *)
-(* 2. matrix operation:
+(* sample code structure 
+  1. default value: int:0 ; double:0. ; bool:true ; string:"" ; matrix:[] 
+  2. matrix operation:
       for each operation below: matrix dimension must agree
    
       i). matrix number element-wise : matrix op number | number op matrix  (op : + - * / )
-      ii). matrix product : matrix .* matrix 
-      iii). matrix indexing : matrix[x1, y1] | matrix[x1:x2, y1:y2] | matrix[x1:, y1] | matrix[:, y1] | matrix[:, :y2] | etc. basically the syntax of Matlab.
-      iv). matrix assignment : m1 = m2[x1:x2, y1:y2] | m1[x:, :y] = m2[x1:x2, y1:y2] | etc.
-      v). matrix equality and inequality : m1 == m2 | m1[x1:, :] != m2[x2:x3, y1:y2] | etc. 
-
-global int g1 = 2;
-global double g2; //default value 0.
-
+      ii). matrix matrix element-wise : matrix op matrix (op : + - * / $)
+      iii). matrix product : matrix .* matrix 
+      iv). matrix indexing : matrix[x1, y1] | matrix[x1:x2, y1:y2] | matrix[x1:, y1] | matrix[:, y1] | matrix[:, :y2] | etc. basically the syntax of Matlab.
+      v). matrix assignment : m1 = m2[x1:x2, y1:y2] | m1[x:, :y] = m2[x1:x2, y1:y2] | etc.
+      vi). matrix equality and inequality : m1 == m2 | m1[x1:, :] != m2[x2:x3, y1:y2] | etc. 
+  3. built-in functions : 
+      i). size : syntax : i, j = size(m), return size of a matrix.
+      ii). zeros: syntax : zeros(i, j), return a zero matrix of size i by j.
+      iii). int2double : syntax : int2double(i), convert an int to double.
+      iv). double2int : syntax : double2int(d), convert a double to int.
+  4. std functions:
+  5. error messages:
+      i). Compiler error : used for debug purpose, it's very unlikely that user would see any of them.
+      ii). Syntax error : followed by a description on the error.
+      iii). Semantic error : followed by description on the error. 
 func f1(...) { return;}
 func f2(matrix m, int i, double d, string s) { return m1, m2, d1, s1;}
 matrix m1 = [1.0,2.0;3.0,4.0];
@@ -1057,9 +1063,9 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   in
   built_in_body_building "size" size_func_body;
 
- (* i. zeros(i,j) *)
+ (* ii. zeros(i,j) *)
 (* define zeros(i,j), which return a zero matrix *)
-let zero_matrix_func_decl = 
+  let zero_matrix_func_decl = 
     { A.typ = A.Mulret([A.Matrix]);
       A.fname = "zeros";
       A.formals = [(A.Int, "i"); (A.Int, "j")];
@@ -1082,6 +1088,55 @@ let zero_matrix_func_decl =
     ignore(L.build_ret return !builder)
   in
   built_in_body_building "zeros" zero_matrix_func_body;
+
+  (*iii. int2double(i) *)
+ let int_to_double_func_decl = 
+    { A.typ = A.Mulret([A.Double]);
+      A.fname = "int2double";
+      A.formals = [(A.Int, "i")];
+      A.body = [] }
+  in
+  let int_to_double_t = L.named_struct_type context "int_to_double_t" in
+  L.struct_set_body int_to_double_t [| double_t |] false;
+  let int_to_double_func = 
+    L.define_function "int2double" (L.function_type (L.pointer_type int_to_double_t) [| i32_t |]) the_module
+  in
+  H.add function_decls "int2double" (int_to_double_func, int_to_double_func_decl);
+   (* int2double function body *)
+  let int_to_double_func_body function_ptr =
+    let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
+    let return = L.build_malloc int_to_double_t "return" !builder in
+    let i = List.hd (Array.to_list (L.params function_ptr)) in
+    let d = L.build_sitofp i double_t "tmp" !builder in
+    ignore(L.build_store d (L.build_struct_gep return 0 "converted_double" !builder) !builder);
+    ignore(L.build_ret return !builder)
+  in
+  built_in_body_building "int2double" int_to_double_func_body;
+
+(*iv. double2int(d) *)
+ let double_to_int_func_decl = 
+    { A.typ = A.Mulret([A.Int]);
+      A.fname = "double2int";
+      A.formals = [(A.Double, "d")];
+      A.body = [] }
+  in
+  let double_to_int_t = L.named_struct_type context "double_to_int_t" in
+  L.struct_set_body double_to_int_t [| i32_t |] false;
+  let double_to_int_func = 
+    L.define_function "double2int" (L.function_type (L.pointer_type double_to_int_t) [| double_t |]) the_module
+  in
+  H.add function_decls "double2int" (double_to_int_func, double_to_int_func_decl);
+   (* double2int function body *)
+  let double_to_int_func_body function_ptr =
+    let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
+    let return = L.build_malloc double_to_int_t "return" !builder in
+    let d = List.hd (Array.to_list (L.params function_ptr)) in
+    let i = L.build_fptosi d i32_t "tmp" !builder in
+    ignore(L.build_store i (L.build_struct_gep return 0 "converted_int" !builder) !builder);
+    ignore(L.build_ret return !builder)
+  in
+  built_in_body_building "double2int" double_to_int_func_body;
+
 
   List.iter build_function_body functions; build_main main_stmt;
   the_module 
