@@ -488,7 +488,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 
 
 
-(* 3. Statement construction *)
+(* 2. Statement construction *)
   (* part of code for generating statement, which used both in main function and function definition *)
   let rec build_stmt (fdecl, function_ptr) local_vars builder stmt current_return=
 
@@ -716,11 +716,14 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                A.Call(f,_) ->
                  let (_, fdecl) = H.find function_decls f in
                  let l = match fdecl.A.typ with A.Mulret li -> li | _ -> failwith("Compiler error : Assign expr at A.Call return type is not Mulret") in
-                   (for i = 0 to ((List.length l) - 1) do
-                     let v = L.build_load (L.build_struct_gep value i "v_ptr" !builder) "v" !builder in
-                     ignore (single_assign (List.nth s_list i) (return_aux v (List.nth l i)))
-                   done);
-                   ignore(L.build_free value !builder);
+                 let l1 = List.length s_list in
+                 let l2 = List.length l in
+                 if (l1 <> l2) then failwith("Semantic error : "^string_of_int(l1)^" variables are assigned to function call "^f^" which returns "^string_of_int(l2)^" variables.");
+                 (for i = 0 to ((List.length l) - 1) do
+                   let v = L.build_load (L.build_struct_gep value i "v_ptr" !builder) "v" !builder in
+                   ignore (single_assign (List.nth s_list i) (return_aux v (List.nth l i)))
+                 done);
+                 ignore(L.build_free value !builder);
              | _ -> failwith("Syntax error: multiple variables must be assigned with a function call that has multiple return values.") ); value
           | _ -> single_assign e1 value
           )
@@ -765,8 +768,17 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
       | A.Call ("printend", []) -> 
           L.build_call printf_func [| string_format_str ; new_line_str |] "printf" !builder
       | A.Call (f, act) ->
-         let (fdef, fdecl) = H.find function_decls f in
+         let (fdef, fdecl) = 
+           match !current_return with 
+             Maintype | Returnstruct(_) ->
+               (try H.find function_decls f with Not_found -> failwith ("Semantic error : function "^f^" not defined."))
+           | _ -> H.find function_decls f
+         in
          let actuals = List.rev (List.map (expr builder) (List.rev act)) in
+         if (List.length actuals) <> (List.length fdecl.A.formals) 
+         then failwith("Semantic error : expecting " ^ string_of_int (List.length fdecl.A.formals) ^ " arguments in function call "^f);
+         List.iter2 (fun (t, _) actual -> if typ_of_lvalue(actual) <> t 
+                                          then failwith ("Semantic error : wrong type of arguments in function call "^f)) fdecl.A.formals actuals;
          let result = 
            (match fdecl.A.typ with 
              A.Void -> ""
@@ -781,7 +793,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                1 -> let v = L.build_load (L.build_struct_gep exp 0 "v_ptr" !builder) "v" !builder in
                     ignore(L.build_free exp !builder); 
                     return_aux v (List.hd l)
-             | _ -> exp)(* multi return case, can only be used in A.Assign, and we will deal with it there. *)  
+             | _ -> exp)(* multi return case, can only be used in A.Assign, and we will deal with it there. *)  (* there is a memory leak here due to possible multi-return funciton call without assignment, haven't got time to tie up *)
          | _ -> failwith ("Compiler error : Call expr function return type neither Void nor Mulret.")) 
       | A.Comma(_) -> failwith("Syntax error : Wrong usage of comma seperated list.") 
       | _ -> failwith("Syntax error : Wrong usage of matrix indexing, possible standalone indexing expressions.")
@@ -853,17 +865,23 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
         | Voidtype(_) -> ()
         );builder
     | A.If (predicate, then_stmt, else_stmt) -> 
+      let cond = expr builder predicate in
+      if ((L.string_of_lltype (L.type_of cond)) <> "i1") then failwith ("Semantic error : predicate of if clause is not boolean.");
       let pred builder = expr builder predicate in
       let then_st builder = build_stmt (fdecl, function_ptr) local_vars builder then_stmt current_return in
       let else_st builder = build_stmt(fdecl, function_ptr) local_vars builder else_stmt current_return in
       ignore(llvm_if function_ptr builder (pred, then_st, else_st)); builder
          
     | A.While (predicate, body) ->
+      let cond = expr builder predicate in
+      if ((L.string_of_lltype (L.type_of cond)) <> "i1") then failwith ("Semantic error : predicate of while loop is not boolean.");
       let pred builder = expr builder predicate in
       let body_st builder = build_stmt (fdecl, function_ptr) local_vars builder body current_return in
       ignore(llvm_while function_ptr builder (pred, body_st)); builder
 
     | A.For (e1, e2, e3, body) -> 
+      let cond = expr builder e2 in
+      if ((L.string_of_lltype (L.type_of cond)) <> "i1") then failwith ("Semantic error : predicate of for loop is not boolean.");
       let init_st builder = expr builder e1 in
       let pred builder = expr builder e2 in
       let update builder = ignore(expr builder e3); builder in
@@ -876,6 +894,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                                  A.Noassign -> let local = stack_build_mat_init (L.const_int i32_t 0) (L.const_int i32_t 0) function_ptr builder in
                                                H.add map n local;
                                | _-> let v' = expr builder v in
+                                     if ((L.string_of_lltype (L.type_of v')) <> "%matrix_t*") then failwith ("Semantic error : Right hand side of the matrix definition of "^n^" is not a matrix expression");
                                      let r = L.build_load (L.build_struct_gep v' 1 "m_r" !builder) "r_mat" !builder in
                                      let c = L.build_load (L.build_struct_gep v' 2 "m_c" !builder) "c_mat" !builder in
                                      let local = stack_build_mat_init r c function_ptr builder in
@@ -897,13 +916,15 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
                                      | _ -> failwith ("Compiler error : local variable type matching error."))
                                  | _ -> expr builder v)
                                in
+                               let typ = L.string_of_lltype (L.type_of (L.build_load local "tmp" !builder)) in
+                               if ((L.string_of_lltype (L.type_of init_v)) <> typ) then failwith ("Semantic error : Right hand side of the definition of "^n^" is not type " ^ typ);
                                ignore(L.build_store init_v local !builder)
                            );builder
   in
 
 
 
-(* 4. User-defined function *)
+(* 3. User-defined function *)
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
     let current_return = ref (Lltypearray([||])) in (* will be used to stored the lltype of last return expression encountered in a function body*)
@@ -978,7 +999,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   in
 
 
-(* 5. Main function body construction *)
+(* 4. Main function body construction *)
 
   (* build main function *)
   let build_main main_body =
@@ -1001,7 +1022,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     add_terminal main_builder (L.build_ret (L.const_int i32_t 0)) in
 
 
-(* 6. Combine all *)
+(* 5. Combine all *)
  
  (* built-in functions *)
   let built_in_body_building f body= 
