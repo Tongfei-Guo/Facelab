@@ -1,0 +1,10 @@
+matrix r; matrix g; matrix b;
+r,g,b = load("save_2.jpg");
+int i; int j;
+i,j = size(r);
+//r[:, 0:j/2] = zeros(i, j/2+1);
+//g[:, 0:j/2] = zeros(i, j/2+1);
+//b[:, 0:j/2] = zeros(i, j/2+1);
+//printf(j/2);
+save(r[:i/2, :j/2] ,g[:i/2, 0:j/2] ,b[:i/2, 0:j/2] ,"save_2_result.jpg");
+//save(r,g,b,"save_2_result.jpg");

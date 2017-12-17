@@ -1,0 +1,5 @@
+string s = "abc";
+printf(s);
+//s = 1+1;
+s = "a";
+printf(s);
