@@ -1,0 +1,29 @@
+
+matrix m;
+//m = face("d.jpg");
+m = face("b.jpg");
+matrix m_r; matrix m_g; matrix m_b;
+//m_r, m_g, m_b = load("d.jpg");
+m_r, m_g, m_b = load("b.jpg");
+double x = m[0,0]; double y = m[1,0]; double l = m[2,0]; double w = m[3,0];
+int i;
+for (i = double2int(x - l/2); i <= double2int(x +l/2); i = i+1)
+{
+    m_g[i, double2int(y-w/2-2):double2int(y-w/2+2)] = (255.0-zeros(1,5));
+    m_b[i, double2int(y-w/2-2):double2int(y-w/2+2)] = (255.0-zeros(1,5));
+    m_r[i, double2int(y-w/2-2):double2int(y-w/2+2)] = zeros(1,5);
+    m_g[i, double2int(y+w/2-2):double2int(y+w/2+2)] = (255.0-zeros(1,5));
+    m_b[i, double2int(y+w/2-2):double2int(y+w/2+2)] = (255.0-zeros(1,5));
+    m_r[i, double2int(y+w/2-2):double2int(y+w/2+2)] = zeros(1,5);
+}
+for (i = double2int(y - w/2); i <= double2int(y +w/2); i = i+1)
+{
+    m_g[double2int(x-l/2-2):double2int(x-l/2+2), i] = (255.0-zeros(5,1));
+    m_b[double2int(x-l/2-2):double2int(x-l/2+2), i] = (255.0-zeros(5,1));
+    m_r[double2int(x-l/2-2):double2int(x-l/2+2), i] = zeros(5,1);
+    m_g[double2int(x+l/2-2):double2int(x+l/2+2), i] = (255.0-zeros(5,1));
+    m_b[double2int(x+l/2-2):double2int(x+l/2+2), i] = (255.0-zeros(5,1));
+    m_r[double2int(x+l/2-2):double2int(x+l/2+2), i] = zeros(5,1);
+}
+//save(m_r, m_g, m_b, "face_1_result.jpg");
+save(m_r, m_g, m_b, "face_2_result.jpg");

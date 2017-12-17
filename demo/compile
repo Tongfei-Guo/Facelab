@@ -1,0 +1,9 @@
+#!/bin/bash
+for var in "$@"
+do
+    rm $var.ir;
+    ../facelab.native $var.fb >> $var.ir;
+    llc-5.0 $var.ir;
+    clang++-4.0 `pkg-config --cflags opencv` `pkg-config --libs opencv` $var.ir.s ext.cpp -o $var
+done
+    

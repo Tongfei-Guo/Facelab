@@ -1,0 +1,27 @@
+matrix t_r; matrix t_g; matrix t_b;
+t_r,t_g,t_b = load("tshirt.jpg");
+matrix e_r; matrix e_g; matrix e_b;
+e_r,e_g,e_b = load("edwards.jpg");
+int row_t; int col_t; int row_e; int col_e;
+row_t, col_t = size(t_r);
+row_e, col_e = size(e_r);
+matrix m;
+m = face("d.jpg");
+int start_x=double2int(m[0,0]+m[2,0]/2+1); int start_y=double2int(m[1,0]-col_t/2+1);
+int i; int j;
+for (i = 0; i != row_t; i=i+1)
+{
+    for (j=0; j!=col_t; j=j+1)
+    {
+        if ((t_r[i,j] <= 252.0) && (t_g[i,j] <= 252.0) && (t_b[i,j] <= 252.0))
+        {
+            if ((start_x+i < row_e) && (start_y+j < col_e))
+            {
+                e_r[start_x+i,start_y+j] = t_r[i,j];
+                e_g[start_x+i,start_y+j] = t_g[i,j];
+                e_b[start_x+i,start_y+j] = t_b[i,j];
+            }
+        }
+    }
+}
+save(e_r, e_g, e_b, "nerd_edwards.jpg");
