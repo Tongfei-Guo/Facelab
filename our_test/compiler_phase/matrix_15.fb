@@ -1,0 +1,4 @@
+matrix m = zeros(3,4);
+m[2,3] = 2.2;
+m[0,0] = 3.3;
+printf(m);

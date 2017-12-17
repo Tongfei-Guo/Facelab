@@ -1,0 +1,4283 @@
+; ModuleID = 'Facelab'
+source_filename = "Facelab"
+
+%matrix_t = type { double*, i32, i32 }
+%load_t = type { %matrix_t*, %matrix_t*, %matrix_t* }
+%matrix_size_t = type { i32, i32 }
+%zero_matrix_t = type { %matrix_t* }
+%int_to_double_t = type { double }
+%double_to_int_t = type { i32 }
+%return_t = type { double }
+%return_t.0 = type { %matrix_t* }
+
+@fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_str.2 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.3 = private unnamed_addr constant [1 x i8] zeroinitializer
+@fmt_str.4 = private unnamed_addr constant [5 x i8] c"true\00"
+@fmt_str.5 = private unnamed_addr constant [6 x i8] c"false\00"
+@fmt_str.6 = private unnamed_addr constant [66 x i8] c"Semantic error : wrong dimension of operands of matrix operation.\00"
+@fmt_str.7 = private unnamed_addr constant [45 x i8] c"Semantic error : matrix index out of bounds.\00"
+@fmt_str.8 = private unnamed_addr constant [86 x i8] c"Semantic error : matrix block assignment must have agreeable dimension on both sides.\00"
+@system_string = private unnamed_addr constant [11 x i8] c"load_1.jpg\00"
+@system_string.9 = private unnamed_addr constant [18 x i8] c"load_2_result.jpg\00"
+
+define i32 @main() {
+entry:
+  %system_mat = alloca double, i32 0
+  %m = alloca %matrix_t
+  %m_mat = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  store double* %system_mat, double** %m_mat
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  store i32 0, i32* %m_r
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  store i32 0, i32* %m_c
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %i_v9 = load i32, i32* %i
+  %bool_val10 = icmp sle i32 %i_v9, -1
+  br i1 %bool_val10, label %while_body, label %merge8
+
+while_body:                                       ; preds = %while
+  %j = alloca i32
+  store i32 0, i32* %j
+  br label %while1
+
+while1:                                           ; preds = %while_body2, %while_body
+  %j_v5 = load i32, i32* %j
+  %bool_val = icmp sle i32 %j_v5, -1
+  br i1 %bool_val, label %while_body2, label %merge
+
+while_body2:                                      ; preds = %while1
+  %j_v = load i32, i32* %j
+  %i_v = load i32, i32* %i
+  %tmp = mul i32 0, %i_v
+  %index = add i32 %j_v, %tmp
+  %element_ptr = getelementptr double, double* %system_mat, i32 %index
+  store double 0.000000e+00, double* %element_ptr
+  %j_v3 = load i32, i32* %j
+  %tmp4 = add i32 %j_v3, 1
+  store i32 %tmp4, i32* %j
+  br label %while1
+
+merge:                                            ; preds = %while1
+  %i_v6 = load i32, i32* %i
+  %tmp7 = add i32 %i_v6, 1
+  store i32 %tmp7, i32* %i
+  br label %while
+
+merge8:                                           ; preds = %while
+  %system_mat11 = alloca double, i32 0
+  %m12 = alloca %matrix_t
+  %m_mat13 = getelementptr inbounds %matrix_t, %matrix_t* %m12, i32 0, i32 0
+  store double* %system_mat11, double** %m_mat13
+  %m_r14 = getelementptr inbounds %matrix_t, %matrix_t* %m12, i32 0, i32 1
+  store i32 0, i32* %m_r14
+  %m_c15 = getelementptr inbounds %matrix_t, %matrix_t* %m12, i32 0, i32 2
+  store i32 0, i32* %m_c15
+  %i16 = alloca i32
+  store i32 0, i32* %i16
+  br label %while17
+
+while17:                                          ; preds = %merge29, %merge8
+  %i_v35 = load i32, i32* %i16
+  %bool_val36 = icmp sle i32 %i_v35, -1
+  br i1 %bool_val36, label %while_body18, label %merge34
+
+while_body18:                                     ; preds = %while17
+  %j19 = alloca i32
+  store i32 0, i32* %j19
+  br label %while20
+
+while20:                                          ; preds = %while_body21, %while_body18
+  %j_v30 = load i32, i32* %j19
+  %bool_val31 = icmp sle i32 %j_v30, -1
+  br i1 %bool_val31, label %while_body21, label %merge29
+
+while_body21:                                     ; preds = %while20
+  %j_v22 = load i32, i32* %j19
+  %i_v23 = load i32, i32* %i16
+  %tmp24 = mul i32 0, %i_v23
+  %index25 = add i32 %j_v22, %tmp24
+  %element_ptr26 = getelementptr double, double* %system_mat11, i32 %index25
+  store double 0.000000e+00, double* %element_ptr26
+  %j_v27 = load i32, i32* %j19
+  %tmp28 = add i32 %j_v27, 1
+  store i32 %tmp28, i32* %j19
+  br label %while20
+
+merge29:                                          ; preds = %while20
+  %i_v32 = load i32, i32* %i16
+  %tmp33 = add i32 %i_v32, 1
+  store i32 %tmp33, i32* %i16
+  br label %while17
+
+merge34:                                          ; preds = %while17
+  %system_mat37 = alloca double, i32 0
+  %m38 = alloca %matrix_t
+  %m_mat39 = getelementptr inbounds %matrix_t, %matrix_t* %m38, i32 0, i32 0
+  store double* %system_mat37, double** %m_mat39
+  %m_r40 = getelementptr inbounds %matrix_t, %matrix_t* %m38, i32 0, i32 1
+  store i32 0, i32* %m_r40
+  %m_c41 = getelementptr inbounds %matrix_t, %matrix_t* %m38, i32 0, i32 2
+  store i32 0, i32* %m_c41
+  %i42 = alloca i32
+  store i32 0, i32* %i42
+  br label %while43
+
+while43:                                          ; preds = %merge55, %merge34
+  %i_v61 = load i32, i32* %i42
+  %bool_val62 = icmp sle i32 %i_v61, -1
+  br i1 %bool_val62, label %while_body44, label %merge60
+
+while_body44:                                     ; preds = %while43
+  %j45 = alloca i32
+  store i32 0, i32* %j45
+  br label %while46
+
+while46:                                          ; preds = %while_body47, %while_body44
+  %j_v56 = load i32, i32* %j45
+  %bool_val57 = icmp sle i32 %j_v56, -1
+  br i1 %bool_val57, label %while_body47, label %merge55
+
+while_body47:                                     ; preds = %while46
+  %j_v48 = load i32, i32* %j45
+  %i_v49 = load i32, i32* %i42
+  %tmp50 = mul i32 0, %i_v49
+  %index51 = add i32 %j_v48, %tmp50
+  %element_ptr52 = getelementptr double, double* %system_mat37, i32 %index51
+  store double 0.000000e+00, double* %element_ptr52
+  %j_v53 = load i32, i32* %j45
+  %tmp54 = add i32 %j_v53, 1
+  store i32 %tmp54, i32* %j45
+  br label %while46
+
+merge55:                                          ; preds = %while46
+  %i_v58 = load i32, i32* %i42
+  %tmp59 = add i32 %i_v58, 1
+  store i32 %tmp59, i32* %i42
+  br label %while43
+
+merge60:                                          ; preds = %while43
+  %load_result = call %load_t* @load(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @system_string, i32 0, i32 0))
+  %v_ptr = getelementptr inbounds %load_t, %load_t* %load_result, i32 0, i32 0
+  %v = load %matrix_t*, %matrix_t** %v_ptr
+  %m_mat63 = getelementptr inbounds %matrix_t, %matrix_t* %v, i32 0, i32 0
+  %mat_mat = load double*, double** %m_mat63
+  %m_r64 = getelementptr inbounds %matrix_t, %matrix_t* %v, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r64
+  %m_c65 = getelementptr inbounds %matrix_t, %matrix_t* %v, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c65
+  %size = mul i32 %r_mat, %c_mat
+  %system_mat66 = alloca double, i32 %size
+  %m67 = alloca %matrix_t
+  %m_mat68 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 0
+  store double* %system_mat66, double** %m_mat68
+  %m_r69 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 1
+  store i32 %r_mat, i32* %m_r69
+  %m_c70 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 2
+  store i32 %c_mat, i32* %m_c70
+  %tmp71 = sub i32 %r_mat, 1
+  %tmp72 = sub i32 %c_mat, 1
+  %i73 = alloca i32
+  store i32 0, i32* %i73
+  br label %while74
+
+while74:                                          ; preds = %merge86, %merge60
+  %i_v92 = load i32, i32* %i73
+  %bool_val93 = icmp sle i32 %i_v92, %tmp71
+  br i1 %bool_val93, label %while_body75, label %merge91
+
+while_body75:                                     ; preds = %while74
+  %j76 = alloca i32
+  store i32 0, i32* %j76
+  br label %while77
+
+while77:                                          ; preds = %while_body78, %while_body75
+  %j_v87 = load i32, i32* %j76
+  %bool_val88 = icmp sle i32 %j_v87, %tmp72
+  br i1 %bool_val88, label %while_body78, label %merge86
+
+while_body78:                                     ; preds = %while77
+  %j_v79 = load i32, i32* %j76
+  %i_v80 = load i32, i32* %i73
+  %tmp81 = mul i32 %c_mat, %i_v80
+  %index82 = add i32 %j_v79, %tmp81
+  %element_ptr83 = getelementptr double, double* %system_mat66, i32 %index82
+  store double 0.000000e+00, double* %element_ptr83
+  %j_v84 = load i32, i32* %j76
+  %tmp85 = add i32 %j_v84, 1
+  store i32 %tmp85, i32* %j76
+  br label %while77
+
+merge86:                                          ; preds = %while77
+  %i_v89 = load i32, i32* %i73
+  %tmp90 = add i32 %i_v89, 1
+  store i32 %tmp90, i32* %i73
+  br label %while74
+
+merge91:                                          ; preds = %while74
+  %tmp94 = sub i32 %c_mat, 1
+  %tmp95 = sub i32 %r_mat, 1
+  %m_mat96 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 0
+  %mat_mat97 = load double*, double** %m_mat96
+  %m_r98 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 1
+  %r_mat99 = load i32, i32* %m_r98
+  %m_c100 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 2
+  %c_mat101 = load i32, i32* %m_c100
+  %m_mat102 = getelementptr inbounds %matrix_t, %matrix_t* %v, i32 0, i32 0
+  %mat_v = load double*, double** %m_mat102
+  %m_r103 = getelementptr inbounds %matrix_t, %matrix_t* %v, i32 0, i32 1
+  %r_v = load i32, i32* %m_r103
+  %m_c104 = getelementptr inbounds %matrix_t, %matrix_t* %v, i32 0, i32 2
+  %c_v = load i32, i32* %m_c104
+  %i105 = alloca i32
+  store i32 0, i32* %i105
+  br label %while106
+
+while106:                                         ; preds = %merge127, %merge91
+  %i_v133 = load i32, i32* %i105
+  %bool_val134 = icmp sle i32 %i_v133, %tmp95
+  br i1 %bool_val134, label %while_body107, label %merge132
+
+while_body107:                                    ; preds = %while106
+  %j108 = alloca i32
+  store i32 0, i32* %j108
+  br label %while109
+
+while109:                                         ; preds = %while_body110, %while_body107
+  %j_v128 = load i32, i32* %j108
+  %bool_val129 = icmp sle i32 %j_v128, %tmp94
+  br i1 %bool_val129, label %while_body110, label %merge127
+
+while_body110:                                    ; preds = %while109
+  %j_v111 = load i32, i32* %j108
+  %i_v112 = load i32, i32* %i105
+  %tmp113 = mul i32 %c_mat101, %i_v112
+  %index114 = add i32 %j_v111, %tmp113
+  %element_ptr115 = getelementptr double, double* %mat_mat97, i32 %index114
+  %j_v116 = load i32, i32* %j108
+  %tmp117 = sub i32 %j_v116, 0
+  %tmp118 = add i32 %tmp117, 0
+  %i_v119 = load i32, i32* %i105
+  %tmp120 = sub i32 %i_v119, 0
+  %tmp121 = add i32 %tmp120, 0
+  %tmp122 = mul i32 %c_v, %tmp121
+  %index123 = add i32 %tmp118, %tmp122
+  %element_ptr124 = getelementptr double, double* %mat_v, i32 %index123
+  %tmp_element = load double, double* %element_ptr124
+  store double %tmp_element, double* %element_ptr115
+  %j_v125 = load i32, i32* %j108
+  %tmp126 = add i32 %j_v125, 1
+  store i32 %tmp126, i32* %j108
+  br label %while109
+
+merge127:                                         ; preds = %while109
+  %i_v130 = load i32, i32* %i105
+  %tmp131 = add i32 %i_v130, 1
+  store i32 %tmp131, i32* %i105
+  br label %while106
+
+merge132:                                         ; preds = %while106
+  %0 = bitcast double* %mat_mat to i8*
+  tail call void @free(i8* %0)
+  %1 = bitcast %matrix_t* %v to i8*
+  tail call void @free(i8* %1)
+  %m_r135 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 1
+  %r_mat136 = load i32, i32* %m_r135
+  %m_c137 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 2
+  %c_mat138 = load i32, i32* %m_c137
+  %size139 = mul i32 %r_mat136, %c_mat138
+  %system_mat140 = alloca double, i32 %size139
+  %m141 = alloca %matrix_t
+  %m_mat142 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 0
+  store double* %system_mat140, double** %m_mat142
+  %m_r143 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 1
+  store i32 %r_mat136, i32* %m_r143
+  %m_c144 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 2
+  store i32 %c_mat138, i32* %m_c144
+  %tmp145 = sub i32 %r_mat136, 1
+  %tmp146 = sub i32 %c_mat138, 1
+  %i147 = alloca i32
+  store i32 0, i32* %i147
+  br label %while148
+
+while148:                                         ; preds = %merge160, %merge132
+  %i_v166 = load i32, i32* %i147
+  %bool_val167 = icmp sle i32 %i_v166, %tmp145
+  br i1 %bool_val167, label %while_body149, label %merge165
+
+while_body149:                                    ; preds = %while148
+  %j150 = alloca i32
+  store i32 0, i32* %j150
+  br label %while151
+
+while151:                                         ; preds = %while_body152, %while_body149
+  %j_v161 = load i32, i32* %j150
+  %bool_val162 = icmp sle i32 %j_v161, %tmp146
+  br i1 %bool_val162, label %while_body152, label %merge160
+
+while_body152:                                    ; preds = %while151
+  %j_v153 = load i32, i32* %j150
+  %i_v154 = load i32, i32* %i147
+  %tmp155 = mul i32 %c_mat138, %i_v154
+  %index156 = add i32 %j_v153, %tmp155
+  %element_ptr157 = getelementptr double, double* %system_mat140, i32 %index156
+  store double 0.000000e+00, double* %element_ptr157
+  %j_v158 = load i32, i32* %j150
+  %tmp159 = add i32 %j_v158, 1
+  store i32 %tmp159, i32* %j150
+  br label %while151
+
+merge160:                                         ; preds = %while151
+  %i_v163 = load i32, i32* %i147
+  %tmp164 = add i32 %i_v163, 1
+  store i32 %tmp164, i32* %i147
+  br label %while148
+
+merge165:                                         ; preds = %while148
+  %tmp168 = sub i32 %c_mat138, 1
+  %tmp169 = sub i32 %r_mat136, 1
+  %m_mat170 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 0
+  %mat_mat171 = load double*, double** %m_mat170
+  %m_r172 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 1
+  %r_mat173 = load i32, i32* %m_r172
+  %m_c174 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 2
+  %c_mat175 = load i32, i32* %m_c174
+  %m_mat176 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 0
+  %mat_v177 = load double*, double** %m_mat176
+  %m_r178 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 1
+  %r_v179 = load i32, i32* %m_r178
+  %m_c180 = getelementptr inbounds %matrix_t, %matrix_t* %m67, i32 0, i32 2
+  %c_v181 = load i32, i32* %m_c180
+  %i182 = alloca i32
+  store i32 0, i32* %i182
+  br label %while183
+
+while183:                                         ; preds = %merge205, %merge165
+  %i_v211 = load i32, i32* %i182
+  %bool_val212 = icmp sle i32 %i_v211, %tmp169
+  br i1 %bool_val212, label %while_body184, label %merge210
+
+while_body184:                                    ; preds = %while183
+  %j185 = alloca i32
+  store i32 0, i32* %j185
+  br label %while186
+
+while186:                                         ; preds = %while_body187, %while_body184
+  %j_v206 = load i32, i32* %j185
+  %bool_val207 = icmp sle i32 %j_v206, %tmp168
+  br i1 %bool_val207, label %while_body187, label %merge205
+
+while_body187:                                    ; preds = %while186
+  %j_v188 = load i32, i32* %j185
+  %i_v189 = load i32, i32* %i182
+  %tmp190 = mul i32 %c_mat175, %i_v189
+  %index191 = add i32 %j_v188, %tmp190
+  %element_ptr192 = getelementptr double, double* %mat_mat171, i32 %index191
+  %j_v193 = load i32, i32* %j185
+  %tmp194 = sub i32 %j_v193, 0
+  %tmp195 = add i32 %tmp194, 0
+  %i_v196 = load i32, i32* %i182
+  %tmp197 = sub i32 %i_v196, 0
+  %tmp198 = add i32 %tmp197, 0
+  %tmp199 = mul i32 %c_v181, %tmp198
+  %index200 = add i32 %tmp195, %tmp199
+  %element_ptr201 = getelementptr double, double* %mat_v177, i32 %index200
+  %tmp_element202 = load double, double* %element_ptr201
+  store double %tmp_element202, double* %element_ptr192
+  %j_v203 = load i32, i32* %j185
+  %tmp204 = add i32 %j_v203, 1
+  store i32 %tmp204, i32* %j185
+  br label %while186
+
+merge205:                                         ; preds = %while186
+  %i_v208 = load i32, i32* %i182
+  %tmp209 = add i32 %i_v208, 1
+  store i32 %tmp209, i32* %i182
+  br label %while183
+
+merge210:                                         ; preds = %while183
+  %v_ptr213 = getelementptr inbounds %load_t, %load_t* %load_result, i32 0, i32 1
+  %v214 = load %matrix_t*, %matrix_t** %v_ptr213
+  %m_mat215 = getelementptr inbounds %matrix_t, %matrix_t* %v214, i32 0, i32 0
+  %mat_mat216 = load double*, double** %m_mat215
+  %m_r217 = getelementptr inbounds %matrix_t, %matrix_t* %v214, i32 0, i32 1
+  %r_mat218 = load i32, i32* %m_r217
+  %m_c219 = getelementptr inbounds %matrix_t, %matrix_t* %v214, i32 0, i32 2
+  %c_mat220 = load i32, i32* %m_c219
+  %size221 = mul i32 %r_mat218, %c_mat220
+  %system_mat222 = alloca double, i32 %size221
+  %m223 = alloca %matrix_t
+  %m_mat224 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 0
+  store double* %system_mat222, double** %m_mat224
+  %m_r225 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 1
+  store i32 %r_mat218, i32* %m_r225
+  %m_c226 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 2
+  store i32 %c_mat220, i32* %m_c226
+  %tmp227 = sub i32 %r_mat218, 1
+  %tmp228 = sub i32 %c_mat220, 1
+  %i229 = alloca i32
+  store i32 0, i32* %i229
+  br label %while230
+
+while230:                                         ; preds = %merge242, %merge210
+  %i_v248 = load i32, i32* %i229
+  %bool_val249 = icmp sle i32 %i_v248, %tmp227
+  br i1 %bool_val249, label %while_body231, label %merge247
+
+while_body231:                                    ; preds = %while230
+  %j232 = alloca i32
+  store i32 0, i32* %j232
+  br label %while233
+
+while233:                                         ; preds = %while_body234, %while_body231
+  %j_v243 = load i32, i32* %j232
+  %bool_val244 = icmp sle i32 %j_v243, %tmp228
+  br i1 %bool_val244, label %while_body234, label %merge242
+
+while_body234:                                    ; preds = %while233
+  %j_v235 = load i32, i32* %j232
+  %i_v236 = load i32, i32* %i229
+  %tmp237 = mul i32 %c_mat220, %i_v236
+  %index238 = add i32 %j_v235, %tmp237
+  %element_ptr239 = getelementptr double, double* %system_mat222, i32 %index238
+  store double 0.000000e+00, double* %element_ptr239
+  %j_v240 = load i32, i32* %j232
+  %tmp241 = add i32 %j_v240, 1
+  store i32 %tmp241, i32* %j232
+  br label %while233
+
+merge242:                                         ; preds = %while233
+  %i_v245 = load i32, i32* %i229
+  %tmp246 = add i32 %i_v245, 1
+  store i32 %tmp246, i32* %i229
+  br label %while230
+
+merge247:                                         ; preds = %while230
+  %tmp250 = sub i32 %c_mat220, 1
+  %tmp251 = sub i32 %r_mat218, 1
+  %m_mat252 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 0
+  %mat_mat253 = load double*, double** %m_mat252
+  %m_r254 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 1
+  %r_mat255 = load i32, i32* %m_r254
+  %m_c256 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 2
+  %c_mat257 = load i32, i32* %m_c256
+  %m_mat258 = getelementptr inbounds %matrix_t, %matrix_t* %v214, i32 0, i32 0
+  %mat_v259 = load double*, double** %m_mat258
+  %m_r260 = getelementptr inbounds %matrix_t, %matrix_t* %v214, i32 0, i32 1
+  %r_v261 = load i32, i32* %m_r260
+  %m_c262 = getelementptr inbounds %matrix_t, %matrix_t* %v214, i32 0, i32 2
+  %c_v263 = load i32, i32* %m_c262
+  %i264 = alloca i32
+  store i32 0, i32* %i264
+  br label %while265
+
+while265:                                         ; preds = %merge287, %merge247
+  %i_v293 = load i32, i32* %i264
+  %bool_val294 = icmp sle i32 %i_v293, %tmp251
+  br i1 %bool_val294, label %while_body266, label %merge292
+
+while_body266:                                    ; preds = %while265
+  %j267 = alloca i32
+  store i32 0, i32* %j267
+  br label %while268
+
+while268:                                         ; preds = %while_body269, %while_body266
+  %j_v288 = load i32, i32* %j267
+  %bool_val289 = icmp sle i32 %j_v288, %tmp250
+  br i1 %bool_val289, label %while_body269, label %merge287
+
+while_body269:                                    ; preds = %while268
+  %j_v270 = load i32, i32* %j267
+  %i_v271 = load i32, i32* %i264
+  %tmp272 = mul i32 %c_mat257, %i_v271
+  %index273 = add i32 %j_v270, %tmp272
+  %element_ptr274 = getelementptr double, double* %mat_mat253, i32 %index273
+  %j_v275 = load i32, i32* %j267
+  %tmp276 = sub i32 %j_v275, 0
+  %tmp277 = add i32 %tmp276, 0
+  %i_v278 = load i32, i32* %i264
+  %tmp279 = sub i32 %i_v278, 0
+  %tmp280 = add i32 %tmp279, 0
+  %tmp281 = mul i32 %c_v263, %tmp280
+  %index282 = add i32 %tmp277, %tmp281
+  %element_ptr283 = getelementptr double, double* %mat_v259, i32 %index282
+  %tmp_element284 = load double, double* %element_ptr283
+  store double %tmp_element284, double* %element_ptr274
+  %j_v285 = load i32, i32* %j267
+  %tmp286 = add i32 %j_v285, 1
+  store i32 %tmp286, i32* %j267
+  br label %while268
+
+merge287:                                         ; preds = %while268
+  %i_v290 = load i32, i32* %i264
+  %tmp291 = add i32 %i_v290, 1
+  store i32 %tmp291, i32* %i264
+  br label %while265
+
+merge292:                                         ; preds = %while265
+  %2 = bitcast double* %mat_mat216 to i8*
+  tail call void @free(i8* %2)
+  %3 = bitcast %matrix_t* %v214 to i8*
+  tail call void @free(i8* %3)
+  %m_r295 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 1
+  %r_mat296 = load i32, i32* %m_r295
+  %m_c297 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 2
+  %c_mat298 = load i32, i32* %m_c297
+  %size299 = mul i32 %r_mat296, %c_mat298
+  %system_mat300 = alloca double, i32 %size299
+  %m301 = alloca %matrix_t
+  %m_mat302 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 0
+  store double* %system_mat300, double** %m_mat302
+  %m_r303 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 1
+  store i32 %r_mat296, i32* %m_r303
+  %m_c304 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 2
+  store i32 %c_mat298, i32* %m_c304
+  %tmp305 = sub i32 %r_mat296, 1
+  %tmp306 = sub i32 %c_mat298, 1
+  %i307 = alloca i32
+  store i32 0, i32* %i307
+  br label %while308
+
+while308:                                         ; preds = %merge320, %merge292
+  %i_v326 = load i32, i32* %i307
+  %bool_val327 = icmp sle i32 %i_v326, %tmp305
+  br i1 %bool_val327, label %while_body309, label %merge325
+
+while_body309:                                    ; preds = %while308
+  %j310 = alloca i32
+  store i32 0, i32* %j310
+  br label %while311
+
+while311:                                         ; preds = %while_body312, %while_body309
+  %j_v321 = load i32, i32* %j310
+  %bool_val322 = icmp sle i32 %j_v321, %tmp306
+  br i1 %bool_val322, label %while_body312, label %merge320
+
+while_body312:                                    ; preds = %while311
+  %j_v313 = load i32, i32* %j310
+  %i_v314 = load i32, i32* %i307
+  %tmp315 = mul i32 %c_mat298, %i_v314
+  %index316 = add i32 %j_v313, %tmp315
+  %element_ptr317 = getelementptr double, double* %system_mat300, i32 %index316
+  store double 0.000000e+00, double* %element_ptr317
+  %j_v318 = load i32, i32* %j310
+  %tmp319 = add i32 %j_v318, 1
+  store i32 %tmp319, i32* %j310
+  br label %while311
+
+merge320:                                         ; preds = %while311
+  %i_v323 = load i32, i32* %i307
+  %tmp324 = add i32 %i_v323, 1
+  store i32 %tmp324, i32* %i307
+  br label %while308
+
+merge325:                                         ; preds = %while308
+  %tmp328 = sub i32 %c_mat298, 1
+  %tmp329 = sub i32 %r_mat296, 1
+  %m_mat330 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 0
+  %mat_mat331 = load double*, double** %m_mat330
+  %m_r332 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 1
+  %r_mat333 = load i32, i32* %m_r332
+  %m_c334 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 2
+  %c_mat335 = load i32, i32* %m_c334
+  %m_mat336 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 0
+  %mat_v337 = load double*, double** %m_mat336
+  %m_r338 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 1
+  %r_v339 = load i32, i32* %m_r338
+  %m_c340 = getelementptr inbounds %matrix_t, %matrix_t* %m223, i32 0, i32 2
+  %c_v341 = load i32, i32* %m_c340
+  %i342 = alloca i32
+  store i32 0, i32* %i342
+  br label %while343
+
+while343:                                         ; preds = %merge365, %merge325
+  %i_v371 = load i32, i32* %i342
+  %bool_val372 = icmp sle i32 %i_v371, %tmp329
+  br i1 %bool_val372, label %while_body344, label %merge370
+
+while_body344:                                    ; preds = %while343
+  %j345 = alloca i32
+  store i32 0, i32* %j345
+  br label %while346
+
+while346:                                         ; preds = %while_body347, %while_body344
+  %j_v366 = load i32, i32* %j345
+  %bool_val367 = icmp sle i32 %j_v366, %tmp328
+  br i1 %bool_val367, label %while_body347, label %merge365
+
+while_body347:                                    ; preds = %while346
+  %j_v348 = load i32, i32* %j345
+  %i_v349 = load i32, i32* %i342
+  %tmp350 = mul i32 %c_mat335, %i_v349
+  %index351 = add i32 %j_v348, %tmp350
+  %element_ptr352 = getelementptr double, double* %mat_mat331, i32 %index351
+  %j_v353 = load i32, i32* %j345
+  %tmp354 = sub i32 %j_v353, 0
+  %tmp355 = add i32 %tmp354, 0
+  %i_v356 = load i32, i32* %i342
+  %tmp357 = sub i32 %i_v356, 0
+  %tmp358 = add i32 %tmp357, 0
+  %tmp359 = mul i32 %c_v341, %tmp358
+  %index360 = add i32 %tmp355, %tmp359
+  %element_ptr361 = getelementptr double, double* %mat_v337, i32 %index360
+  %tmp_element362 = load double, double* %element_ptr361
+  store double %tmp_element362, double* %element_ptr352
+  %j_v363 = load i32, i32* %j345
+  %tmp364 = add i32 %j_v363, 1
+  store i32 %tmp364, i32* %j345
+  br label %while346
+
+merge365:                                         ; preds = %while346
+  %i_v368 = load i32, i32* %i342
+  %tmp369 = add i32 %i_v368, 1
+  store i32 %tmp369, i32* %i342
+  br label %while343
+
+merge370:                                         ; preds = %while343
+  %v_ptr373 = getelementptr inbounds %load_t, %load_t* %load_result, i32 0, i32 2
+  %v374 = load %matrix_t*, %matrix_t** %v_ptr373
+  %m_mat375 = getelementptr inbounds %matrix_t, %matrix_t* %v374, i32 0, i32 0
+  %mat_mat376 = load double*, double** %m_mat375
+  %m_r377 = getelementptr inbounds %matrix_t, %matrix_t* %v374, i32 0, i32 1
+  %r_mat378 = load i32, i32* %m_r377
+  %m_c379 = getelementptr inbounds %matrix_t, %matrix_t* %v374, i32 0, i32 2
+  %c_mat380 = load i32, i32* %m_c379
+  %size381 = mul i32 %r_mat378, %c_mat380
+  %system_mat382 = alloca double, i32 %size381
+  %m383 = alloca %matrix_t
+  %m_mat384 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 0
+  store double* %system_mat382, double** %m_mat384
+  %m_r385 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 1
+  store i32 %r_mat378, i32* %m_r385
+  %m_c386 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 2
+  store i32 %c_mat380, i32* %m_c386
+  %tmp387 = sub i32 %r_mat378, 1
+  %tmp388 = sub i32 %c_mat380, 1
+  %i389 = alloca i32
+  store i32 0, i32* %i389
+  br label %while390
+
+while390:                                         ; preds = %merge402, %merge370
+  %i_v408 = load i32, i32* %i389
+  %bool_val409 = icmp sle i32 %i_v408, %tmp387
+  br i1 %bool_val409, label %while_body391, label %merge407
+
+while_body391:                                    ; preds = %while390
+  %j392 = alloca i32
+  store i32 0, i32* %j392
+  br label %while393
+
+while393:                                         ; preds = %while_body394, %while_body391
+  %j_v403 = load i32, i32* %j392
+  %bool_val404 = icmp sle i32 %j_v403, %tmp388
+  br i1 %bool_val404, label %while_body394, label %merge402
+
+while_body394:                                    ; preds = %while393
+  %j_v395 = load i32, i32* %j392
+  %i_v396 = load i32, i32* %i389
+  %tmp397 = mul i32 %c_mat380, %i_v396
+  %index398 = add i32 %j_v395, %tmp397
+  %element_ptr399 = getelementptr double, double* %system_mat382, i32 %index398
+  store double 0.000000e+00, double* %element_ptr399
+  %j_v400 = load i32, i32* %j392
+  %tmp401 = add i32 %j_v400, 1
+  store i32 %tmp401, i32* %j392
+  br label %while393
+
+merge402:                                         ; preds = %while393
+  %i_v405 = load i32, i32* %i389
+  %tmp406 = add i32 %i_v405, 1
+  store i32 %tmp406, i32* %i389
+  br label %while390
+
+merge407:                                         ; preds = %while390
+  %tmp410 = sub i32 %c_mat380, 1
+  %tmp411 = sub i32 %r_mat378, 1
+  %m_mat412 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 0
+  %mat_mat413 = load double*, double** %m_mat412
+  %m_r414 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 1
+  %r_mat415 = load i32, i32* %m_r414
+  %m_c416 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 2
+  %c_mat417 = load i32, i32* %m_c416
+  %m_mat418 = getelementptr inbounds %matrix_t, %matrix_t* %v374, i32 0, i32 0
+  %mat_v419 = load double*, double** %m_mat418
+  %m_r420 = getelementptr inbounds %matrix_t, %matrix_t* %v374, i32 0, i32 1
+  %r_v421 = load i32, i32* %m_r420
+  %m_c422 = getelementptr inbounds %matrix_t, %matrix_t* %v374, i32 0, i32 2
+  %c_v423 = load i32, i32* %m_c422
+  %i424 = alloca i32
+  store i32 0, i32* %i424
+  br label %while425
+
+while425:                                         ; preds = %merge447, %merge407
+  %i_v453 = load i32, i32* %i424
+  %bool_val454 = icmp sle i32 %i_v453, %tmp411
+  br i1 %bool_val454, label %while_body426, label %merge452
+
+while_body426:                                    ; preds = %while425
+  %j427 = alloca i32
+  store i32 0, i32* %j427
+  br label %while428
+
+while428:                                         ; preds = %while_body429, %while_body426
+  %j_v448 = load i32, i32* %j427
+  %bool_val449 = icmp sle i32 %j_v448, %tmp410
+  br i1 %bool_val449, label %while_body429, label %merge447
+
+while_body429:                                    ; preds = %while428
+  %j_v430 = load i32, i32* %j427
+  %i_v431 = load i32, i32* %i424
+  %tmp432 = mul i32 %c_mat417, %i_v431
+  %index433 = add i32 %j_v430, %tmp432
+  %element_ptr434 = getelementptr double, double* %mat_mat413, i32 %index433
+  %j_v435 = load i32, i32* %j427
+  %tmp436 = sub i32 %j_v435, 0
+  %tmp437 = add i32 %tmp436, 0
+  %i_v438 = load i32, i32* %i424
+  %tmp439 = sub i32 %i_v438, 0
+  %tmp440 = add i32 %tmp439, 0
+  %tmp441 = mul i32 %c_v423, %tmp440
+  %index442 = add i32 %tmp437, %tmp441
+  %element_ptr443 = getelementptr double, double* %mat_v419, i32 %index442
+  %tmp_element444 = load double, double* %element_ptr443
+  store double %tmp_element444, double* %element_ptr434
+  %j_v445 = load i32, i32* %j427
+  %tmp446 = add i32 %j_v445, 1
+  store i32 %tmp446, i32* %j427
+  br label %while428
+
+merge447:                                         ; preds = %while428
+  %i_v450 = load i32, i32* %i424
+  %tmp451 = add i32 %i_v450, 1
+  store i32 %tmp451, i32* %i424
+  br label %while425
+
+merge452:                                         ; preds = %while425
+  %4 = bitcast double* %mat_mat376 to i8*
+  tail call void @free(i8* %4)
+  %5 = bitcast %matrix_t* %v374 to i8*
+  tail call void @free(i8* %5)
+  %m_r455 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 1
+  %r_mat456 = load i32, i32* %m_r455
+  %m_c457 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 2
+  %c_mat458 = load i32, i32* %m_c457
+  %size459 = mul i32 %r_mat456, %c_mat458
+  %system_mat460 = alloca double, i32 %size459
+  %m461 = alloca %matrix_t
+  %m_mat462 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 0
+  store double* %system_mat460, double** %m_mat462
+  %m_r463 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 1
+  store i32 %r_mat456, i32* %m_r463
+  %m_c464 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 2
+  store i32 %c_mat458, i32* %m_c464
+  %tmp465 = sub i32 %r_mat456, 1
+  %tmp466 = sub i32 %c_mat458, 1
+  %i467 = alloca i32
+  store i32 0, i32* %i467
+  br label %while468
+
+while468:                                         ; preds = %merge480, %merge452
+  %i_v486 = load i32, i32* %i467
+  %bool_val487 = icmp sle i32 %i_v486, %tmp465
+  br i1 %bool_val487, label %while_body469, label %merge485
+
+while_body469:                                    ; preds = %while468
+  %j470 = alloca i32
+  store i32 0, i32* %j470
+  br label %while471
+
+while471:                                         ; preds = %while_body472, %while_body469
+  %j_v481 = load i32, i32* %j470
+  %bool_val482 = icmp sle i32 %j_v481, %tmp466
+  br i1 %bool_val482, label %while_body472, label %merge480
+
+while_body472:                                    ; preds = %while471
+  %j_v473 = load i32, i32* %j470
+  %i_v474 = load i32, i32* %i467
+  %tmp475 = mul i32 %c_mat458, %i_v474
+  %index476 = add i32 %j_v473, %tmp475
+  %element_ptr477 = getelementptr double, double* %system_mat460, i32 %index476
+  store double 0.000000e+00, double* %element_ptr477
+  %j_v478 = load i32, i32* %j470
+  %tmp479 = add i32 %j_v478, 1
+  store i32 %tmp479, i32* %j470
+  br label %while471
+
+merge480:                                         ; preds = %while471
+  %i_v483 = load i32, i32* %i467
+  %tmp484 = add i32 %i_v483, 1
+  store i32 %tmp484, i32* %i467
+  br label %while468
+
+merge485:                                         ; preds = %while468
+  %tmp488 = sub i32 %c_mat458, 1
+  %tmp489 = sub i32 %r_mat456, 1
+  %m_mat490 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 0
+  %mat_mat491 = load double*, double** %m_mat490
+  %m_r492 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 1
+  %r_mat493 = load i32, i32* %m_r492
+  %m_c494 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 2
+  %c_mat495 = load i32, i32* %m_c494
+  %m_mat496 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 0
+  %mat_v497 = load double*, double** %m_mat496
+  %m_r498 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 1
+  %r_v499 = load i32, i32* %m_r498
+  %m_c500 = getelementptr inbounds %matrix_t, %matrix_t* %m383, i32 0, i32 2
+  %c_v501 = load i32, i32* %m_c500
+  %i502 = alloca i32
+  store i32 0, i32* %i502
+  br label %while503
+
+while503:                                         ; preds = %merge525, %merge485
+  %i_v531 = load i32, i32* %i502
+  %bool_val532 = icmp sle i32 %i_v531, %tmp489
+  br i1 %bool_val532, label %while_body504, label %merge530
+
+while_body504:                                    ; preds = %while503
+  %j505 = alloca i32
+  store i32 0, i32* %j505
+  br label %while506
+
+while506:                                         ; preds = %while_body507, %while_body504
+  %j_v526 = load i32, i32* %j505
+  %bool_val527 = icmp sle i32 %j_v526, %tmp488
+  br i1 %bool_val527, label %while_body507, label %merge525
+
+while_body507:                                    ; preds = %while506
+  %j_v508 = load i32, i32* %j505
+  %i_v509 = load i32, i32* %i502
+  %tmp510 = mul i32 %c_mat495, %i_v509
+  %index511 = add i32 %j_v508, %tmp510
+  %element_ptr512 = getelementptr double, double* %mat_mat491, i32 %index511
+  %j_v513 = load i32, i32* %j505
+  %tmp514 = sub i32 %j_v513, 0
+  %tmp515 = add i32 %tmp514, 0
+  %i_v516 = load i32, i32* %i502
+  %tmp517 = sub i32 %i_v516, 0
+  %tmp518 = add i32 %tmp517, 0
+  %tmp519 = mul i32 %c_v501, %tmp518
+  %index520 = add i32 %tmp515, %tmp519
+  %element_ptr521 = getelementptr double, double* %mat_v497, i32 %index520
+  %tmp_element522 = load double, double* %element_ptr521
+  store double %tmp_element522, double* %element_ptr512
+  %j_v523 = load i32, i32* %j505
+  %tmp524 = add i32 %j_v523, 1
+  store i32 %tmp524, i32* %j505
+  br label %while506
+
+merge525:                                         ; preds = %while506
+  %i_v528 = load i32, i32* %i502
+  %tmp529 = add i32 %i_v528, 1
+  store i32 %tmp529, i32* %i502
+  br label %while503
+
+merge530:                                         ; preds = %while503
+  %6 = bitcast %load_t* %load_result to i8*
+  tail call void @free(i8* %6)
+  %i533 = alloca i32
+  %tmp534 = load i32, i32* %i533
+  store i32 0, i32* %i533
+  %j535 = alloca i32
+  %tmp536 = load i32, i32* %j535
+  store i32 0, i32* %j535
+  %size_result = call %matrix_size_t* @size(%matrix_t* %m141)
+  %v_ptr537 = getelementptr inbounds %matrix_size_t, %matrix_size_t* %size_result, i32 0, i32 0
+  %v538 = load i32, i32* %v_ptr537
+  %tmp539 = load i32, i32* %i533
+  store i32 %v538, i32* %i533
+  %v_ptr540 = getelementptr inbounds %matrix_size_t, %matrix_size_t* %size_result, i32 0, i32 1
+  %v541 = load i32, i32* %v_ptr540
+  %tmp542 = load i32, i32* %j535
+  store i32 %v541, i32* %j535
+  %7 = bitcast %matrix_size_t* %size_result to i8*
+  tail call void @free(i8* %7)
+  %j543 = load i32, i32* %j535
+  %tmp544 = sdiv i32 %j543, 2
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %tmp544)
+  %m_r545 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 1
+  %r_mat546 = load i32, i32* %m_r545
+  %m_c547 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 2
+  %c_mat548 = load i32, i32* %m_c547
+  br i1 false, label %then, label %else
+
+merge549:                                         ; preds = %else, %then
+  %tmp551 = sub i32 %r_mat546, 1
+  %tmp556 = icmp slt i32 %tmp551, 1
+  br i1 %tmp556, label %then553, label %else555
+
+then:                                             ; preds = %merge530
+  %printf550 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge549
+
+else:                                             ; preds = %merge530
+  br label %merge549
+
+merge552:                                         ; preds = %else555, %then553
+  %tmp557 = sub i32 %r_mat546, 1
+  br i1 false, label %then559, label %else561
+
+then553:                                          ; preds = %merge549
+  %printf554 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge552
+
+else555:                                          ; preds = %merge549
+  br label %merge552
+
+merge558:                                         ; preds = %else561, %then559
+  %tmp562 = sub i32 %c_mat548, 1
+  %tmp567 = icmp slt i32 %tmp562, 2
+  br i1 %tmp567, label %then564, label %else566
+
+then559:                                          ; preds = %merge552
+  %printf560 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge558
+
+else561:                                          ; preds = %merge552
+  br label %merge558
+
+merge563:                                         ; preds = %else566, %then564
+  %tmp568 = sub i32 %c_mat548, 1
+  %tmp569 = sub i32 %tmp557, 1
+  %tmp570 = sub i32 %tmp568, 2
+  %tmp571 = add i32 %tmp570, 1
+  %tmp572 = add i32 %tmp569, 1
+  %size573 = mul i32 %tmp572, %tmp571
+  %system_mat574 = alloca double, i32 %size573
+  %m575 = alloca %matrix_t
+  %m_mat576 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 0
+  store double* %system_mat574, double** %m_mat576
+  %m_r577 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 1
+  store i32 %tmp572, i32* %m_r577
+  %m_c578 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 2
+  store i32 %tmp571, i32* %m_c578
+  %tmp579 = sub i32 %tmp572, 1
+  %tmp580 = sub i32 %tmp571, 1
+  %i581 = alloca i32
+  store i32 0, i32* %i581
+  br label %while582
+
+then564:                                          ; preds = %merge558
+  %printf565 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge563
+
+else566:                                          ; preds = %merge558
+  br label %merge563
+
+while582:                                         ; preds = %merge594, %merge563
+  %i_v600 = load i32, i32* %i581
+  %bool_val601 = icmp sle i32 %i_v600, %tmp579
+  br i1 %bool_val601, label %while_body583, label %merge599
+
+while_body583:                                    ; preds = %while582
+  %j584 = alloca i32
+  store i32 0, i32* %j584
+  br label %while585
+
+while585:                                         ; preds = %while_body586, %while_body583
+  %j_v595 = load i32, i32* %j584
+  %bool_val596 = icmp sle i32 %j_v595, %tmp580
+  br i1 %bool_val596, label %while_body586, label %merge594
+
+while_body586:                                    ; preds = %while585
+  %j_v587 = load i32, i32* %j584
+  %i_v588 = load i32, i32* %i581
+  %tmp589 = mul i32 %tmp571, %i_v588
+  %index590 = add i32 %j_v587, %tmp589
+  %element_ptr591 = getelementptr double, double* %system_mat574, i32 %index590
+  store double 0.000000e+00, double* %element_ptr591
+  %j_v592 = load i32, i32* %j584
+  %tmp593 = add i32 %j_v592, 1
+  store i32 %tmp593, i32* %j584
+  br label %while585
+
+merge594:                                         ; preds = %while585
+  %i_v597 = load i32, i32* %i581
+  %tmp598 = add i32 %i_v597, 1
+  store i32 %tmp598, i32* %i581
+  br label %while582
+
+merge599:                                         ; preds = %while582
+  %m_mat602 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 0
+  %mat_mat603 = load double*, double** %m_mat602
+  %m_r604 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 1
+  %r_mat605 = load i32, i32* %m_r604
+  %m_c606 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 2
+  %c_mat607 = load i32, i32* %m_c606
+  %m_mat608 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 0
+  %mat_v609 = load double*, double** %m_mat608
+  %m_r610 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 1
+  %r_v611 = load i32, i32* %m_r610
+  %m_c612 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 2
+  %c_v613 = load i32, i32* %m_c612
+  %i614 = alloca i32
+  store i32 0, i32* %i614
+  br label %while615
+
+while615:                                         ; preds = %merge637, %merge599
+  %i_v643 = load i32, i32* %i614
+  %bool_val644 = icmp sle i32 %i_v643, %tmp569
+  br i1 %bool_val644, label %while_body616, label %merge642
+
+while_body616:                                    ; preds = %while615
+  %j617 = alloca i32
+  store i32 0, i32* %j617
+  br label %while618
+
+while618:                                         ; preds = %while_body619, %while_body616
+  %j_v638 = load i32, i32* %j617
+  %bool_val639 = icmp sle i32 %j_v638, %tmp570
+  br i1 %bool_val639, label %while_body619, label %merge637
+
+while_body619:                                    ; preds = %while618
+  %j_v620 = load i32, i32* %j617
+  %i_v621 = load i32, i32* %i614
+  %tmp622 = mul i32 %c_mat607, %i_v621
+  %index623 = add i32 %j_v620, %tmp622
+  %element_ptr624 = getelementptr double, double* %mat_mat603, i32 %index623
+  %j_v625 = load i32, i32* %j617
+  %tmp626 = sub i32 %j_v625, 0
+  %tmp627 = add i32 %tmp626, 2
+  %i_v628 = load i32, i32* %i614
+  %tmp629 = sub i32 %i_v628, 0
+  %tmp630 = add i32 %tmp629, 1
+  %tmp631 = mul i32 %c_v613, %tmp630
+  %index632 = add i32 %tmp627, %tmp631
+  %element_ptr633 = getelementptr double, double* %mat_v609, i32 %index632
+  %tmp_element634 = load double, double* %element_ptr633
+  store double %tmp_element634, double* %element_ptr624
+  %j_v635 = load i32, i32* %j617
+  %tmp636 = add i32 %j_v635, 1
+  store i32 %tmp636, i32* %j617
+  br label %while618
+
+merge637:                                         ; preds = %while618
+  %i_v640 = load i32, i32* %i614
+  %tmp641 = add i32 %i_v640, 1
+  store i32 %tmp641, i32* %i614
+  br label %while615
+
+merge642:                                         ; preds = %while615
+  %m_mat645 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 0
+  %mat_mat646 = load double*, double** %m_mat645
+  %m_r647 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 1
+  %r_mat648 = load i32, i32* %m_r647
+  %m_c649 = getelementptr inbounds %matrix_t, %matrix_t* %m575, i32 0, i32 2
+  %c_mat650 = load i32, i32* %m_c649
+  %tmp651 = sub i32 %r_mat648, 1
+  %tmp652 = sub i32 %c_mat650, 1
+  %i653 = alloca i32
+  store i32 0, i32* %i653
+  br label %while654
+
+while654:                                         ; preds = %merge669, %merge642
+  %i_v676 = load i32, i32* %i653
+  %bool_val677 = icmp sle i32 %i_v676, %tmp651
+  br i1 %bool_val677, label %while_body655, label %merge675
+
+while_body655:                                    ; preds = %while654
+  %j656 = alloca i32
+  store i32 0, i32* %j656
+  br label %while657
+
+while657:                                         ; preds = %while_body658, %while_body655
+  %j_v670 = load i32, i32* %j656
+  %bool_val671 = icmp sle i32 %j_v670, %tmp652
+  br i1 %bool_val671, label %while_body658, label %merge669
+
+while_body658:                                    ; preds = %while657
+  %j_v659 = load i32, i32* %j656
+  %i_v660 = load i32, i32* %i653
+  %tmp661 = mul i32 %c_mat650, %i_v660
+  %index662 = add i32 %j_v659, %tmp661
+  %element_ptr663 = getelementptr double, double* %mat_mat646, i32 %index662
+  %tmp_element664 = load double, double* %element_ptr663
+  %printf665 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_double, i32 0, i32 0), double %tmp_element664)
+  %printf666 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str.2, i32 0, i32 0))
+  %j_v667 = load i32, i32* %j656
+  %tmp668 = add i32 %j_v667, 1
+  store i32 %tmp668, i32* %j656
+  br label %while657
+
+merge669:                                         ; preds = %while657
+  %printf672 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_str.1, i32 0, i32 0))
+  %i_v673 = load i32, i32* %i653
+  %tmp674 = add i32 %i_v673, 1
+  store i32 %tmp674, i32* %i653
+  br label %while654
+
+merge675:                                         ; preds = %while654
+  %printf678 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @fmt_str.3, i32 0, i32 0))
+  %m_r679 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 1
+  %r_mat680 = load i32, i32* %m_r679
+  %m_c681 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 2
+  %c_mat682 = load i32, i32* %m_c681
+  br i1 false, label %then684, label %else686
+
+merge683:                                         ; preds = %else686, %then684
+  %tmp687 = sub i32 %r_mat680, 1
+  %tmp692 = icmp slt i32 %tmp687, 1
+  br i1 %tmp692, label %then689, label %else691
+
+then684:                                          ; preds = %merge675
+  %printf685 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge683
+
+else686:                                          ; preds = %merge675
+  br label %merge683
+
+merge688:                                         ; preds = %else691, %then689
+  %tmp693 = sub i32 %r_mat680, 1
+  br i1 false, label %then695, label %else697
+
+then689:                                          ; preds = %merge683
+  %printf690 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge688
+
+else691:                                          ; preds = %merge683
+  br label %merge688
+
+merge694:                                         ; preds = %else697, %then695
+  %tmp698 = sub i32 %c_mat682, 1
+  %tmp703 = icmp slt i32 %tmp698, 2
+  br i1 %tmp703, label %then700, label %else702
+
+then695:                                          ; preds = %merge688
+  %printf696 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge694
+
+else697:                                          ; preds = %merge688
+  br label %merge694
+
+merge699:                                         ; preds = %else702, %then700
+  %tmp704 = sub i32 %c_mat682, 1
+  %tmp705 = sub i32 %tmp693, 1
+  %tmp706 = sub i32 %tmp704, 2
+  %tmp707 = add i32 %tmp706, 1
+  %tmp708 = add i32 %tmp705, 1
+  %size709 = mul i32 %tmp708, %tmp707
+  %system_mat710 = alloca double, i32 %size709
+  %m711 = alloca %matrix_t
+  %m_mat712 = getelementptr inbounds %matrix_t, %matrix_t* %m711, i32 0, i32 0
+  store double* %system_mat710, double** %m_mat712
+  %m_r713 = getelementptr inbounds %matrix_t, %matrix_t* %m711, i32 0, i32 1
+  store i32 %tmp708, i32* %m_r713
+  %m_c714 = getelementptr inbounds %matrix_t, %matrix_t* %m711, i32 0, i32 2
+  store i32 %tmp707, i32* %m_c714
+  %tmp715 = sub i32 %tmp708, 1
+  %tmp716 = sub i32 %tmp707, 1
+  %i717 = alloca i32
+  store i32 0, i32* %i717
+  br label %while718
+
+then700:                                          ; preds = %merge694
+  %printf701 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge699
+
+else702:                                          ; preds = %merge694
+  br label %merge699
+
+while718:                                         ; preds = %merge730, %merge699
+  %i_v736 = load i32, i32* %i717
+  %bool_val737 = icmp sle i32 %i_v736, %tmp715
+  br i1 %bool_val737, label %while_body719, label %merge735
+
+while_body719:                                    ; preds = %while718
+  %j720 = alloca i32
+  store i32 0, i32* %j720
+  br label %while721
+
+while721:                                         ; preds = %while_body722, %while_body719
+  %j_v731 = load i32, i32* %j720
+  %bool_val732 = icmp sle i32 %j_v731, %tmp716
+  br i1 %bool_val732, label %while_body722, label %merge730
+
+while_body722:                                    ; preds = %while721
+  %j_v723 = load i32, i32* %j720
+  %i_v724 = load i32, i32* %i717
+  %tmp725 = mul i32 %tmp707, %i_v724
+  %index726 = add i32 %j_v723, %tmp725
+  %element_ptr727 = getelementptr double, double* %system_mat710, i32 %index726
+  store double 0.000000e+00, double* %element_ptr727
+  %j_v728 = load i32, i32* %j720
+  %tmp729 = add i32 %j_v728, 1
+  store i32 %tmp729, i32* %j720
+  br label %while721
+
+merge730:                                         ; preds = %while721
+  %i_v733 = load i32, i32* %i717
+  %tmp734 = add i32 %i_v733, 1
+  store i32 %tmp734, i32* %i717
+  br label %while718
+
+merge735:                                         ; preds = %while718
+  %m_mat738 = getelementptr inbounds %matrix_t, %matrix_t* %m711, i32 0, i32 0
+  %mat_mat739 = load double*, double** %m_mat738
+  %m_r740 = getelementptr inbounds %matrix_t, %matrix_t* %m711, i32 0, i32 1
+  %r_mat741 = load i32, i32* %m_r740
+  %m_c742 = getelementptr inbounds %matrix_t, %matrix_t* %m711, i32 0, i32 2
+  %c_mat743 = load i32, i32* %m_c742
+  %m_mat744 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 0
+  %mat_v745 = load double*, double** %m_mat744
+  %m_r746 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 1
+  %r_v747 = load i32, i32* %m_r746
+  %m_c748 = getelementptr inbounds %matrix_t, %matrix_t* %m461, i32 0, i32 2
+  %c_v749 = load i32, i32* %m_c748
+  %i750 = alloca i32
+  store i32 0, i32* %i750
+  br label %while751
+
+while751:                                         ; preds = %merge773, %merge735
+  %i_v779 = load i32, i32* %i750
+  %bool_val780 = icmp sle i32 %i_v779, %tmp705
+  br i1 %bool_val780, label %while_body752, label %merge778
+
+while_body752:                                    ; preds = %while751
+  %j753 = alloca i32
+  store i32 0, i32* %j753
+  br label %while754
+
+while754:                                         ; preds = %while_body755, %while_body752
+  %j_v774 = load i32, i32* %j753
+  %bool_val775 = icmp sle i32 %j_v774, %tmp706
+  br i1 %bool_val775, label %while_body755, label %merge773
+
+while_body755:                                    ; preds = %while754
+  %j_v756 = load i32, i32* %j753
+  %i_v757 = load i32, i32* %i750
+  %tmp758 = mul i32 %c_mat743, %i_v757
+  %index759 = add i32 %j_v756, %tmp758
+  %element_ptr760 = getelementptr double, double* %mat_mat739, i32 %index759
+  %j_v761 = load i32, i32* %j753
+  %tmp762 = sub i32 %j_v761, 0
+  %tmp763 = add i32 %tmp762, 2
+  %i_v764 = load i32, i32* %i750
+  %tmp765 = sub i32 %i_v764, 0
+  %tmp766 = add i32 %tmp765, 1
+  %tmp767 = mul i32 %c_v749, %tmp766
+  %index768 = add i32 %tmp763, %tmp767
+  %element_ptr769 = getelementptr double, double* %mat_v745, i32 %index768
+  %tmp_element770 = load double, double* %element_ptr769
+  store double %tmp_element770, double* %element_ptr760
+  %j_v771 = load i32, i32* %j753
+  %tmp772 = add i32 %j_v771, 1
+  store i32 %tmp772, i32* %j753
+  br label %while754
+
+merge773:                                         ; preds = %while754
+  %i_v776 = load i32, i32* %i750
+  %tmp777 = add i32 %i_v776, 1
+  store i32 %tmp777, i32* %i750
+  br label %while751
+
+merge778:                                         ; preds = %while751
+  %m_r781 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 1
+  %r_mat782 = load i32, i32* %m_r781
+  %m_c783 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 2
+  %c_mat784 = load i32, i32* %m_c783
+  br i1 false, label %then786, label %else788
+
+merge785:                                         ; preds = %else788, %then786
+  %tmp789 = sub i32 %r_mat782, 1
+  %tmp794 = icmp slt i32 %tmp789, 1
+  br i1 %tmp794, label %then791, label %else793
+
+then786:                                          ; preds = %merge778
+  %printf787 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge785
+
+else788:                                          ; preds = %merge778
+  br label %merge785
+
+merge790:                                         ; preds = %else793, %then791
+  %tmp795 = sub i32 %r_mat782, 1
+  br i1 false, label %then797, label %else799
+
+then791:                                          ; preds = %merge785
+  %printf792 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge790
+
+else793:                                          ; preds = %merge785
+  br label %merge790
+
+merge796:                                         ; preds = %else799, %then797
+  %tmp800 = sub i32 %c_mat784, 1
+  %tmp805 = icmp slt i32 %tmp800, 2
+  br i1 %tmp805, label %then802, label %else804
+
+then797:                                          ; preds = %merge790
+  %printf798 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge796
+
+else799:                                          ; preds = %merge790
+  br label %merge796
+
+merge801:                                         ; preds = %else804, %then802
+  %tmp806 = sub i32 %c_mat784, 1
+  %tmp807 = sub i32 %tmp795, 1
+  %tmp808 = sub i32 %tmp806, 2
+  %tmp809 = add i32 %tmp808, 1
+  %tmp810 = add i32 %tmp807, 1
+  %size811 = mul i32 %tmp810, %tmp809
+  %system_mat812 = alloca double, i32 %size811
+  %m813 = alloca %matrix_t
+  %m_mat814 = getelementptr inbounds %matrix_t, %matrix_t* %m813, i32 0, i32 0
+  store double* %system_mat812, double** %m_mat814
+  %m_r815 = getelementptr inbounds %matrix_t, %matrix_t* %m813, i32 0, i32 1
+  store i32 %tmp810, i32* %m_r815
+  %m_c816 = getelementptr inbounds %matrix_t, %matrix_t* %m813, i32 0, i32 2
+  store i32 %tmp809, i32* %m_c816
+  %tmp817 = sub i32 %tmp810, 1
+  %tmp818 = sub i32 %tmp809, 1
+  %i819 = alloca i32
+  store i32 0, i32* %i819
+  br label %while820
+
+then802:                                          ; preds = %merge796
+  %printf803 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge801
+
+else804:                                          ; preds = %merge796
+  br label %merge801
+
+while820:                                         ; preds = %merge832, %merge801
+  %i_v838 = load i32, i32* %i819
+  %bool_val839 = icmp sle i32 %i_v838, %tmp817
+  br i1 %bool_val839, label %while_body821, label %merge837
+
+while_body821:                                    ; preds = %while820
+  %j822 = alloca i32
+  store i32 0, i32* %j822
+  br label %while823
+
+while823:                                         ; preds = %while_body824, %while_body821
+  %j_v833 = load i32, i32* %j822
+  %bool_val834 = icmp sle i32 %j_v833, %tmp818
+  br i1 %bool_val834, label %while_body824, label %merge832
+
+while_body824:                                    ; preds = %while823
+  %j_v825 = load i32, i32* %j822
+  %i_v826 = load i32, i32* %i819
+  %tmp827 = mul i32 %tmp809, %i_v826
+  %index828 = add i32 %j_v825, %tmp827
+  %element_ptr829 = getelementptr double, double* %system_mat812, i32 %index828
+  store double 0.000000e+00, double* %element_ptr829
+  %j_v830 = load i32, i32* %j822
+  %tmp831 = add i32 %j_v830, 1
+  store i32 %tmp831, i32* %j822
+  br label %while823
+
+merge832:                                         ; preds = %while823
+  %i_v835 = load i32, i32* %i819
+  %tmp836 = add i32 %i_v835, 1
+  store i32 %tmp836, i32* %i819
+  br label %while820
+
+merge837:                                         ; preds = %while820
+  %m_mat840 = getelementptr inbounds %matrix_t, %matrix_t* %m813, i32 0, i32 0
+  %mat_mat841 = load double*, double** %m_mat840
+  %m_r842 = getelementptr inbounds %matrix_t, %matrix_t* %m813, i32 0, i32 1
+  %r_mat843 = load i32, i32* %m_r842
+  %m_c844 = getelementptr inbounds %matrix_t, %matrix_t* %m813, i32 0, i32 2
+  %c_mat845 = load i32, i32* %m_c844
+  %m_mat846 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 0
+  %mat_v847 = load double*, double** %m_mat846
+  %m_r848 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 1
+  %r_v849 = load i32, i32* %m_r848
+  %m_c850 = getelementptr inbounds %matrix_t, %matrix_t* %m301, i32 0, i32 2
+  %c_v851 = load i32, i32* %m_c850
+  %i852 = alloca i32
+  store i32 0, i32* %i852
+  br label %while853
+
+while853:                                         ; preds = %merge875, %merge837
+  %i_v881 = load i32, i32* %i852
+  %bool_val882 = icmp sle i32 %i_v881, %tmp807
+  br i1 %bool_val882, label %while_body854, label %merge880
+
+while_body854:                                    ; preds = %while853
+  %j855 = alloca i32
+  store i32 0, i32* %j855
+  br label %while856
+
+while856:                                         ; preds = %while_body857, %while_body854
+  %j_v876 = load i32, i32* %j855
+  %bool_val877 = icmp sle i32 %j_v876, %tmp808
+  br i1 %bool_val877, label %while_body857, label %merge875
+
+while_body857:                                    ; preds = %while856
+  %j_v858 = load i32, i32* %j855
+  %i_v859 = load i32, i32* %i852
+  %tmp860 = mul i32 %c_mat845, %i_v859
+  %index861 = add i32 %j_v858, %tmp860
+  %element_ptr862 = getelementptr double, double* %mat_mat841, i32 %index861
+  %j_v863 = load i32, i32* %j855
+  %tmp864 = sub i32 %j_v863, 0
+  %tmp865 = add i32 %tmp864, 2
+  %i_v866 = load i32, i32* %i852
+  %tmp867 = sub i32 %i_v866, 0
+  %tmp868 = add i32 %tmp867, 1
+  %tmp869 = mul i32 %c_v851, %tmp868
+  %index870 = add i32 %tmp865, %tmp869
+  %element_ptr871 = getelementptr double, double* %mat_v847, i32 %index870
+  %tmp_element872 = load double, double* %element_ptr871
+  store double %tmp_element872, double* %element_ptr862
+  %j_v873 = load i32, i32* %j855
+  %tmp874 = add i32 %j_v873, 1
+  store i32 %tmp874, i32* %j855
+  br label %while856
+
+merge875:                                         ; preds = %while856
+  %i_v878 = load i32, i32* %i852
+  %tmp879 = add i32 %i_v878, 1
+  store i32 %tmp879, i32* %i852
+  br label %while853
+
+merge880:                                         ; preds = %while853
+  %m_r883 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 1
+  %r_mat884 = load i32, i32* %m_r883
+  %m_c885 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 2
+  %c_mat886 = load i32, i32* %m_c885
+  br i1 false, label %then888, label %else890
+
+merge887:                                         ; preds = %else890, %then888
+  %tmp891 = sub i32 %r_mat884, 1
+  %tmp896 = icmp slt i32 %tmp891, 1
+  br i1 %tmp896, label %then893, label %else895
+
+then888:                                          ; preds = %merge880
+  %printf889 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge887
+
+else890:                                          ; preds = %merge880
+  br label %merge887
+
+merge892:                                         ; preds = %else895, %then893
+  %tmp897 = sub i32 %r_mat884, 1
+  br i1 false, label %then899, label %else901
+
+then893:                                          ; preds = %merge887
+  %printf894 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge892
+
+else895:                                          ; preds = %merge887
+  br label %merge892
+
+merge898:                                         ; preds = %else901, %then899
+  %tmp902 = sub i32 %c_mat886, 1
+  %tmp907 = icmp slt i32 %tmp902, 2
+  br i1 %tmp907, label %then904, label %else906
+
+then899:                                          ; preds = %merge892
+  %printf900 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge898
+
+else901:                                          ; preds = %merge892
+  br label %merge898
+
+merge903:                                         ; preds = %else906, %then904
+  %tmp908 = sub i32 %c_mat886, 1
+  %tmp909 = sub i32 %tmp897, 1
+  %tmp910 = sub i32 %tmp908, 2
+  %tmp911 = add i32 %tmp910, 1
+  %tmp912 = add i32 %tmp909, 1
+  %size913 = mul i32 %tmp912, %tmp911
+  %system_mat914 = alloca double, i32 %size913
+  %m915 = alloca %matrix_t
+  %m_mat916 = getelementptr inbounds %matrix_t, %matrix_t* %m915, i32 0, i32 0
+  store double* %system_mat914, double** %m_mat916
+  %m_r917 = getelementptr inbounds %matrix_t, %matrix_t* %m915, i32 0, i32 1
+  store i32 %tmp912, i32* %m_r917
+  %m_c918 = getelementptr inbounds %matrix_t, %matrix_t* %m915, i32 0, i32 2
+  store i32 %tmp911, i32* %m_c918
+  %tmp919 = sub i32 %tmp912, 1
+  %tmp920 = sub i32 %tmp911, 1
+  %i921 = alloca i32
+  store i32 0, i32* %i921
+  br label %while922
+
+then904:                                          ; preds = %merge898
+  %printf905 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge903
+
+else906:                                          ; preds = %merge898
+  br label %merge903
+
+while922:                                         ; preds = %merge934, %merge903
+  %i_v940 = load i32, i32* %i921
+  %bool_val941 = icmp sle i32 %i_v940, %tmp919
+  br i1 %bool_val941, label %while_body923, label %merge939
+
+while_body923:                                    ; preds = %while922
+  %j924 = alloca i32
+  store i32 0, i32* %j924
+  br label %while925
+
+while925:                                         ; preds = %while_body926, %while_body923
+  %j_v935 = load i32, i32* %j924
+  %bool_val936 = icmp sle i32 %j_v935, %tmp920
+  br i1 %bool_val936, label %while_body926, label %merge934
+
+while_body926:                                    ; preds = %while925
+  %j_v927 = load i32, i32* %j924
+  %i_v928 = load i32, i32* %i921
+  %tmp929 = mul i32 %tmp911, %i_v928
+  %index930 = add i32 %j_v927, %tmp929
+  %element_ptr931 = getelementptr double, double* %system_mat914, i32 %index930
+  store double 0.000000e+00, double* %element_ptr931
+  %j_v932 = load i32, i32* %j924
+  %tmp933 = add i32 %j_v932, 1
+  store i32 %tmp933, i32* %j924
+  br label %while925
+
+merge934:                                         ; preds = %while925
+  %i_v937 = load i32, i32* %i921
+  %tmp938 = add i32 %i_v937, 1
+  store i32 %tmp938, i32* %i921
+  br label %while922
+
+merge939:                                         ; preds = %while922
+  %m_mat942 = getelementptr inbounds %matrix_t, %matrix_t* %m915, i32 0, i32 0
+  %mat_mat943 = load double*, double** %m_mat942
+  %m_r944 = getelementptr inbounds %matrix_t, %matrix_t* %m915, i32 0, i32 1
+  %r_mat945 = load i32, i32* %m_r944
+  %m_c946 = getelementptr inbounds %matrix_t, %matrix_t* %m915, i32 0, i32 2
+  %c_mat947 = load i32, i32* %m_c946
+  %m_mat948 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 0
+  %mat_v949 = load double*, double** %m_mat948
+  %m_r950 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 1
+  %r_v951 = load i32, i32* %m_r950
+  %m_c952 = getelementptr inbounds %matrix_t, %matrix_t* %m141, i32 0, i32 2
+  %c_v953 = load i32, i32* %m_c952
+  %i954 = alloca i32
+  store i32 0, i32* %i954
+  br label %while955
+
+while955:                                         ; preds = %merge977, %merge939
+  %i_v983 = load i32, i32* %i954
+  %bool_val984 = icmp sle i32 %i_v983, %tmp909
+  br i1 %bool_val984, label %while_body956, label %merge982
+
+while_body956:                                    ; preds = %while955
+  %j957 = alloca i32
+  store i32 0, i32* %j957
+  br label %while958
+
+while958:                                         ; preds = %while_body959, %while_body956
+  %j_v978 = load i32, i32* %j957
+  %bool_val979 = icmp sle i32 %j_v978, %tmp910
+  br i1 %bool_val979, label %while_body959, label %merge977
+
+while_body959:                                    ; preds = %while958
+  %j_v960 = load i32, i32* %j957
+  %i_v961 = load i32, i32* %i954
+  %tmp962 = mul i32 %c_mat947, %i_v961
+  %index963 = add i32 %j_v960, %tmp962
+  %element_ptr964 = getelementptr double, double* %mat_mat943, i32 %index963
+  %j_v965 = load i32, i32* %j957
+  %tmp966 = sub i32 %j_v965, 0
+  %tmp967 = add i32 %tmp966, 2
+  %i_v968 = load i32, i32* %i954
+  %tmp969 = sub i32 %i_v968, 0
+  %tmp970 = add i32 %tmp969, 1
+  %tmp971 = mul i32 %c_v953, %tmp970
+  %index972 = add i32 %tmp967, %tmp971
+  %element_ptr973 = getelementptr double, double* %mat_v949, i32 %index972
+  %tmp_element974 = load double, double* %element_ptr973
+  store double %tmp_element974, double* %element_ptr964
+  %j_v975 = load i32, i32* %j957
+  %tmp976 = add i32 %j_v975, 1
+  store i32 %tmp976, i32* %j957
+  br label %while958
+
+merge977:                                         ; preds = %while958
+  %i_v980 = load i32, i32* %i954
+  %tmp981 = add i32 %i_v980, 1
+  store i32 %tmp981, i32* %i954
+  br label %while955
+
+merge982:                                         ; preds = %while955
+  call void @save(%matrix_t* %m915, %matrix_t* %m813, %matrix_t* %m711, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @system_string.9, i32 0, i32 0))
+  ret i32 0
+}
+
+declare i32 @printf(i8*, ...)
+
+declare void @abort()
+
+define %matrix_size_t* @size(%matrix_t*) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 trunc (i64 mul nuw (i64 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i64), i64 2) to i32))
+  %return = bitcast i8* %malloccall to %matrix_size_t*
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r
+  %row_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 0
+  store i32 %r_mat, i32* %row_size
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c
+  %col_size = getelementptr inbounds %matrix_size_t, %matrix_size_t* %return, i32 0, i32 1
+  store i32 %c_mat, i32* %col_size
+  ret %matrix_size_t* %return
+}
+
+declare noalias i8* @malloc(i32)
+
+define %zero_matrix_t* @zeros(i32, i32) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %zero_matrix_t*
+  %size = mul i32 %0, %1
+  %mallocsize = mul i32 %size, ptrtoint (double* getelementptr (double, double* null, i32 1) to i32)
+  %malloccall1 = tail call i8* @malloc(i32 %mallocsize)
+  %system_mat = bitcast i8* %malloccall1 to double*
+  %malloccall2 = tail call i8* @malloc(i32 ptrtoint (%matrix_t* getelementptr (%matrix_t, %matrix_t* null, i32 1) to i32))
+  %m = bitcast i8* %malloccall2 to %matrix_t*
+  %m_mat = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  store double* %system_mat, double** %m_mat
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  store i32 %0, i32* %m_r
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  store i32 %1, i32* %m_c
+  %tmp = sub i32 %0, 1
+  %tmp3 = sub i32 %1, 1
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %i_v13 = load i32, i32* %i
+  %bool_val14 = icmp sle i32 %i_v13, %tmp
+  br i1 %bool_val14, label %while_body, label %merge12
+
+while_body:                                       ; preds = %while
+  %j = alloca i32
+  store i32 0, i32* %j
+  br label %while4
+
+while4:                                           ; preds = %while_body5, %while_body
+  %j_v9 = load i32, i32* %j
+  %bool_val = icmp sle i32 %j_v9, %tmp3
+  br i1 %bool_val, label %while_body5, label %merge
+
+while_body5:                                      ; preds = %while4
+  %j_v = load i32, i32* %j
+  %i_v = load i32, i32* %i
+  %tmp6 = mul i32 %1, %i_v
+  %index = add i32 %j_v, %tmp6
+  %element_ptr = getelementptr double, double* %system_mat, i32 %index
+  store double 0.000000e+00, double* %element_ptr
+  %j_v7 = load i32, i32* %j
+  %tmp8 = add i32 %j_v7, 1
+  store i32 %tmp8, i32* %j
+  br label %while4
+
+merge:                                            ; preds = %while4
+  %i_v10 = load i32, i32* %i
+  %tmp11 = add i32 %i_v10, 1
+  store i32 %tmp11, i32* %i
+  br label %while
+
+merge12:                                          ; preds = %while
+  %m15 = getelementptr inbounds %zero_matrix_t, %zero_matrix_t* %return, i32 0, i32 0
+  store %matrix_t* %m, %matrix_t** %m15
+  ret %zero_matrix_t* %return
+}
+
+define %int_to_double_t* @int2double(i32) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (double* getelementptr (double, double* null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %int_to_double_t*
+  %tmp = sitofp i32 %0 to double
+  %converted_double = getelementptr inbounds %int_to_double_t, %int_to_double_t* %return, i32 0, i32 0
+  store double %tmp, double* %converted_double
+  ret %int_to_double_t* %return
+}
+
+define %double_to_int_t* @double2int(double) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i32* getelementptr (i32, i32* null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %double_to_int_t*
+  %tmp = fptosi double %0 to i32
+  %converted_int = getelementptr inbounds %double_to_int_t, %double_to_int_t* %return, i32 0, i32 0
+  store i32 %tmp, i32* %converted_int
+  ret %double_to_int_t* %return
+}
+
+declare double* @load_cpp(i8*)
+
+define %load_t* @load(i8*) {
+entry:
+  %malloccall = tail call i8* @malloc(i32 trunc (i64 mul nuw (i64 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i64), i64 3) to i32))
+  %return = bitcast i8* %malloccall to %load_t*
+  %mat_arr = call double* @load_cpp(i8* %0)
+  %element_ptr = getelementptr double, double* %mat_arr, i32 0
+  %tmp = load double, double* %element_ptr
+  %tmp1 = fptosi double %tmp to i32
+  %element_ptr2 = getelementptr double, double* %mat_arr, i32 1
+  %tmp3 = load double, double* %element_ptr2
+  %tmp4 = fptosi double %tmp3 to i32
+  %size = mul i32 %tmp1, %tmp4
+  %mallocsize = mul i32 %size, ptrtoint (double* getelementptr (double, double* null, i32 1) to i32)
+  %malloccall5 = tail call i8* @malloc(i32 %mallocsize)
+  %system_mat = bitcast i8* %malloccall5 to double*
+  %malloccall6 = tail call i8* @malloc(i32 ptrtoint (%matrix_t* getelementptr (%matrix_t, %matrix_t* null, i32 1) to i32))
+  %m = bitcast i8* %malloccall6 to %matrix_t*
+  %m_mat = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  store double* %system_mat, double** %m_mat
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  store i32 %tmp1, i32* %m_r
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  store i32 %tmp4, i32* %m_c
+  %tmp7 = sub i32 %tmp1, 1
+  %tmp8 = sub i32 %tmp4, 1
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %i_v19 = load i32, i32* %i
+  %bool_val20 = icmp sle i32 %i_v19, %tmp7
+  br i1 %bool_val20, label %while_body, label %merge18
+
+while_body:                                       ; preds = %while
+  %j = alloca i32
+  store i32 0, i32* %j
+  br label %while9
+
+while9:                                           ; preds = %while_body10, %while_body
+  %j_v15 = load i32, i32* %j
+  %bool_val = icmp sle i32 %j_v15, %tmp8
+  br i1 %bool_val, label %while_body10, label %merge
+
+while_body10:                                     ; preds = %while9
+  %j_v = load i32, i32* %j
+  %i_v = load i32, i32* %i
+  %tmp11 = mul i32 %tmp4, %i_v
+  %index = add i32 %j_v, %tmp11
+  %element_ptr12 = getelementptr double, double* %system_mat, i32 %index
+  store double 0.000000e+00, double* %element_ptr12
+  %j_v13 = load i32, i32* %j
+  %tmp14 = add i32 %j_v13, 1
+  store i32 %tmp14, i32* %j
+  br label %while9
+
+merge:                                            ; preds = %while9
+  %i_v16 = load i32, i32* %i
+  %tmp17 = add i32 %i_v16, 1
+  store i32 %tmp17, i32* %i
+  br label %while
+
+merge18:                                          ; preds = %while
+  %size21 = mul i32 %tmp1, %tmp4
+  %mallocsize22 = mul i32 %size21, ptrtoint (double* getelementptr (double, double* null, i32 1) to i32)
+  %malloccall23 = tail call i8* @malloc(i32 %mallocsize22)
+  %system_mat24 = bitcast i8* %malloccall23 to double*
+  %malloccall25 = tail call i8* @malloc(i32 ptrtoint (%matrix_t* getelementptr (%matrix_t, %matrix_t* null, i32 1) to i32))
+  %m26 = bitcast i8* %malloccall25 to %matrix_t*
+  %m_mat27 = getelementptr inbounds %matrix_t, %matrix_t* %m26, i32 0, i32 0
+  store double* %system_mat24, double** %m_mat27
+  %m_r28 = getelementptr inbounds %matrix_t, %matrix_t* %m26, i32 0, i32 1
+  store i32 %tmp1, i32* %m_r28
+  %m_c29 = getelementptr inbounds %matrix_t, %matrix_t* %m26, i32 0, i32 2
+  store i32 %tmp4, i32* %m_c29
+  %tmp30 = sub i32 %tmp1, 1
+  %tmp31 = sub i32 %tmp4, 1
+  %i32 = alloca i32
+  store i32 0, i32* %i32
+  br label %while33
+
+while33:                                          ; preds = %merge45, %merge18
+  %i_v51 = load i32, i32* %i32
+  %bool_val52 = icmp sle i32 %i_v51, %tmp30
+  br i1 %bool_val52, label %while_body34, label %merge50
+
+while_body34:                                     ; preds = %while33
+  %j35 = alloca i32
+  store i32 0, i32* %j35
+  br label %while36
+
+while36:                                          ; preds = %while_body37, %while_body34
+  %j_v46 = load i32, i32* %j35
+  %bool_val47 = icmp sle i32 %j_v46, %tmp31
+  br i1 %bool_val47, label %while_body37, label %merge45
+
+while_body37:                                     ; preds = %while36
+  %j_v38 = load i32, i32* %j35
+  %i_v39 = load i32, i32* %i32
+  %tmp40 = mul i32 %tmp4, %i_v39
+  %index41 = add i32 %j_v38, %tmp40
+  %element_ptr42 = getelementptr double, double* %system_mat24, i32 %index41
+  store double 0.000000e+00, double* %element_ptr42
+  %j_v43 = load i32, i32* %j35
+  %tmp44 = add i32 %j_v43, 1
+  store i32 %tmp44, i32* %j35
+  br label %while36
+
+merge45:                                          ; preds = %while36
+  %i_v48 = load i32, i32* %i32
+  %tmp49 = add i32 %i_v48, 1
+  store i32 %tmp49, i32* %i32
+  br label %while33
+
+merge50:                                          ; preds = %while33
+  %size53 = mul i32 %tmp1, %tmp4
+  %mallocsize54 = mul i32 %size53, ptrtoint (double* getelementptr (double, double* null, i32 1) to i32)
+  %malloccall55 = tail call i8* @malloc(i32 %mallocsize54)
+  %system_mat56 = bitcast i8* %malloccall55 to double*
+  %malloccall57 = tail call i8* @malloc(i32 ptrtoint (%matrix_t* getelementptr (%matrix_t, %matrix_t* null, i32 1) to i32))
+  %m58 = bitcast i8* %malloccall57 to %matrix_t*
+  %m_mat59 = getelementptr inbounds %matrix_t, %matrix_t* %m58, i32 0, i32 0
+  store double* %system_mat56, double** %m_mat59
+  %m_r60 = getelementptr inbounds %matrix_t, %matrix_t* %m58, i32 0, i32 1
+  store i32 %tmp1, i32* %m_r60
+  %m_c61 = getelementptr inbounds %matrix_t, %matrix_t* %m58, i32 0, i32 2
+  store i32 %tmp4, i32* %m_c61
+  %tmp62 = sub i32 %tmp1, 1
+  %tmp63 = sub i32 %tmp4, 1
+  %i64 = alloca i32
+  store i32 0, i32* %i64
+  br label %while65
+
+while65:                                          ; preds = %merge77, %merge50
+  %i_v83 = load i32, i32* %i64
+  %bool_val84 = icmp sle i32 %i_v83, %tmp62
+  br i1 %bool_val84, label %while_body66, label %merge82
+
+while_body66:                                     ; preds = %while65
+  %j67 = alloca i32
+  store i32 0, i32* %j67
+  br label %while68
+
+while68:                                          ; preds = %while_body69, %while_body66
+  %j_v78 = load i32, i32* %j67
+  %bool_val79 = icmp sle i32 %j_v78, %tmp63
+  br i1 %bool_val79, label %while_body69, label %merge77
+
+while_body69:                                     ; preds = %while68
+  %j_v70 = load i32, i32* %j67
+  %i_v71 = load i32, i32* %i64
+  %tmp72 = mul i32 %tmp4, %i_v71
+  %index73 = add i32 %j_v70, %tmp72
+  %element_ptr74 = getelementptr double, double* %system_mat56, i32 %index73
+  store double 0.000000e+00, double* %element_ptr74
+  %j_v75 = load i32, i32* %j67
+  %tmp76 = add i32 %j_v75, 1
+  store i32 %tmp76, i32* %j67
+  br label %while68
+
+merge77:                                          ; preds = %while68
+  %i_v80 = load i32, i32* %i64
+  %tmp81 = add i32 %i_v80, 1
+  store i32 %tmp81, i32* %i64
+  br label %while65
+
+merge82:                                          ; preds = %while65
+  %mat_r = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  %mat_mat = load double*, double** %mat_r
+  %mat_g = getelementptr inbounds %matrix_t, %matrix_t* %m26, i32 0, i32 0
+  %mat_mat85 = load double*, double** %mat_g
+  %mat_b = getelementptr inbounds %matrix_t, %matrix_t* %m58, i32 0, i32 0
+  %mat_mat86 = load double*, double** %mat_b
+  %tmp87 = sub i32 %tmp1, 1
+  %tmp88 = sub i32 %tmp4, 1
+  %counter = alloca i32
+  store i32 2, i32* %counter
+  %i89 = alloca i32
+  store i32 0, i32* %i89
+  br label %while90
+
+while90:                                          ; preds = %merge126, %merge82
+  %i_v132 = load i32, i32* %i89
+  %bool_val133 = icmp sle i32 %i_v132, %tmp87
+  br i1 %bool_val133, label %while_body91, label %merge131
+
+while_body91:                                     ; preds = %while90
+  %j92 = alloca i32
+  store i32 0, i32* %j92
+  br label %while93
+
+while93:                                          ; preds = %while_body94, %while_body91
+  %j_v127 = load i32, i32* %j92
+  %bool_val128 = icmp sle i32 %j_v127, %tmp88
+  br i1 %bool_val128, label %while_body94, label %merge126
+
+while_body94:                                     ; preds = %while93
+  %j_v95 = load i32, i32* %j92
+  %i_v96 = load i32, i32* %i89
+  %tmp97 = mul i32 %tmp4, %i_v96
+  %index98 = add i32 %j_v95, %tmp97
+  %element_ptr99 = getelementptr double, double* %mat_mat, i32 %index98
+  %j_v100 = load i32, i32* %j92
+  %i_v101 = load i32, i32* %i89
+  %tmp102 = mul i32 %tmp4, %i_v101
+  %index103 = add i32 %j_v100, %tmp102
+  %element_ptr104 = getelementptr double, double* %mat_mat85, i32 %index103
+  %j_v105 = load i32, i32* %j92
+  %i_v106 = load i32, i32* %i89
+  %tmp107 = mul i32 %tmp4, %i_v106
+  %index108 = add i32 %j_v105, %tmp107
+  %element_ptr109 = getelementptr double, double* %mat_mat86, i32 %index108
+  %counter110 = load i32, i32* %counter
+  %element_ptr111 = getelementptr double, double* %mat_arr, i32 %counter110
+  %tmp_element = load double, double* %element_ptr111
+  store double %tmp_element, double* %element_ptr109
+  %counter112 = load i32, i32* %counter
+  %tmp113 = add i32 %counter112, 1
+  store i32 %tmp113, i32* %counter
+  %counter114 = load i32, i32* %counter
+  %element_ptr115 = getelementptr double, double* %mat_arr, i32 %counter114
+  %tmp_element116 = load double, double* %element_ptr115
+  store double %tmp_element116, double* %element_ptr104
+  %counter117 = load i32, i32* %counter
+  %tmp118 = add i32 %counter117, 1
+  store i32 %tmp118, i32* %counter
+  %counter119 = load i32, i32* %counter
+  %element_ptr120 = getelementptr double, double* %mat_arr, i32 %counter119
+  %tmp_element121 = load double, double* %element_ptr120
+  store double %tmp_element121, double* %element_ptr99
+  %counter122 = load i32, i32* %counter
+  %tmp123 = add i32 %counter122, 1
+  store i32 %tmp123, i32* %counter
+  %j_v124 = load i32, i32* %j92
+  %tmp125 = add i32 %j_v124, 1
+  store i32 %tmp125, i32* %j92
+  br label %while93
+
+merge126:                                         ; preds = %while93
+  %i_v129 = load i32, i32* %i89
+  %tmp130 = add i32 %i_v129, 1
+  store i32 %tmp130, i32* %i89
+  br label %while90
+
+merge131:                                         ; preds = %while90
+  %mat_r134 = getelementptr inbounds %load_t, %load_t* %return, i32 0, i32 0
+  store %matrix_t* %m, %matrix_t** %mat_r134
+  %mat_r135 = getelementptr inbounds %load_t, %load_t* %return, i32 0, i32 1
+  store %matrix_t* %m26, %matrix_t** %mat_r135
+  %mat_r136 = getelementptr inbounds %load_t, %load_t* %return, i32 0, i32 2
+  store %matrix_t* %m58, %matrix_t** %mat_r136
+  ret %load_t* %return
+}
+
+declare void @save_cpp(double*, i8*)
+
+define void @save(%matrix_t*, %matrix_t*, %matrix_t*, i8*) {
+entry:
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c
+  %tmp = mul i32 %r_mat, %c_mat
+  %tmp1 = mul i32 %tmp, 3
+  %tmp2 = add i32 %tmp1, 2
+  %mallocsize = mul i32 %tmp2, ptrtoint (double* getelementptr (double, double* null, i32 1) to i32)
+  %malloccall = tail call i8* @malloc(i32 %mallocsize)
+  %return_arr = bitcast i8* %malloccall to double*
+  %mat_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 0
+  %mat_mat = load double*, double** %mat_r
+  %mat_g = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 0
+  %mat_mat3 = load double*, double** %mat_g
+  %mat_b = getelementptr inbounds %matrix_t, %matrix_t* %2, i32 0, i32 0
+  %mat_mat4 = load double*, double** %mat_b
+  %tmp5 = sub i32 %r_mat, 1
+  %tmp6 = sub i32 %c_mat, 1
+  %element_ptr = getelementptr double, double* %return_arr, i32 0
+  %tmp7 = sitofp i32 %r_mat to double
+  store double %tmp7, double* %element_ptr
+  %element_ptr8 = getelementptr double, double* %return_arr, i32 1
+  %tmp9 = sitofp i32 %c_mat to double
+  store double %tmp9, double* %element_ptr8
+  %counter = alloca i32
+  store i32 2, i32* %counter
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %i_v44 = load i32, i32* %i
+  %bool_val45 = icmp sle i32 %i_v44, %tmp5
+  br i1 %bool_val45, label %while_body, label %merge43
+
+while_body:                                       ; preds = %while
+  %j = alloca i32
+  store i32 0, i32* %j
+  br label %while10
+
+while10:                                          ; preds = %while_body11, %while_body
+  %j_v40 = load i32, i32* %j
+  %bool_val = icmp sle i32 %j_v40, %tmp6
+  br i1 %bool_val, label %while_body11, label %merge
+
+while_body11:                                     ; preds = %while10
+  %j_v = load i32, i32* %j
+  %i_v = load i32, i32* %i
+  %tmp12 = mul i32 %c_mat, %i_v
+  %index = add i32 %j_v, %tmp12
+  %element_ptr13 = getelementptr double, double* %mat_mat, i32 %index
+  %j_v14 = load i32, i32* %j
+  %i_v15 = load i32, i32* %i
+  %tmp16 = mul i32 %c_mat, %i_v15
+  %index17 = add i32 %j_v14, %tmp16
+  %element_ptr18 = getelementptr double, double* %mat_mat3, i32 %index17
+  %j_v19 = load i32, i32* %j
+  %i_v20 = load i32, i32* %i
+  %tmp21 = mul i32 %c_mat, %i_v20
+  %index22 = add i32 %j_v19, %tmp21
+  %element_ptr23 = getelementptr double, double* %mat_mat4, i32 %index22
+  %counter24 = load i32, i32* %counter
+  %element_ptr25 = getelementptr double, double* %return_arr, i32 %counter24
+  %tmp_element = load double, double* %element_ptr23
+  store double %tmp_element, double* %element_ptr25
+  %counter26 = load i32, i32* %counter
+  %tmp27 = add i32 %counter26, 1
+  store i32 %tmp27, i32* %counter
+  %counter28 = load i32, i32* %counter
+  %element_ptr29 = getelementptr double, double* %return_arr, i32 %counter28
+  %tmp_element30 = load double, double* %element_ptr18
+  store double %tmp_element30, double* %element_ptr29
+  %counter31 = load i32, i32* %counter
+  %tmp32 = add i32 %counter31, 1
+  store i32 %tmp32, i32* %counter
+  %counter33 = load i32, i32* %counter
+  %element_ptr34 = getelementptr double, double* %return_arr, i32 %counter33
+  %tmp_element35 = load double, double* %element_ptr13
+  store double %tmp_element35, double* %element_ptr34
+  %counter36 = load i32, i32* %counter
+  %tmp37 = add i32 %counter36, 1
+  store i32 %tmp37, i32* %counter
+  %j_v38 = load i32, i32* %j
+  %tmp39 = add i32 %j_v38, 1
+  store i32 %tmp39, i32* %j
+  br label %while10
+
+merge:                                            ; preds = %while10
+  %i_v41 = load i32, i32* %i
+  %tmp42 = add i32 %i_v41, 1
+  store i32 %tmp42, i32* %i
+  br label %while
+
+merge43:                                          ; preds = %while
+  call void @save_cpp(double* %return_arr, i8* %3)
+  ret void
+}
+
+define %return_t* @bitwise(%matrix_t*, %matrix_t*) {
+entry:
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c
+  %size = mul i32 %r_mat, %c_mat
+  %system_mat = alloca double, i32 %size
+  %m = alloca %matrix_t
+  %m_mat = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  store double* %system_mat, double** %m_mat
+  %m_r1 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  store i32 %r_mat, i32* %m_r1
+  %m_c2 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  store i32 %c_mat, i32* %m_c2
+  %tmp = sub i32 %r_mat, 1
+  %tmp3 = sub i32 %c_mat, 1
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %i_v13 = load i32, i32* %i
+  %bool_val14 = icmp sle i32 %i_v13, %tmp
+  br i1 %bool_val14, label %while_body, label %merge12
+
+while_body:                                       ; preds = %while
+  %j = alloca i32
+  store i32 0, i32* %j
+  br label %while4
+
+while4:                                           ; preds = %while_body5, %while_body
+  %j_v9 = load i32, i32* %j
+  %bool_val = icmp sle i32 %j_v9, %tmp3
+  br i1 %bool_val, label %while_body5, label %merge
+
+while_body5:                                      ; preds = %while4
+  %j_v = load i32, i32* %j
+  %i_v = load i32, i32* %i
+  %tmp6 = mul i32 %c_mat, %i_v
+  %index = add i32 %j_v, %tmp6
+  %element_ptr = getelementptr double, double* %system_mat, i32 %index
+  store double 0.000000e+00, double* %element_ptr
+  %j_v7 = load i32, i32* %j
+  %tmp8 = add i32 %j_v7, 1
+  store i32 %tmp8, i32* %j
+  br label %while4
+
+merge:                                            ; preds = %while4
+  %i_v10 = load i32, i32* %i
+  %tmp11 = add i32 %i_v10, 1
+  store i32 %tmp11, i32* %i
+  br label %while
+
+merge12:                                          ; preds = %while
+  %tmp15 = sub i32 %c_mat, 1
+  %tmp16 = sub i32 %r_mat, 1
+  %m_mat17 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  %mat_mat = load double*, double** %m_mat17
+  %m_r18 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  %r_mat19 = load i32, i32* %m_r18
+  %m_c20 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  %c_mat21 = load i32, i32* %m_c20
+  %m_mat22 = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 0
+  %mat_v = load double*, double** %m_mat22
+  %m_r23 = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_v = load i32, i32* %m_r23
+  %m_c24 = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_v = load i32, i32* %m_c24
+  %i25 = alloca i32
+  store i32 0, i32* %i25
+  br label %while26
+
+while26:                                          ; preds = %merge47, %merge12
+  %i_v53 = load i32, i32* %i25
+  %bool_val54 = icmp sle i32 %i_v53, %tmp16
+  br i1 %bool_val54, label %while_body27, label %merge52
+
+while_body27:                                     ; preds = %while26
+  %j28 = alloca i32
+  store i32 0, i32* %j28
+  br label %while29
+
+while29:                                          ; preds = %while_body30, %while_body27
+  %j_v48 = load i32, i32* %j28
+  %bool_val49 = icmp sle i32 %j_v48, %tmp15
+  br i1 %bool_val49, label %while_body30, label %merge47
+
+while_body30:                                     ; preds = %while29
+  %j_v31 = load i32, i32* %j28
+  %i_v32 = load i32, i32* %i25
+  %tmp33 = mul i32 %c_mat21, %i_v32
+  %index34 = add i32 %j_v31, %tmp33
+  %element_ptr35 = getelementptr double, double* %mat_mat, i32 %index34
+  %j_v36 = load i32, i32* %j28
+  %tmp37 = sub i32 %j_v36, 0
+  %tmp38 = add i32 %tmp37, 0
+  %i_v39 = load i32, i32* %i25
+  %tmp40 = sub i32 %i_v39, 0
+  %tmp41 = add i32 %tmp40, 0
+  %tmp42 = mul i32 %c_v, %tmp41
+  %index43 = add i32 %tmp38, %tmp42
+  %element_ptr44 = getelementptr double, double* %mat_v, i32 %index43
+  %tmp_element = load double, double* %element_ptr44
+  store double %tmp_element, double* %element_ptr35
+  %j_v45 = load i32, i32* %j28
+  %tmp46 = add i32 %j_v45, 1
+  store i32 %tmp46, i32* %j28
+  br label %while29
+
+merge47:                                          ; preds = %while29
+  %i_v50 = load i32, i32* %i25
+  %tmp51 = add i32 %i_v50, 1
+  store i32 %tmp51, i32* %i25
+  br label %while26
+
+merge52:                                          ; preds = %while26
+  %m_r55 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 1
+  %r_mat56 = load i32, i32* %m_r55
+  %m_c57 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 2
+  %c_mat58 = load i32, i32* %m_c57
+  %size59 = mul i32 %r_mat56, %c_mat58
+  %system_mat60 = alloca double, i32 %size59
+  %m61 = alloca %matrix_t
+  %m_mat62 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 0
+  store double* %system_mat60, double** %m_mat62
+  %m_r63 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 1
+  store i32 %r_mat56, i32* %m_r63
+  %m_c64 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 2
+  store i32 %c_mat58, i32* %m_c64
+  %tmp65 = sub i32 %r_mat56, 1
+  %tmp66 = sub i32 %c_mat58, 1
+  %i67 = alloca i32
+  store i32 0, i32* %i67
+  br label %while68
+
+while68:                                          ; preds = %merge80, %merge52
+  %i_v86 = load i32, i32* %i67
+  %bool_val87 = icmp sle i32 %i_v86, %tmp65
+  br i1 %bool_val87, label %while_body69, label %merge85
+
+while_body69:                                     ; preds = %while68
+  %j70 = alloca i32
+  store i32 0, i32* %j70
+  br label %while71
+
+while71:                                          ; preds = %while_body72, %while_body69
+  %j_v81 = load i32, i32* %j70
+  %bool_val82 = icmp sle i32 %j_v81, %tmp66
+  br i1 %bool_val82, label %while_body72, label %merge80
+
+while_body72:                                     ; preds = %while71
+  %j_v73 = load i32, i32* %j70
+  %i_v74 = load i32, i32* %i67
+  %tmp75 = mul i32 %c_mat58, %i_v74
+  %index76 = add i32 %j_v73, %tmp75
+  %element_ptr77 = getelementptr double, double* %system_mat60, i32 %index76
+  store double 0.000000e+00, double* %element_ptr77
+  %j_v78 = load i32, i32* %j70
+  %tmp79 = add i32 %j_v78, 1
+  store i32 %tmp79, i32* %j70
+  br label %while71
+
+merge80:                                          ; preds = %while71
+  %i_v83 = load i32, i32* %i67
+  %tmp84 = add i32 %i_v83, 1
+  store i32 %tmp84, i32* %i67
+  br label %while68
+
+merge85:                                          ; preds = %while68
+  %tmp88 = sub i32 %c_mat58, 1
+  %tmp89 = sub i32 %r_mat56, 1
+  %m_mat90 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 0
+  %mat_mat91 = load double*, double** %m_mat90
+  %m_r92 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 1
+  %r_mat93 = load i32, i32* %m_r92
+  %m_c94 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 2
+  %c_mat95 = load i32, i32* %m_c94
+  %m_mat96 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 0
+  %mat_v97 = load double*, double** %m_mat96
+  %m_r98 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 1
+  %r_v99 = load i32, i32* %m_r98
+  %m_c100 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 2
+  %c_v101 = load i32, i32* %m_c100
+  %i102 = alloca i32
+  store i32 0, i32* %i102
+  br label %while103
+
+while103:                                         ; preds = %merge125, %merge85
+  %i_v131 = load i32, i32* %i102
+  %bool_val132 = icmp sle i32 %i_v131, %tmp89
+  br i1 %bool_val132, label %while_body104, label %merge130
+
+while_body104:                                    ; preds = %while103
+  %j105 = alloca i32
+  store i32 0, i32* %j105
+  br label %while106
+
+while106:                                         ; preds = %while_body107, %while_body104
+  %j_v126 = load i32, i32* %j105
+  %bool_val127 = icmp sle i32 %j_v126, %tmp88
+  br i1 %bool_val127, label %while_body107, label %merge125
+
+while_body107:                                    ; preds = %while106
+  %j_v108 = load i32, i32* %j105
+  %i_v109 = load i32, i32* %i102
+  %tmp110 = mul i32 %c_mat95, %i_v109
+  %index111 = add i32 %j_v108, %tmp110
+  %element_ptr112 = getelementptr double, double* %mat_mat91, i32 %index111
+  %j_v113 = load i32, i32* %j105
+  %tmp114 = sub i32 %j_v113, 0
+  %tmp115 = add i32 %tmp114, 0
+  %i_v116 = load i32, i32* %i102
+  %tmp117 = sub i32 %i_v116, 0
+  %tmp118 = add i32 %tmp117, 0
+  %tmp119 = mul i32 %c_v101, %tmp118
+  %index120 = add i32 %tmp115, %tmp119
+  %element_ptr121 = getelementptr double, double* %mat_v97, i32 %index120
+  %tmp_element122 = load double, double* %element_ptr121
+  store double %tmp_element122, double* %element_ptr112
+  %j_v123 = load i32, i32* %j105
+  %tmp124 = add i32 %j_v123, 1
+  store i32 %tmp124, i32* %j105
+  br label %while106
+
+merge125:                                         ; preds = %while106
+  %i_v128 = load i32, i32* %i102
+  %tmp129 = add i32 %i_v128, 1
+  store i32 %tmp129, i32* %i102
+  br label %while103
+
+merge130:                                         ; preds = %while103
+  %k = alloca double
+  %tmp133 = load double, double* %k
+  store double 0.000000e+00, double* %k
+  %i134 = alloca i32
+  %tmp135 = load i32, i32* %i134
+  store i32 0, i32* %i134
+  %j136 = alloca i32
+  %tmp137 = load i32, i32* %j136
+  store i32 0, i32* %j136
+  %i138 = load i32, i32* %i134
+  %tmp139 = icmp slt i32 %i138, 3
+  %tmp140 = load i32, i32* %i134
+  store i32 0, i32* %i134
+  br label %while141
+
+while141:                                         ; preds = %merge266, %merge130
+  %i273 = load i32, i32* %i134
+  %tmp274 = icmp slt i32 %i273, 3
+  br i1 %tmp274, label %while_body142, label %merge272
+
+while_body142:                                    ; preds = %while141
+  %j143 = load i32, i32* %j136
+  %tmp144 = icmp slt i32 %j143, 3
+  %tmp145 = load i32, i32* %j136
+  store i32 0, i32* %j136
+  br label %while146
+
+while146:                                         ; preds = %merge249, %while_body142
+  %j267 = load i32, i32* %j136
+  %tmp268 = icmp slt i32 %j267, 3
+  br i1 %tmp268, label %while_body147, label %merge266
+
+while_body147:                                    ; preds = %while146
+  %k148 = load double, double* %k
+  %m_r149 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  %r_mat150 = load i32, i32* %m_r149
+  %m_c151 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  %c_mat152 = load i32, i32* %m_c151
+  %i153 = load i32, i32* %i134
+  %tmp155 = icmp sgt i32 0, %i153
+  br i1 %tmp155, label %then, label %else
+
+merge154:                                         ; preds = %else, %then
+  %tmp156 = sub i32 %r_mat150, 1
+  %tmp161 = icmp slt i32 %tmp156, %i153
+  br i1 %tmp161, label %then158, label %else160
+
+then:                                             ; preds = %while_body147
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge154
+
+else:                                             ; preds = %while_body147
+  br label %merge154
+
+merge157:                                         ; preds = %else160, %then158
+  %i162 = load i32, i32* %i134
+  %tmp167 = icmp sgt i32 0, %i162
+  br i1 %tmp167, label %then164, label %else166
+
+then158:                                          ; preds = %merge154
+  %printf159 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge157
+
+else160:                                          ; preds = %merge154
+  br label %merge157
+
+merge163:                                         ; preds = %else166, %then164
+  %tmp168 = sub i32 %r_mat150, 1
+  %tmp173 = icmp slt i32 %tmp168, %i162
+  br i1 %tmp173, label %then170, label %else172
+
+then164:                                          ; preds = %merge157
+  %printf165 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge163
+
+else166:                                          ; preds = %merge157
+  br label %merge163
+
+merge169:                                         ; preds = %else172, %then170
+  %j174 = load i32, i32* %j136
+  %tmp179 = icmp sgt i32 0, %j174
+  br i1 %tmp179, label %then176, label %else178
+
+then170:                                          ; preds = %merge163
+  %printf171 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge169
+
+else172:                                          ; preds = %merge163
+  br label %merge169
+
+merge175:                                         ; preds = %else178, %then176
+  %tmp180 = sub i32 %c_mat152, 1
+  %tmp185 = icmp slt i32 %tmp180, %j174
+  br i1 %tmp185, label %then182, label %else184
+
+then176:                                          ; preds = %merge169
+  %printf177 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge175
+
+else178:                                          ; preds = %merge169
+  br label %merge175
+
+merge181:                                         ; preds = %else184, %then182
+  %j186 = load i32, i32* %j136
+  %tmp191 = icmp sgt i32 0, %j186
+  br i1 %tmp191, label %then188, label %else190
+
+then182:                                          ; preds = %merge175
+  %printf183 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge181
+
+else184:                                          ; preds = %merge175
+  br label %merge181
+
+merge187:                                         ; preds = %else190, %then188
+  %tmp192 = sub i32 %c_mat152, 1
+  %tmp197 = icmp slt i32 %tmp192, %j186
+  br i1 %tmp197, label %then194, label %else196
+
+then188:                                          ; preds = %merge181
+  %printf189 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge187
+
+else190:                                          ; preds = %merge181
+  br label %merge187
+
+merge193:                                         ; preds = %else196, %then194
+  %mat = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  %mat198 = load double*, double** %mat
+  %tmp199 = mul i32 %c_mat152, %i153
+  %index200 = add i32 %j174, %tmp199
+  %element_ptr201 = getelementptr double, double* %mat198, i32 %index200
+  %element = load double, double* %element_ptr201
+  %m_r202 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 1
+  %r_mat203 = load i32, i32* %m_r202
+  %m_c204 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 2
+  %c_mat205 = load i32, i32* %m_c204
+  %i206 = load i32, i32* %i134
+  %tmp211 = icmp sgt i32 0, %i206
+  br i1 %tmp211, label %then208, label %else210
+
+then194:                                          ; preds = %merge187
+  %printf195 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge193
+
+else196:                                          ; preds = %merge187
+  br label %merge193
+
+merge207:                                         ; preds = %else210, %then208
+  %tmp212 = sub i32 %r_mat203, 1
+  %tmp217 = icmp slt i32 %tmp212, %i206
+  br i1 %tmp217, label %then214, label %else216
+
+then208:                                          ; preds = %merge193
+  %printf209 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge207
+
+else210:                                          ; preds = %merge193
+  br label %merge207
+
+merge213:                                         ; preds = %else216, %then214
+  %i218 = load i32, i32* %i134
+  %tmp223 = icmp sgt i32 0, %i218
+  br i1 %tmp223, label %then220, label %else222
+
+then214:                                          ; preds = %merge207
+  %printf215 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge213
+
+else216:                                          ; preds = %merge207
+  br label %merge213
+
+merge219:                                         ; preds = %else222, %then220
+  %tmp224 = sub i32 %r_mat203, 1
+  %tmp229 = icmp slt i32 %tmp224, %i218
+  br i1 %tmp229, label %then226, label %else228
+
+then220:                                          ; preds = %merge213
+  %printf221 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge219
+
+else222:                                          ; preds = %merge213
+  br label %merge219
+
+merge225:                                         ; preds = %else228, %then226
+  %j230 = load i32, i32* %j136
+  %tmp235 = icmp sgt i32 0, %j230
+  br i1 %tmp235, label %then232, label %else234
+
+then226:                                          ; preds = %merge219
+  %printf227 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge225
+
+else228:                                          ; preds = %merge219
+  br label %merge225
+
+merge231:                                         ; preds = %else234, %then232
+  %tmp236 = sub i32 %c_mat205, 1
+  %tmp241 = icmp slt i32 %tmp236, %j230
+  br i1 %tmp241, label %then238, label %else240
+
+then232:                                          ; preds = %merge225
+  %printf233 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge231
+
+else234:                                          ; preds = %merge225
+  br label %merge231
+
+merge237:                                         ; preds = %else240, %then238
+  %j242 = load i32, i32* %j136
+  %tmp247 = icmp sgt i32 0, %j242
+  br i1 %tmp247, label %then244, label %else246
+
+then238:                                          ; preds = %merge231
+  %printf239 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge237
+
+else240:                                          ; preds = %merge231
+  br label %merge237
+
+merge243:                                         ; preds = %else246, %then244
+  %tmp248 = sub i32 %c_mat205, 1
+  %tmp253 = icmp slt i32 %tmp248, %j242
+  br i1 %tmp253, label %then250, label %else252
+
+then244:                                          ; preds = %merge237
+  %printf245 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge243
+
+else246:                                          ; preds = %merge237
+  br label %merge243
+
+merge249:                                         ; preds = %else252, %then250
+  %mat254 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 0
+  %mat255 = load double*, double** %mat254
+  %tmp256 = mul i32 %c_mat205, %i206
+  %index257 = add i32 %j230, %tmp256
+  %element_ptr258 = getelementptr double, double* %mat255, i32 %index257
+  %element259 = load double, double* %element_ptr258
+  %tmp260 = fmul double %element, %element259
+  %tmp261 = fadd double %k148, %tmp260
+  %tmp262 = load double, double* %k
+  store double %tmp261, double* %k
+  %j263 = load i32, i32* %j136
+  %tmp264 = add i32 %j263, 1
+  %tmp265 = load i32, i32* %j136
+  store i32 %tmp264, i32* %j136
+  br label %while146
+
+then250:                                          ; preds = %merge243
+  %printf251 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge249
+
+else252:                                          ; preds = %merge243
+  br label %merge249
+
+merge266:                                         ; preds = %while146
+  %i269 = load i32, i32* %i134
+  %tmp270 = add i32 %i269, 1
+  %tmp271 = load i32, i32* %i134
+  store i32 %tmp270, i32* %i134
+  br label %while141
+
+merge272:                                         ; preds = %while141
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (double* getelementptr (double, double* null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %return_t*
+  %k275 = load double, double* %k
+  %return0 = getelementptr inbounds %return_t, %return_t* %return, i32 0, i32 0
+  store double %k275, double* %return0
+  ret %return_t* %return
+  %tmp276 = alloca %return_t
+  ret %return_t* %tmp276
+}
+
+declare void @free(i8*)
+
+define %return_t.0* @filter(%matrix_t*, %matrix_t*) {
+entry:
+  %m_r = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_mat = load i32, i32* %m_r
+  %m_c = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_mat = load i32, i32* %m_c
+  %size = mul i32 %r_mat, %c_mat
+  %system_mat = alloca double, i32 %size
+  %m = alloca %matrix_t
+  %m_mat = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  store double* %system_mat, double** %m_mat
+  %m_r1 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  store i32 %r_mat, i32* %m_r1
+  %m_c2 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  store i32 %c_mat, i32* %m_c2
+  %tmp = sub i32 %r_mat, 1
+  %tmp3 = sub i32 %c_mat, 1
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %while
+
+while:                                            ; preds = %merge, %entry
+  %i_v13 = load i32, i32* %i
+  %bool_val14 = icmp sle i32 %i_v13, %tmp
+  br i1 %bool_val14, label %while_body, label %merge12
+
+while_body:                                       ; preds = %while
+  %j = alloca i32
+  store i32 0, i32* %j
+  br label %while4
+
+while4:                                           ; preds = %while_body5, %while_body
+  %j_v9 = load i32, i32* %j
+  %bool_val = icmp sle i32 %j_v9, %tmp3
+  br i1 %bool_val, label %while_body5, label %merge
+
+while_body5:                                      ; preds = %while4
+  %j_v = load i32, i32* %j
+  %i_v = load i32, i32* %i
+  %tmp6 = mul i32 %c_mat, %i_v
+  %index = add i32 %j_v, %tmp6
+  %element_ptr = getelementptr double, double* %system_mat, i32 %index
+  store double 0.000000e+00, double* %element_ptr
+  %j_v7 = load i32, i32* %j
+  %tmp8 = add i32 %j_v7, 1
+  store i32 %tmp8, i32* %j
+  br label %while4
+
+merge:                                            ; preds = %while4
+  %i_v10 = load i32, i32* %i
+  %tmp11 = add i32 %i_v10, 1
+  store i32 %tmp11, i32* %i
+  br label %while
+
+merge12:                                          ; preds = %while
+  %tmp15 = sub i32 %c_mat, 1
+  %tmp16 = sub i32 %r_mat, 1
+  %m_mat17 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  %mat_mat = load double*, double** %m_mat17
+  %m_r18 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  %r_mat19 = load i32, i32* %m_r18
+  %m_c20 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  %c_mat21 = load i32, i32* %m_c20
+  %m_mat22 = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 0
+  %mat_v = load double*, double** %m_mat22
+  %m_r23 = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 1
+  %r_v = load i32, i32* %m_r23
+  %m_c24 = getelementptr inbounds %matrix_t, %matrix_t* %0, i32 0, i32 2
+  %c_v = load i32, i32* %m_c24
+  %i25 = alloca i32
+  store i32 0, i32* %i25
+  br label %while26
+
+while26:                                          ; preds = %merge47, %merge12
+  %i_v53 = load i32, i32* %i25
+  %bool_val54 = icmp sle i32 %i_v53, %tmp16
+  br i1 %bool_val54, label %while_body27, label %merge52
+
+while_body27:                                     ; preds = %while26
+  %j28 = alloca i32
+  store i32 0, i32* %j28
+  br label %while29
+
+while29:                                          ; preds = %while_body30, %while_body27
+  %j_v48 = load i32, i32* %j28
+  %bool_val49 = icmp sle i32 %j_v48, %tmp15
+  br i1 %bool_val49, label %while_body30, label %merge47
+
+while_body30:                                     ; preds = %while29
+  %j_v31 = load i32, i32* %j28
+  %i_v32 = load i32, i32* %i25
+  %tmp33 = mul i32 %c_mat21, %i_v32
+  %index34 = add i32 %j_v31, %tmp33
+  %element_ptr35 = getelementptr double, double* %mat_mat, i32 %index34
+  %j_v36 = load i32, i32* %j28
+  %tmp37 = sub i32 %j_v36, 0
+  %tmp38 = add i32 %tmp37, 0
+  %i_v39 = load i32, i32* %i25
+  %tmp40 = sub i32 %i_v39, 0
+  %tmp41 = add i32 %tmp40, 0
+  %tmp42 = mul i32 %c_v, %tmp41
+  %index43 = add i32 %tmp38, %tmp42
+  %element_ptr44 = getelementptr double, double* %mat_v, i32 %index43
+  %tmp_element = load double, double* %element_ptr44
+  store double %tmp_element, double* %element_ptr35
+  %j_v45 = load i32, i32* %j28
+  %tmp46 = add i32 %j_v45, 1
+  store i32 %tmp46, i32* %j28
+  br label %while29
+
+merge47:                                          ; preds = %while29
+  %i_v50 = load i32, i32* %i25
+  %tmp51 = add i32 %i_v50, 1
+  store i32 %tmp51, i32* %i25
+  br label %while26
+
+merge52:                                          ; preds = %while26
+  %m_r55 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 1
+  %r_mat56 = load i32, i32* %m_r55
+  %m_c57 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 2
+  %c_mat58 = load i32, i32* %m_c57
+  %size59 = mul i32 %r_mat56, %c_mat58
+  %system_mat60 = alloca double, i32 %size59
+  %m61 = alloca %matrix_t
+  %m_mat62 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 0
+  store double* %system_mat60, double** %m_mat62
+  %m_r63 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 1
+  store i32 %r_mat56, i32* %m_r63
+  %m_c64 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 2
+  store i32 %c_mat58, i32* %m_c64
+  %tmp65 = sub i32 %r_mat56, 1
+  %tmp66 = sub i32 %c_mat58, 1
+  %i67 = alloca i32
+  store i32 0, i32* %i67
+  br label %while68
+
+while68:                                          ; preds = %merge80, %merge52
+  %i_v86 = load i32, i32* %i67
+  %bool_val87 = icmp sle i32 %i_v86, %tmp65
+  br i1 %bool_val87, label %while_body69, label %merge85
+
+while_body69:                                     ; preds = %while68
+  %j70 = alloca i32
+  store i32 0, i32* %j70
+  br label %while71
+
+while71:                                          ; preds = %while_body72, %while_body69
+  %j_v81 = load i32, i32* %j70
+  %bool_val82 = icmp sle i32 %j_v81, %tmp66
+  br i1 %bool_val82, label %while_body72, label %merge80
+
+while_body72:                                     ; preds = %while71
+  %j_v73 = load i32, i32* %j70
+  %i_v74 = load i32, i32* %i67
+  %tmp75 = mul i32 %c_mat58, %i_v74
+  %index76 = add i32 %j_v73, %tmp75
+  %element_ptr77 = getelementptr double, double* %system_mat60, i32 %index76
+  store double 0.000000e+00, double* %element_ptr77
+  %j_v78 = load i32, i32* %j70
+  %tmp79 = add i32 %j_v78, 1
+  store i32 %tmp79, i32* %j70
+  br label %while71
+
+merge80:                                          ; preds = %while71
+  %i_v83 = load i32, i32* %i67
+  %tmp84 = add i32 %i_v83, 1
+  store i32 %tmp84, i32* %i67
+  br label %while68
+
+merge85:                                          ; preds = %while68
+  %tmp88 = sub i32 %c_mat58, 1
+  %tmp89 = sub i32 %r_mat56, 1
+  %m_mat90 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 0
+  %mat_mat91 = load double*, double** %m_mat90
+  %m_r92 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 1
+  %r_mat93 = load i32, i32* %m_r92
+  %m_c94 = getelementptr inbounds %matrix_t, %matrix_t* %m61, i32 0, i32 2
+  %c_mat95 = load i32, i32* %m_c94
+  %m_mat96 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 0
+  %mat_v97 = load double*, double** %m_mat96
+  %m_r98 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 1
+  %r_v99 = load i32, i32* %m_r98
+  %m_c100 = getelementptr inbounds %matrix_t, %matrix_t* %1, i32 0, i32 2
+  %c_v101 = load i32, i32* %m_c100
+  %i102 = alloca i32
+  store i32 0, i32* %i102
+  br label %while103
+
+while103:                                         ; preds = %merge125, %merge85
+  %i_v131 = load i32, i32* %i102
+  %bool_val132 = icmp sle i32 %i_v131, %tmp89
+  br i1 %bool_val132, label %while_body104, label %merge130
+
+while_body104:                                    ; preds = %while103
+  %j105 = alloca i32
+  store i32 0, i32* %j105
+  br label %while106
+
+while106:                                         ; preds = %while_body107, %while_body104
+  %j_v126 = load i32, i32* %j105
+  %bool_val127 = icmp sle i32 %j_v126, %tmp88
+  br i1 %bool_val127, label %while_body107, label %merge125
+
+while_body107:                                    ; preds = %while106
+  %j_v108 = load i32, i32* %j105
+  %i_v109 = load i32, i32* %i102
+  %tmp110 = mul i32 %c_mat95, %i_v109
+  %index111 = add i32 %j_v108, %tmp110
+  %element_ptr112 = getelementptr double, double* %mat_mat91, i32 %index111
+  %j_v113 = load i32, i32* %j105
+  %tmp114 = sub i32 %j_v113, 0
+  %tmp115 = add i32 %tmp114, 0
+  %i_v116 = load i32, i32* %i102
+  %tmp117 = sub i32 %i_v116, 0
+  %tmp118 = add i32 %tmp117, 0
+  %tmp119 = mul i32 %c_v101, %tmp118
+  %index120 = add i32 %tmp115, %tmp119
+  %element_ptr121 = getelementptr double, double* %mat_v97, i32 %index120
+  %tmp_element122 = load double, double* %element_ptr121
+  store double %tmp_element122, double* %element_ptr112
+  %j_v123 = load i32, i32* %j105
+  %tmp124 = add i32 %j_v123, 1
+  store i32 %tmp124, i32* %j105
+  br label %while106
+
+merge125:                                         ; preds = %while106
+  %i_v128 = load i32, i32* %i102
+  %tmp129 = add i32 %i_v128, 1
+  store i32 %tmp129, i32* %i102
+  br label %while103
+
+merge130:                                         ; preds = %while103
+  %a = alloca i32
+  %tmp133 = load i32, i32* %a
+  store i32 0, i32* %a
+  %b = alloca i32
+  %tmp134 = load i32, i32* %b
+  store i32 0, i32* %b
+  %size_result = call %matrix_size_t* @size(%matrix_t* %m)
+  %v_ptr = getelementptr inbounds %matrix_size_t, %matrix_size_t* %size_result, i32 0, i32 0
+  %v = load i32, i32* %v_ptr
+  %tmp135 = load i32, i32* %a
+  store i32 %v, i32* %a
+  %v_ptr136 = getelementptr inbounds %matrix_size_t, %matrix_size_t* %size_result, i32 0, i32 1
+  %v137 = load i32, i32* %v_ptr136
+  %tmp138 = load i32, i32* %b
+  store i32 %v137, i32* %b
+  %2 = bitcast %matrix_size_t* %size_result to i8*
+  tail call void @free(i8* %2)
+  %b139 = load i32, i32* %b
+  %tmp140 = add i32 %b139, 2
+  %a141 = load i32, i32* %a
+  %tmp142 = add i32 %a141, 2
+  %zeros_result = call %zero_matrix_t* @zeros(i32 %tmp142, i32 %tmp140)
+  %v_ptr143 = getelementptr inbounds %zero_matrix_t, %zero_matrix_t* %zeros_result, i32 0, i32 0
+  %v144 = load %matrix_t*, %matrix_t** %v_ptr143
+  %3 = bitcast %zero_matrix_t* %zeros_result to i8*
+  tail call void @free(i8* %3)
+  %m_mat145 = getelementptr inbounds %matrix_t, %matrix_t* %v144, i32 0, i32 0
+  %mat_mat146 = load double*, double** %m_mat145
+  %m_r147 = getelementptr inbounds %matrix_t, %matrix_t* %v144, i32 0, i32 1
+  %r_mat148 = load i32, i32* %m_r147
+  %m_c149 = getelementptr inbounds %matrix_t, %matrix_t* %v144, i32 0, i32 2
+  %c_mat150 = load i32, i32* %m_c149
+  %size151 = mul i32 %r_mat148, %c_mat150
+  %system_mat152 = alloca double, i32 %size151
+  %m153 = alloca %matrix_t
+  %m_mat154 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 0
+  store double* %system_mat152, double** %m_mat154
+  %m_r155 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 1
+  store i32 %r_mat148, i32* %m_r155
+  %m_c156 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 2
+  store i32 %c_mat150, i32* %m_c156
+  %tmp157 = sub i32 %r_mat148, 1
+  %tmp158 = sub i32 %c_mat150, 1
+  %i159 = alloca i32
+  store i32 0, i32* %i159
+  br label %while160
+
+while160:                                         ; preds = %merge172, %merge130
+  %i_v178 = load i32, i32* %i159
+  %bool_val179 = icmp sle i32 %i_v178, %tmp157
+  br i1 %bool_val179, label %while_body161, label %merge177
+
+while_body161:                                    ; preds = %while160
+  %j162 = alloca i32
+  store i32 0, i32* %j162
+  br label %while163
+
+while163:                                         ; preds = %while_body164, %while_body161
+  %j_v173 = load i32, i32* %j162
+  %bool_val174 = icmp sle i32 %j_v173, %tmp158
+  br i1 %bool_val174, label %while_body164, label %merge172
+
+while_body164:                                    ; preds = %while163
+  %j_v165 = load i32, i32* %j162
+  %i_v166 = load i32, i32* %i159
+  %tmp167 = mul i32 %c_mat150, %i_v166
+  %index168 = add i32 %j_v165, %tmp167
+  %element_ptr169 = getelementptr double, double* %system_mat152, i32 %index168
+  store double 0.000000e+00, double* %element_ptr169
+  %j_v170 = load i32, i32* %j162
+  %tmp171 = add i32 %j_v170, 1
+  store i32 %tmp171, i32* %j162
+  br label %while163
+
+merge172:                                         ; preds = %while163
+  %i_v175 = load i32, i32* %i159
+  %tmp176 = add i32 %i_v175, 1
+  store i32 %tmp176, i32* %i159
+  br label %while160
+
+merge177:                                         ; preds = %while160
+  %tmp180 = sub i32 %c_mat150, 1
+  %tmp181 = sub i32 %r_mat148, 1
+  %m_mat182 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 0
+  %mat_mat183 = load double*, double** %m_mat182
+  %m_r184 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 1
+  %r_mat185 = load i32, i32* %m_r184
+  %m_c186 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 2
+  %c_mat187 = load i32, i32* %m_c186
+  %m_mat188 = getelementptr inbounds %matrix_t, %matrix_t* %v144, i32 0, i32 0
+  %mat_v189 = load double*, double** %m_mat188
+  %m_r190 = getelementptr inbounds %matrix_t, %matrix_t* %v144, i32 0, i32 1
+  %r_v191 = load i32, i32* %m_r190
+  %m_c192 = getelementptr inbounds %matrix_t, %matrix_t* %v144, i32 0, i32 2
+  %c_v193 = load i32, i32* %m_c192
+  %i194 = alloca i32
+  store i32 0, i32* %i194
+  br label %while195
+
+while195:                                         ; preds = %merge217, %merge177
+  %i_v223 = load i32, i32* %i194
+  %bool_val224 = icmp sle i32 %i_v223, %tmp181
+  br i1 %bool_val224, label %while_body196, label %merge222
+
+while_body196:                                    ; preds = %while195
+  %j197 = alloca i32
+  store i32 0, i32* %j197
+  br label %while198
+
+while198:                                         ; preds = %while_body199, %while_body196
+  %j_v218 = load i32, i32* %j197
+  %bool_val219 = icmp sle i32 %j_v218, %tmp180
+  br i1 %bool_val219, label %while_body199, label %merge217
+
+while_body199:                                    ; preds = %while198
+  %j_v200 = load i32, i32* %j197
+  %i_v201 = load i32, i32* %i194
+  %tmp202 = mul i32 %c_mat187, %i_v201
+  %index203 = add i32 %j_v200, %tmp202
+  %element_ptr204 = getelementptr double, double* %mat_mat183, i32 %index203
+  %j_v205 = load i32, i32* %j197
+  %tmp206 = sub i32 %j_v205, 0
+  %tmp207 = add i32 %tmp206, 0
+  %i_v208 = load i32, i32* %i194
+  %tmp209 = sub i32 %i_v208, 0
+  %tmp210 = add i32 %tmp209, 0
+  %tmp211 = mul i32 %c_v193, %tmp210
+  %index212 = add i32 %tmp207, %tmp211
+  %element_ptr213 = getelementptr double, double* %mat_v189, i32 %index212
+  %tmp_element214 = load double, double* %element_ptr213
+  store double %tmp_element214, double* %element_ptr204
+  %j_v215 = load i32, i32* %j197
+  %tmp216 = add i32 %j_v215, 1
+  store i32 %tmp216, i32* %j197
+  br label %while198
+
+merge217:                                         ; preds = %while198
+  %i_v220 = load i32, i32* %i194
+  %tmp221 = add i32 %i_v220, 1
+  store i32 %tmp221, i32* %i194
+  br label %while195
+
+merge222:                                         ; preds = %while195
+  %4 = bitcast double* %mat_mat146 to i8*
+  tail call void @free(i8* %4)
+  %5 = bitcast %matrix_t* %v144 to i8*
+  tail call void @free(i8* %5)
+  %m_r225 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 1
+  %r_mat226 = load i32, i32* %m_r225
+  %m_c227 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 2
+  %c_mat228 = load i32, i32* %m_c227
+  %size229 = mul i32 %r_mat226, %c_mat228
+  %system_mat230 = alloca double, i32 %size229
+  %m231 = alloca %matrix_t
+  %m_mat232 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 0
+  store double* %system_mat230, double** %m_mat232
+  %m_r233 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 1
+  store i32 %r_mat226, i32* %m_r233
+  %m_c234 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 2
+  store i32 %c_mat228, i32* %m_c234
+  %tmp235 = sub i32 %r_mat226, 1
+  %tmp236 = sub i32 %c_mat228, 1
+  %i237 = alloca i32
+  store i32 0, i32* %i237
+  br label %while238
+
+while238:                                         ; preds = %merge250, %merge222
+  %i_v256 = load i32, i32* %i237
+  %bool_val257 = icmp sle i32 %i_v256, %tmp235
+  br i1 %bool_val257, label %while_body239, label %merge255
+
+while_body239:                                    ; preds = %while238
+  %j240 = alloca i32
+  store i32 0, i32* %j240
+  br label %while241
+
+while241:                                         ; preds = %while_body242, %while_body239
+  %j_v251 = load i32, i32* %j240
+  %bool_val252 = icmp sle i32 %j_v251, %tmp236
+  br i1 %bool_val252, label %while_body242, label %merge250
+
+while_body242:                                    ; preds = %while241
+  %j_v243 = load i32, i32* %j240
+  %i_v244 = load i32, i32* %i237
+  %tmp245 = mul i32 %c_mat228, %i_v244
+  %index246 = add i32 %j_v243, %tmp245
+  %element_ptr247 = getelementptr double, double* %system_mat230, i32 %index246
+  store double 0.000000e+00, double* %element_ptr247
+  %j_v248 = load i32, i32* %j240
+  %tmp249 = add i32 %j_v248, 1
+  store i32 %tmp249, i32* %j240
+  br label %while241
+
+merge250:                                         ; preds = %while241
+  %i_v253 = load i32, i32* %i237
+  %tmp254 = add i32 %i_v253, 1
+  store i32 %tmp254, i32* %i237
+  br label %while238
+
+merge255:                                         ; preds = %while238
+  %tmp258 = sub i32 %c_mat228, 1
+  %tmp259 = sub i32 %r_mat226, 1
+  %m_mat260 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 0
+  %mat_mat261 = load double*, double** %m_mat260
+  %m_r262 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 1
+  %r_mat263 = load i32, i32* %m_r262
+  %m_c264 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 2
+  %c_mat265 = load i32, i32* %m_c264
+  %m_mat266 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 0
+  %mat_v267 = load double*, double** %m_mat266
+  %m_r268 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 1
+  %r_v269 = load i32, i32* %m_r268
+  %m_c270 = getelementptr inbounds %matrix_t, %matrix_t* %m153, i32 0, i32 2
+  %c_v271 = load i32, i32* %m_c270
+  %i272 = alloca i32
+  store i32 0, i32* %i272
+  br label %while273
+
+while273:                                         ; preds = %merge295, %merge255
+  %i_v301 = load i32, i32* %i272
+  %bool_val302 = icmp sle i32 %i_v301, %tmp259
+  br i1 %bool_val302, label %while_body274, label %merge300
+
+while_body274:                                    ; preds = %while273
+  %j275 = alloca i32
+  store i32 0, i32* %j275
+  br label %while276
+
+while276:                                         ; preds = %while_body277, %while_body274
+  %j_v296 = load i32, i32* %j275
+  %bool_val297 = icmp sle i32 %j_v296, %tmp258
+  br i1 %bool_val297, label %while_body277, label %merge295
+
+while_body277:                                    ; preds = %while276
+  %j_v278 = load i32, i32* %j275
+  %i_v279 = load i32, i32* %i272
+  %tmp280 = mul i32 %c_mat265, %i_v279
+  %index281 = add i32 %j_v278, %tmp280
+  %element_ptr282 = getelementptr double, double* %mat_mat261, i32 %index281
+  %j_v283 = load i32, i32* %j275
+  %tmp284 = sub i32 %j_v283, 0
+  %tmp285 = add i32 %tmp284, 0
+  %i_v286 = load i32, i32* %i272
+  %tmp287 = sub i32 %i_v286, 0
+  %tmp288 = add i32 %tmp287, 0
+  %tmp289 = mul i32 %c_v271, %tmp288
+  %index290 = add i32 %tmp285, %tmp289
+  %element_ptr291 = getelementptr double, double* %mat_v267, i32 %index290
+  %tmp_element292 = load double, double* %element_ptr291
+  store double %tmp_element292, double* %element_ptr282
+  %j_v293 = load i32, i32* %j275
+  %tmp294 = add i32 %j_v293, 1
+  store i32 %tmp294, i32* %j275
+  br label %while276
+
+merge295:                                         ; preds = %while276
+  %i_v298 = load i32, i32* %i272
+  %tmp299 = add i32 %i_v298, 1
+  store i32 %tmp299, i32* %i272
+  br label %while273
+
+merge300:                                         ; preds = %while273
+  %b303 = load i32, i32* %b
+  %a304 = load i32, i32* %a
+  %zeros_result305 = call %zero_matrix_t* @zeros(i32 %a304, i32 %b303)
+  %v_ptr306 = getelementptr inbounds %zero_matrix_t, %zero_matrix_t* %zeros_result305, i32 0, i32 0
+  %v307 = load %matrix_t*, %matrix_t** %v_ptr306
+  %6 = bitcast %zero_matrix_t* %zeros_result305 to i8*
+  tail call void @free(i8* %6)
+  %m_mat308 = getelementptr inbounds %matrix_t, %matrix_t* %v307, i32 0, i32 0
+  %mat_mat309 = load double*, double** %m_mat308
+  %m_r310 = getelementptr inbounds %matrix_t, %matrix_t* %v307, i32 0, i32 1
+  %r_mat311 = load i32, i32* %m_r310
+  %m_c312 = getelementptr inbounds %matrix_t, %matrix_t* %v307, i32 0, i32 2
+  %c_mat313 = load i32, i32* %m_c312
+  %size314 = mul i32 %r_mat311, %c_mat313
+  %system_mat315 = alloca double, i32 %size314
+  %m316 = alloca %matrix_t
+  %m_mat317 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 0
+  store double* %system_mat315, double** %m_mat317
+  %m_r318 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 1
+  store i32 %r_mat311, i32* %m_r318
+  %m_c319 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 2
+  store i32 %c_mat313, i32* %m_c319
+  %tmp320 = sub i32 %r_mat311, 1
+  %tmp321 = sub i32 %c_mat313, 1
+  %i322 = alloca i32
+  store i32 0, i32* %i322
+  br label %while323
+
+while323:                                         ; preds = %merge335, %merge300
+  %i_v341 = load i32, i32* %i322
+  %bool_val342 = icmp sle i32 %i_v341, %tmp320
+  br i1 %bool_val342, label %while_body324, label %merge340
+
+while_body324:                                    ; preds = %while323
+  %j325 = alloca i32
+  store i32 0, i32* %j325
+  br label %while326
+
+while326:                                         ; preds = %while_body327, %while_body324
+  %j_v336 = load i32, i32* %j325
+  %bool_val337 = icmp sle i32 %j_v336, %tmp321
+  br i1 %bool_val337, label %while_body327, label %merge335
+
+while_body327:                                    ; preds = %while326
+  %j_v328 = load i32, i32* %j325
+  %i_v329 = load i32, i32* %i322
+  %tmp330 = mul i32 %c_mat313, %i_v329
+  %index331 = add i32 %j_v328, %tmp330
+  %element_ptr332 = getelementptr double, double* %system_mat315, i32 %index331
+  store double 0.000000e+00, double* %element_ptr332
+  %j_v333 = load i32, i32* %j325
+  %tmp334 = add i32 %j_v333, 1
+  store i32 %tmp334, i32* %j325
+  br label %while326
+
+merge335:                                         ; preds = %while326
+  %i_v338 = load i32, i32* %i322
+  %tmp339 = add i32 %i_v338, 1
+  store i32 %tmp339, i32* %i322
+  br label %while323
+
+merge340:                                         ; preds = %while323
+  %tmp343 = sub i32 %c_mat313, 1
+  %tmp344 = sub i32 %r_mat311, 1
+  %m_mat345 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 0
+  %mat_mat346 = load double*, double** %m_mat345
+  %m_r347 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 1
+  %r_mat348 = load i32, i32* %m_r347
+  %m_c349 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 2
+  %c_mat350 = load i32, i32* %m_c349
+  %m_mat351 = getelementptr inbounds %matrix_t, %matrix_t* %v307, i32 0, i32 0
+  %mat_v352 = load double*, double** %m_mat351
+  %m_r353 = getelementptr inbounds %matrix_t, %matrix_t* %v307, i32 0, i32 1
+  %r_v354 = load i32, i32* %m_r353
+  %m_c355 = getelementptr inbounds %matrix_t, %matrix_t* %v307, i32 0, i32 2
+  %c_v356 = load i32, i32* %m_c355
+  %i357 = alloca i32
+  store i32 0, i32* %i357
+  br label %while358
+
+while358:                                         ; preds = %merge380, %merge340
+  %i_v386 = load i32, i32* %i357
+  %bool_val387 = icmp sle i32 %i_v386, %tmp344
+  br i1 %bool_val387, label %while_body359, label %merge385
+
+while_body359:                                    ; preds = %while358
+  %j360 = alloca i32
+  store i32 0, i32* %j360
+  br label %while361
+
+while361:                                         ; preds = %while_body362, %while_body359
+  %j_v381 = load i32, i32* %j360
+  %bool_val382 = icmp sle i32 %j_v381, %tmp343
+  br i1 %bool_val382, label %while_body362, label %merge380
+
+while_body362:                                    ; preds = %while361
+  %j_v363 = load i32, i32* %j360
+  %i_v364 = load i32, i32* %i357
+  %tmp365 = mul i32 %c_mat350, %i_v364
+  %index366 = add i32 %j_v363, %tmp365
+  %element_ptr367 = getelementptr double, double* %mat_mat346, i32 %index366
+  %j_v368 = load i32, i32* %j360
+  %tmp369 = sub i32 %j_v368, 0
+  %tmp370 = add i32 %tmp369, 0
+  %i_v371 = load i32, i32* %i357
+  %tmp372 = sub i32 %i_v371, 0
+  %tmp373 = add i32 %tmp372, 0
+  %tmp374 = mul i32 %c_v356, %tmp373
+  %index375 = add i32 %tmp370, %tmp374
+  %element_ptr376 = getelementptr double, double* %mat_v352, i32 %index375
+  %tmp_element377 = load double, double* %element_ptr376
+  store double %tmp_element377, double* %element_ptr367
+  %j_v378 = load i32, i32* %j360
+  %tmp379 = add i32 %j_v378, 1
+  store i32 %tmp379, i32* %j360
+  br label %while361
+
+merge380:                                         ; preds = %while361
+  %i_v383 = load i32, i32* %i357
+  %tmp384 = add i32 %i_v383, 1
+  store i32 %tmp384, i32* %i357
+  br label %while358
+
+merge385:                                         ; preds = %while358
+  %7 = bitcast double* %mat_mat309 to i8*
+  tail call void @free(i8* %7)
+  %8 = bitcast %matrix_t* %v307 to i8*
+  tail call void @free(i8* %8)
+  %m_r388 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 1
+  %r_mat389 = load i32, i32* %m_r388
+  %m_c390 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 2
+  %c_mat391 = load i32, i32* %m_c390
+  %size392 = mul i32 %r_mat389, %c_mat391
+  %system_mat393 = alloca double, i32 %size392
+  %m394 = alloca %matrix_t
+  %m_mat395 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 0
+  store double* %system_mat393, double** %m_mat395
+  %m_r396 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 1
+  store i32 %r_mat389, i32* %m_r396
+  %m_c397 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 2
+  store i32 %c_mat391, i32* %m_c397
+  %tmp398 = sub i32 %r_mat389, 1
+  %tmp399 = sub i32 %c_mat391, 1
+  %i400 = alloca i32
+  store i32 0, i32* %i400
+  br label %while401
+
+while401:                                         ; preds = %merge413, %merge385
+  %i_v419 = load i32, i32* %i400
+  %bool_val420 = icmp sle i32 %i_v419, %tmp398
+  br i1 %bool_val420, label %while_body402, label %merge418
+
+while_body402:                                    ; preds = %while401
+  %j403 = alloca i32
+  store i32 0, i32* %j403
+  br label %while404
+
+while404:                                         ; preds = %while_body405, %while_body402
+  %j_v414 = load i32, i32* %j403
+  %bool_val415 = icmp sle i32 %j_v414, %tmp399
+  br i1 %bool_val415, label %while_body405, label %merge413
+
+while_body405:                                    ; preds = %while404
+  %j_v406 = load i32, i32* %j403
+  %i_v407 = load i32, i32* %i400
+  %tmp408 = mul i32 %c_mat391, %i_v407
+  %index409 = add i32 %j_v406, %tmp408
+  %element_ptr410 = getelementptr double, double* %system_mat393, i32 %index409
+  store double 0.000000e+00, double* %element_ptr410
+  %j_v411 = load i32, i32* %j403
+  %tmp412 = add i32 %j_v411, 1
+  store i32 %tmp412, i32* %j403
+  br label %while404
+
+merge413:                                         ; preds = %while404
+  %i_v416 = load i32, i32* %i400
+  %tmp417 = add i32 %i_v416, 1
+  store i32 %tmp417, i32* %i400
+  br label %while401
+
+merge418:                                         ; preds = %while401
+  %tmp421 = sub i32 %c_mat391, 1
+  %tmp422 = sub i32 %r_mat389, 1
+  %m_mat423 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 0
+  %mat_mat424 = load double*, double** %m_mat423
+  %m_r425 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 1
+  %r_mat426 = load i32, i32* %m_r425
+  %m_c427 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 2
+  %c_mat428 = load i32, i32* %m_c427
+  %m_mat429 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 0
+  %mat_v430 = load double*, double** %m_mat429
+  %m_r431 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 1
+  %r_v432 = load i32, i32* %m_r431
+  %m_c433 = getelementptr inbounds %matrix_t, %matrix_t* %m316, i32 0, i32 2
+  %c_v434 = load i32, i32* %m_c433
+  %i435 = alloca i32
+  store i32 0, i32* %i435
+  br label %while436
+
+while436:                                         ; preds = %merge458, %merge418
+  %i_v464 = load i32, i32* %i435
+  %bool_val465 = icmp sle i32 %i_v464, %tmp422
+  br i1 %bool_val465, label %while_body437, label %merge463
+
+while_body437:                                    ; preds = %while436
+  %j438 = alloca i32
+  store i32 0, i32* %j438
+  br label %while439
+
+while439:                                         ; preds = %while_body440, %while_body437
+  %j_v459 = load i32, i32* %j438
+  %bool_val460 = icmp sle i32 %j_v459, %tmp421
+  br i1 %bool_val460, label %while_body440, label %merge458
+
+while_body440:                                    ; preds = %while439
+  %j_v441 = load i32, i32* %j438
+  %i_v442 = load i32, i32* %i435
+  %tmp443 = mul i32 %c_mat428, %i_v442
+  %index444 = add i32 %j_v441, %tmp443
+  %element_ptr445 = getelementptr double, double* %mat_mat424, i32 %index444
+  %j_v446 = load i32, i32* %j438
+  %tmp447 = sub i32 %j_v446, 0
+  %tmp448 = add i32 %tmp447, 0
+  %i_v449 = load i32, i32* %i435
+  %tmp450 = sub i32 %i_v449, 0
+  %tmp451 = add i32 %tmp450, 0
+  %tmp452 = mul i32 %c_v434, %tmp451
+  %index453 = add i32 %tmp448, %tmp452
+  %element_ptr454 = getelementptr double, double* %mat_v430, i32 %index453
+  %tmp_element455 = load double, double* %element_ptr454
+  store double %tmp_element455, double* %element_ptr445
+  %j_v456 = load i32, i32* %j438
+  %tmp457 = add i32 %j_v456, 1
+  store i32 %tmp457, i32* %j438
+  br label %while439
+
+merge458:                                         ; preds = %while439
+  %i_v461 = load i32, i32* %i435
+  %tmp462 = add i32 %i_v461, 1
+  store i32 %tmp462, i32* %i435
+  br label %while436
+
+merge463:                                         ; preds = %while436
+  %m_r466 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  %r_mat467 = load i32, i32* %m_r466
+  %m_c468 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  %c_mat469 = load i32, i32* %m_c468
+  br i1 false, label %then, label %else
+
+merge470:                                         ; preds = %else, %then
+  %tmp471 = sub i32 %r_mat467, 1
+  %tmp476 = icmp slt i32 %tmp471, 0
+  br i1 %tmp476, label %then473, label %else475
+
+then:                                             ; preds = %merge463
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge470
+
+else:                                             ; preds = %merge463
+  br label %merge470
+
+merge472:                                         ; preds = %else475, %then473
+  %a477 = load i32, i32* %a
+  %tmp478 = sub i32 %a477, 1
+  %tmp483 = icmp sgt i32 0, %tmp478
+  br i1 %tmp483, label %then480, label %else482
+
+then473:                                          ; preds = %merge470
+  %printf474 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge472
+
+else475:                                          ; preds = %merge470
+  br label %merge472
+
+merge479:                                         ; preds = %else482, %then480
+  %tmp484 = sub i32 %r_mat467, 1
+  %tmp489 = icmp slt i32 %tmp484, %tmp478
+  br i1 %tmp489, label %then486, label %else488
+
+then480:                                          ; preds = %merge472
+  %printf481 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge479
+
+else482:                                          ; preds = %merge472
+  br label %merge479
+
+merge485:                                         ; preds = %else488, %then486
+  br i1 false, label %then491, label %else493
+
+then486:                                          ; preds = %merge479
+  %printf487 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge485
+
+else488:                                          ; preds = %merge479
+  br label %merge485
+
+merge490:                                         ; preds = %else493, %then491
+  %tmp494 = sub i32 %c_mat469, 1
+  %tmp499 = icmp slt i32 %tmp494, 0
+  br i1 %tmp499, label %then496, label %else498
+
+then491:                                          ; preds = %merge485
+  %printf492 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge490
+
+else493:                                          ; preds = %merge485
+  br label %merge490
+
+merge495:                                         ; preds = %else498, %then496
+  %b500 = load i32, i32* %b
+  %tmp501 = sub i32 %b500, 1
+  %tmp506 = icmp sgt i32 0, %tmp501
+  br i1 %tmp506, label %then503, label %else505
+
+then496:                                          ; preds = %merge490
+  %printf497 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge495
+
+else498:                                          ; preds = %merge490
+  br label %merge495
+
+merge502:                                         ; preds = %else505, %then503
+  %tmp507 = sub i32 %c_mat469, 1
+  %tmp512 = icmp slt i32 %tmp507, %tmp501
+  br i1 %tmp512, label %then509, label %else511
+
+then503:                                          ; preds = %merge495
+  %printf504 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge502
+
+else505:                                          ; preds = %merge495
+  br label %merge502
+
+merge508:                                         ; preds = %else511, %then509
+  %tmp513 = sub i32 %tmp478, 0
+  %tmp514 = sub i32 %tmp501, 0
+  %tmp515 = add i32 %tmp514, 1
+  %tmp516 = add i32 %tmp513, 1
+  %size517 = mul i32 %tmp516, %tmp515
+  %system_mat518 = alloca double, i32 %size517
+  %m519 = alloca %matrix_t
+  %m_mat520 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 0
+  store double* %system_mat518, double** %m_mat520
+  %m_r521 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 1
+  store i32 %tmp516, i32* %m_r521
+  %m_c522 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 2
+  store i32 %tmp515, i32* %m_c522
+  %tmp523 = sub i32 %tmp516, 1
+  %tmp524 = sub i32 %tmp515, 1
+  %i525 = alloca i32
+  store i32 0, i32* %i525
+  br label %while526
+
+then509:                                          ; preds = %merge502
+  %printf510 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge508
+
+else511:                                          ; preds = %merge502
+  br label %merge508
+
+while526:                                         ; preds = %merge538, %merge508
+  %i_v544 = load i32, i32* %i525
+  %bool_val545 = icmp sle i32 %i_v544, %tmp523
+  br i1 %bool_val545, label %while_body527, label %merge543
+
+while_body527:                                    ; preds = %while526
+  %j528 = alloca i32
+  store i32 0, i32* %j528
+  br label %while529
+
+while529:                                         ; preds = %while_body530, %while_body527
+  %j_v539 = load i32, i32* %j528
+  %bool_val540 = icmp sle i32 %j_v539, %tmp524
+  br i1 %bool_val540, label %while_body530, label %merge538
+
+while_body530:                                    ; preds = %while529
+  %j_v531 = load i32, i32* %j528
+  %i_v532 = load i32, i32* %i525
+  %tmp533 = mul i32 %tmp515, %i_v532
+  %index534 = add i32 %j_v531, %tmp533
+  %element_ptr535 = getelementptr double, double* %system_mat518, i32 %index534
+  store double 0.000000e+00, double* %element_ptr535
+  %j_v536 = load i32, i32* %j528
+  %tmp537 = add i32 %j_v536, 1
+  store i32 %tmp537, i32* %j528
+  br label %while529
+
+merge538:                                         ; preds = %while529
+  %i_v541 = load i32, i32* %i525
+  %tmp542 = add i32 %i_v541, 1
+  store i32 %tmp542, i32* %i525
+  br label %while526
+
+merge543:                                         ; preds = %while526
+  %m_mat546 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 0
+  %mat_mat547 = load double*, double** %m_mat546
+  %m_r548 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 1
+  %r_mat549 = load i32, i32* %m_r548
+  %m_c550 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 2
+  %c_mat551 = load i32, i32* %m_c550
+  %m_mat552 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 0
+  %mat_v553 = load double*, double** %m_mat552
+  %m_r554 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 1
+  %r_v555 = load i32, i32* %m_r554
+  %m_c556 = getelementptr inbounds %matrix_t, %matrix_t* %m, i32 0, i32 2
+  %c_v557 = load i32, i32* %m_c556
+  %i558 = alloca i32
+  store i32 0, i32* %i558
+  br label %while559
+
+while559:                                         ; preds = %merge581, %merge543
+  %i_v587 = load i32, i32* %i558
+  %bool_val588 = icmp sle i32 %i_v587, %tmp513
+  br i1 %bool_val588, label %while_body560, label %merge586
+
+while_body560:                                    ; preds = %while559
+  %j561 = alloca i32
+  store i32 0, i32* %j561
+  br label %while562
+
+while562:                                         ; preds = %while_body563, %while_body560
+  %j_v582 = load i32, i32* %j561
+  %bool_val583 = icmp sle i32 %j_v582, %tmp514
+  br i1 %bool_val583, label %while_body563, label %merge581
+
+while_body563:                                    ; preds = %while562
+  %j_v564 = load i32, i32* %j561
+  %i_v565 = load i32, i32* %i558
+  %tmp566 = mul i32 %c_mat551, %i_v565
+  %index567 = add i32 %j_v564, %tmp566
+  %element_ptr568 = getelementptr double, double* %mat_mat547, i32 %index567
+  %j_v569 = load i32, i32* %j561
+  %tmp570 = sub i32 %j_v569, 0
+  %tmp571 = add i32 %tmp570, 0
+  %i_v572 = load i32, i32* %i558
+  %tmp573 = sub i32 %i_v572, 0
+  %tmp574 = add i32 %tmp573, 0
+  %tmp575 = mul i32 %c_v557, %tmp574
+  %index576 = add i32 %tmp571, %tmp575
+  %element_ptr577 = getelementptr double, double* %mat_v553, i32 %index576
+  %tmp_element578 = load double, double* %element_ptr577
+  store double %tmp_element578, double* %element_ptr568
+  %j_v579 = load i32, i32* %j561
+  %tmp580 = add i32 %j_v579, 1
+  store i32 %tmp580, i32* %j561
+  br label %while562
+
+merge581:                                         ; preds = %while562
+  %i_v584 = load i32, i32* %i558
+  %tmp585 = add i32 %i_v584, 1
+  store i32 %tmp585, i32* %i558
+  br label %while559
+
+merge586:                                         ; preds = %while559
+  %m_r589 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 1
+  %r_mat590 = load i32, i32* %m_r589
+  %m_c591 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 2
+  %c_mat592 = load i32, i32* %m_c591
+  br i1 false, label %then594, label %else596
+
+merge593:                                         ; preds = %else596, %then594
+  %tmp597 = sub i32 %r_mat590, 1
+  %tmp602 = icmp slt i32 %tmp597, 1
+  br i1 %tmp602, label %then599, label %else601
+
+then594:                                          ; preds = %merge586
+  %printf595 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge593
+
+else596:                                          ; preds = %merge586
+  br label %merge593
+
+merge598:                                         ; preds = %else601, %then599
+  %a603 = load i32, i32* %a
+  %tmp608 = icmp sgt i32 0, %a603
+  br i1 %tmp608, label %then605, label %else607
+
+then599:                                          ; preds = %merge593
+  %printf600 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge598
+
+else601:                                          ; preds = %merge593
+  br label %merge598
+
+merge604:                                         ; preds = %else607, %then605
+  %tmp609 = sub i32 %r_mat590, 1
+  %tmp614 = icmp slt i32 %tmp609, %a603
+  br i1 %tmp614, label %then611, label %else613
+
+then605:                                          ; preds = %merge598
+  %printf606 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge604
+
+else607:                                          ; preds = %merge598
+  br label %merge604
+
+merge610:                                         ; preds = %else613, %then611
+  br i1 false, label %then616, label %else618
+
+then611:                                          ; preds = %merge604
+  %printf612 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge610
+
+else613:                                          ; preds = %merge604
+  br label %merge610
+
+merge615:                                         ; preds = %else618, %then616
+  %tmp619 = sub i32 %c_mat592, 1
+  %tmp624 = icmp slt i32 %tmp619, 1
+  br i1 %tmp624, label %then621, label %else623
+
+then616:                                          ; preds = %merge610
+  %printf617 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge615
+
+else618:                                          ; preds = %merge610
+  br label %merge615
+
+merge620:                                         ; preds = %else623, %then621
+  %b625 = load i32, i32* %b
+  %tmp630 = icmp sgt i32 0, %b625
+  br i1 %tmp630, label %then627, label %else629
+
+then621:                                          ; preds = %merge615
+  %printf622 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge620
+
+else623:                                          ; preds = %merge615
+  br label %merge620
+
+merge626:                                         ; preds = %else629, %then627
+  %tmp631 = sub i32 %c_mat592, 1
+  %tmp636 = icmp slt i32 %tmp631, %b625
+  br i1 %tmp636, label %then633, label %else635
+
+then627:                                          ; preds = %merge620
+  %printf628 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge626
+
+else629:                                          ; preds = %merge620
+  br label %merge626
+
+merge632:                                         ; preds = %else635, %then633
+  %tmp637 = sub i32 %a603, 1
+  %tmp638 = add i32 %tmp637, 1
+  %m_r639 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 1
+  %r_mat640 = load i32, i32* %m_r639
+  %tmp645 = icmp ne i32 %tmp638, %r_mat640
+  br i1 %tmp645, label %then642, label %else644
+
+then633:                                          ; preds = %merge626
+  %printf634 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge632
+
+else635:                                          ; preds = %merge626
+  br label %merge632
+
+merge641:                                         ; preds = %else644, %then642
+  %tmp646 = sub i32 %b625, 1
+  %tmp647 = add i32 %tmp646, 1
+  %m_r648 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 2
+  %r_mat649 = load i32, i32* %m_r648
+  %tmp654 = icmp ne i32 %tmp647, %r_mat649
+  br i1 %tmp654, label %then651, label %else653
+
+then642:                                          ; preds = %merge632
+  %printf643 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([86 x i8], [86 x i8]* @fmt_str.8, i32 0, i32 0))
+  call void @abort()
+  br label %merge641
+
+else644:                                          ; preds = %merge632
+  br label %merge641
+
+merge650:                                         ; preds = %else653, %then651
+  %m_mat655 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 0
+  %mat_mat656 = load double*, double** %m_mat655
+  %m_r657 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 1
+  %r_mat658 = load i32, i32* %m_r657
+  %m_c659 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 2
+  %c_mat660 = load i32, i32* %m_c659
+  %m_mat661 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 0
+  %mat_v662 = load double*, double** %m_mat661
+  %m_r663 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 1
+  %r_v664 = load i32, i32* %m_r663
+  %m_c665 = getelementptr inbounds %matrix_t, %matrix_t* %m519, i32 0, i32 2
+  %c_v666 = load i32, i32* %m_c665
+  %i667 = alloca i32
+  store i32 1, i32* %i667
+  br label %while668
+
+then651:                                          ; preds = %merge641
+  %printf652 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([86 x i8], [86 x i8]* @fmt_str.8, i32 0, i32 0))
+  call void @abort()
+  br label %merge650
+
+else653:                                          ; preds = %merge641
+  br label %merge650
+
+while668:                                         ; preds = %merge690, %merge650
+  %i_v696 = load i32, i32* %i667
+  %bool_val697 = icmp sle i32 %i_v696, %a603
+  br i1 %bool_val697, label %while_body669, label %merge695
+
+while_body669:                                    ; preds = %while668
+  %j670 = alloca i32
+  store i32 1, i32* %j670
+  br label %while671
+
+while671:                                         ; preds = %while_body672, %while_body669
+  %j_v691 = load i32, i32* %j670
+  %bool_val692 = icmp sle i32 %j_v691, %b625
+  br i1 %bool_val692, label %while_body672, label %merge690
+
+while_body672:                                    ; preds = %while671
+  %j_v673 = load i32, i32* %j670
+  %i_v674 = load i32, i32* %i667
+  %tmp675 = mul i32 %c_mat660, %i_v674
+  %index676 = add i32 %j_v673, %tmp675
+  %element_ptr677 = getelementptr double, double* %mat_mat656, i32 %index676
+  %j_v678 = load i32, i32* %j670
+  %tmp679 = sub i32 %j_v678, 1
+  %tmp680 = add i32 %tmp679, 0
+  %i_v681 = load i32, i32* %i667
+  %tmp682 = sub i32 %i_v681, 1
+  %tmp683 = add i32 %tmp682, 0
+  %tmp684 = mul i32 %c_v666, %tmp683
+  %index685 = add i32 %tmp680, %tmp684
+  %element_ptr686 = getelementptr double, double* %mat_v662, i32 %index685
+  %tmp_element687 = load double, double* %element_ptr686
+  store double %tmp_element687, double* %element_ptr677
+  %j_v688 = load i32, i32* %j670
+  %tmp689 = add i32 %j_v688, 1
+  store i32 %tmp689, i32* %j670
+  br label %while671
+
+merge690:                                         ; preds = %while671
+  %i_v693 = load i32, i32* %i667
+  %tmp694 = add i32 %i_v693, 1
+  store i32 %tmp694, i32* %i667
+  br label %while668
+
+merge695:                                         ; preds = %while668
+  %i698 = alloca i32
+  %tmp699 = load i32, i32* %i698
+  store i32 0, i32* %i698
+  %j700 = alloca i32
+  %tmp701 = load i32, i32* %j700
+  store i32 0, i32* %j700
+  %i702 = load i32, i32* %i698
+  %a703 = load i32, i32* %a
+  %tmp704 = icmp slt i32 %i702, %a703
+  %tmp705 = load i32, i32* %i698
+  store i32 0, i32* %i698
+  br label %while706
+
+while706:                                         ; preds = %merge908, %merge695
+  %i916 = load i32, i32* %i698
+  %a917 = load i32, i32* %a
+  %tmp918 = icmp slt i32 %i916, %a917
+  br i1 %tmp918, label %while_body707, label %merge915
+
+while_body707:                                    ; preds = %while706
+  %j708 = load i32, i32* %j700
+  %b709 = load i32, i32* %b
+  %tmp710 = icmp slt i32 %j708, %b709
+  %tmp711 = load i32, i32* %j700
+  store i32 0, i32* %j700
+  br label %while712
+
+while712:                                         ; preds = %merge896, %while_body707
+  %j909 = load i32, i32* %j700
+  %b910 = load i32, i32* %b
+  %tmp911 = icmp slt i32 %j909, %b910
+  br i1 %tmp911, label %while_body713, label %merge908
+
+while_body713:                                    ; preds = %while712
+  %k = alloca double
+  %tmp714 = load double, double* %k
+  store double 0.000000e+00, double* %k
+  %m_r715 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 1
+  %r_mat716 = load i32, i32* %m_r715
+  %m_c717 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 2
+  %c_mat718 = load i32, i32* %m_c717
+  %i719 = load i32, i32* %i698
+  %tmp724 = icmp sgt i32 0, %i719
+  br i1 %tmp724, label %then721, label %else723
+
+merge720:                                         ; preds = %else723, %then721
+  %tmp725 = sub i32 %r_mat716, 1
+  %tmp730 = icmp slt i32 %tmp725, %i719
+  br i1 %tmp730, label %then727, label %else729
+
+then721:                                          ; preds = %while_body713
+  %printf722 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge720
+
+else723:                                          ; preds = %while_body713
+  br label %merge720
+
+merge726:                                         ; preds = %else729, %then727
+  %i731 = load i32, i32* %i698
+  %tmp732 = add i32 %i731, 2
+  %tmp737 = icmp sgt i32 0, %tmp732
+  br i1 %tmp737, label %then734, label %else736
+
+then727:                                          ; preds = %merge720
+  %printf728 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge726
+
+else729:                                          ; preds = %merge720
+  br label %merge726
+
+merge733:                                         ; preds = %else736, %then734
+  %tmp738 = sub i32 %r_mat716, 1
+  %tmp743 = icmp slt i32 %tmp738, %tmp732
+  br i1 %tmp743, label %then740, label %else742
+
+then734:                                          ; preds = %merge726
+  %printf735 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge733
+
+else736:                                          ; preds = %merge726
+  br label %merge733
+
+merge739:                                         ; preds = %else742, %then740
+  %j744 = load i32, i32* %j700
+  %tmp749 = icmp sgt i32 0, %j744
+  br i1 %tmp749, label %then746, label %else748
+
+then740:                                          ; preds = %merge733
+  %printf741 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge739
+
+else742:                                          ; preds = %merge733
+  br label %merge739
+
+merge745:                                         ; preds = %else748, %then746
+  %tmp750 = sub i32 %c_mat718, 1
+  %tmp755 = icmp slt i32 %tmp750, %j744
+  br i1 %tmp755, label %then752, label %else754
+
+then746:                                          ; preds = %merge739
+  %printf747 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge745
+
+else748:                                          ; preds = %merge739
+  br label %merge745
+
+merge751:                                         ; preds = %else754, %then752
+  %j756 = load i32, i32* %j700
+  %tmp757 = add i32 %j756, 2
+  %tmp762 = icmp sgt i32 0, %tmp757
+  br i1 %tmp762, label %then759, label %else761
+
+then752:                                          ; preds = %merge745
+  %printf753 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge751
+
+else754:                                          ; preds = %merge745
+  br label %merge751
+
+merge758:                                         ; preds = %else761, %then759
+  %tmp763 = sub i32 %c_mat718, 1
+  %tmp768 = icmp slt i32 %tmp763, %tmp757
+  br i1 %tmp768, label %then765, label %else767
+
+then759:                                          ; preds = %merge751
+  %printf760 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge758
+
+else761:                                          ; preds = %merge751
+  br label %merge758
+
+merge764:                                         ; preds = %else767, %then765
+  %tmp769 = sub i32 %tmp732, %i719
+  %tmp770 = sub i32 %tmp757, %j744
+  %tmp771 = add i32 %tmp770, 1
+  %tmp772 = add i32 %tmp769, 1
+  %size773 = mul i32 %tmp772, %tmp771
+  %system_mat774 = alloca double, i32 %size773
+  %m775 = alloca %matrix_t
+  %m_mat776 = getelementptr inbounds %matrix_t, %matrix_t* %m775, i32 0, i32 0
+  store double* %system_mat774, double** %m_mat776
+  %m_r777 = getelementptr inbounds %matrix_t, %matrix_t* %m775, i32 0, i32 1
+  store i32 %tmp772, i32* %m_r777
+  %m_c778 = getelementptr inbounds %matrix_t, %matrix_t* %m775, i32 0, i32 2
+  store i32 %tmp771, i32* %m_c778
+  %tmp779 = sub i32 %tmp772, 1
+  %tmp780 = sub i32 %tmp771, 1
+  %i781 = alloca i32
+  store i32 0, i32* %i781
+  br label %while782
+
+then765:                                          ; preds = %merge758
+  %printf766 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge764
+
+else767:                                          ; preds = %merge758
+  br label %merge764
+
+while782:                                         ; preds = %merge794, %merge764
+  %i_v800 = load i32, i32* %i781
+  %bool_val801 = icmp sle i32 %i_v800, %tmp779
+  br i1 %bool_val801, label %while_body783, label %merge799
+
+while_body783:                                    ; preds = %while782
+  %j784 = alloca i32
+  store i32 0, i32* %j784
+  br label %while785
+
+while785:                                         ; preds = %while_body786, %while_body783
+  %j_v795 = load i32, i32* %j784
+  %bool_val796 = icmp sle i32 %j_v795, %tmp780
+  br i1 %bool_val796, label %while_body786, label %merge794
+
+while_body786:                                    ; preds = %while785
+  %j_v787 = load i32, i32* %j784
+  %i_v788 = load i32, i32* %i781
+  %tmp789 = mul i32 %tmp771, %i_v788
+  %index790 = add i32 %j_v787, %tmp789
+  %element_ptr791 = getelementptr double, double* %system_mat774, i32 %index790
+  store double 0.000000e+00, double* %element_ptr791
+  %j_v792 = load i32, i32* %j784
+  %tmp793 = add i32 %j_v792, 1
+  store i32 %tmp793, i32* %j784
+  br label %while785
+
+merge794:                                         ; preds = %while785
+  %i_v797 = load i32, i32* %i781
+  %tmp798 = add i32 %i_v797, 1
+  store i32 %tmp798, i32* %i781
+  br label %while782
+
+merge799:                                         ; preds = %while782
+  %m_mat802 = getelementptr inbounds %matrix_t, %matrix_t* %m775, i32 0, i32 0
+  %mat_mat803 = load double*, double** %m_mat802
+  %m_r804 = getelementptr inbounds %matrix_t, %matrix_t* %m775, i32 0, i32 1
+  %r_mat805 = load i32, i32* %m_r804
+  %m_c806 = getelementptr inbounds %matrix_t, %matrix_t* %m775, i32 0, i32 2
+  %c_mat807 = load i32, i32* %m_c806
+  %m_mat808 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 0
+  %mat_v809 = load double*, double** %m_mat808
+  %m_r810 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 1
+  %r_v811 = load i32, i32* %m_r810
+  %m_c812 = getelementptr inbounds %matrix_t, %matrix_t* %m231, i32 0, i32 2
+  %c_v813 = load i32, i32* %m_c812
+  %i814 = alloca i32
+  store i32 0, i32* %i814
+  br label %while815
+
+while815:                                         ; preds = %merge837, %merge799
+  %i_v843 = load i32, i32* %i814
+  %bool_val844 = icmp sle i32 %i_v843, %tmp769
+  br i1 %bool_val844, label %while_body816, label %merge842
+
+while_body816:                                    ; preds = %while815
+  %j817 = alloca i32
+  store i32 0, i32* %j817
+  br label %while818
+
+while818:                                         ; preds = %while_body819, %while_body816
+  %j_v838 = load i32, i32* %j817
+  %bool_val839 = icmp sle i32 %j_v838, %tmp770
+  br i1 %bool_val839, label %while_body819, label %merge837
+
+while_body819:                                    ; preds = %while818
+  %j_v820 = load i32, i32* %j817
+  %i_v821 = load i32, i32* %i814
+  %tmp822 = mul i32 %c_mat807, %i_v821
+  %index823 = add i32 %j_v820, %tmp822
+  %element_ptr824 = getelementptr double, double* %mat_mat803, i32 %index823
+  %j_v825 = load i32, i32* %j817
+  %tmp826 = sub i32 %j_v825, 0
+  %tmp827 = add i32 %tmp826, %j744
+  %i_v828 = load i32, i32* %i814
+  %tmp829 = sub i32 %i_v828, 0
+  %tmp830 = add i32 %tmp829, %i719
+  %tmp831 = mul i32 %c_v813, %tmp830
+  %index832 = add i32 %tmp827, %tmp831
+  %element_ptr833 = getelementptr double, double* %mat_v809, i32 %index832
+  %tmp_element834 = load double, double* %element_ptr833
+  store double %tmp_element834, double* %element_ptr824
+  %j_v835 = load i32, i32* %j817
+  %tmp836 = add i32 %j_v835, 1
+  store i32 %tmp836, i32* %j817
+  br label %while818
+
+merge837:                                         ; preds = %while818
+  %i_v840 = load i32, i32* %i814
+  %tmp841 = add i32 %i_v840, 1
+  store i32 %tmp841, i32* %i814
+  br label %while815
+
+merge842:                                         ; preds = %while815
+  %bitwise_result = call %return_t* @bitwise(%matrix_t* %m775, %matrix_t* %m61)
+  %v_ptr845 = getelementptr inbounds %return_t, %return_t* %bitwise_result, i32 0, i32 0
+  %v846 = load double, double* %v_ptr845
+  %9 = bitcast %return_t* %bitwise_result to i8*
+  tail call void @free(i8* %9)
+  %tmp847 = load double, double* %k
+  store double %v846, double* %k
+  %k848 = load double, double* %k
+  %m_r849 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 1
+  %r_mat850 = load i32, i32* %m_r849
+  %m_c851 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 2
+  %c_mat852 = load i32, i32* %m_c851
+  %i853 = load i32, i32* %i698
+  %tmp858 = icmp sgt i32 0, %i853
+  br i1 %tmp858, label %then855, label %else857
+
+merge854:                                         ; preds = %else857, %then855
+  %tmp859 = sub i32 %r_mat850, 1
+  %tmp864 = icmp slt i32 %tmp859, %i853
+  br i1 %tmp864, label %then861, label %else863
+
+then855:                                          ; preds = %merge842
+  %printf856 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge854
+
+else857:                                          ; preds = %merge842
+  br label %merge854
+
+merge860:                                         ; preds = %else863, %then861
+  %i865 = load i32, i32* %i698
+  %tmp870 = icmp sgt i32 0, %i865
+  br i1 %tmp870, label %then867, label %else869
+
+then861:                                          ; preds = %merge854
+  %printf862 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge860
+
+else863:                                          ; preds = %merge854
+  br label %merge860
+
+merge866:                                         ; preds = %else869, %then867
+  %tmp871 = sub i32 %r_mat850, 1
+  %tmp876 = icmp slt i32 %tmp871, %i865
+  br i1 %tmp876, label %then873, label %else875
+
+then867:                                          ; preds = %merge860
+  %printf868 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge866
+
+else869:                                          ; preds = %merge860
+  br label %merge866
+
+merge872:                                         ; preds = %else875, %then873
+  %j877 = load i32, i32* %j700
+  %tmp882 = icmp sgt i32 0, %j877
+  br i1 %tmp882, label %then879, label %else881
+
+then873:                                          ; preds = %merge866
+  %printf874 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge872
+
+else875:                                          ; preds = %merge866
+  br label %merge872
+
+merge878:                                         ; preds = %else881, %then879
+  %tmp883 = sub i32 %c_mat852, 1
+  %tmp888 = icmp slt i32 %tmp883, %j877
+  br i1 %tmp888, label %then885, label %else887
+
+then879:                                          ; preds = %merge872
+  %printf880 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge878
+
+else881:                                          ; preds = %merge872
+  br label %merge878
+
+merge884:                                         ; preds = %else887, %then885
+  %j889 = load i32, i32* %j700
+  %tmp894 = icmp sgt i32 0, %j889
+  br i1 %tmp894, label %then891, label %else893
+
+then885:                                          ; preds = %merge878
+  %printf886 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge884
+
+else887:                                          ; preds = %merge878
+  br label %merge884
+
+merge890:                                         ; preds = %else893, %then891
+  %tmp895 = sub i32 %c_mat852, 1
+  %tmp900 = icmp slt i32 %tmp895, %j889
+  br i1 %tmp900, label %then897, label %else899
+
+then891:                                          ; preds = %merge884
+  %printf892 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge890
+
+else893:                                          ; preds = %merge884
+  br label %merge890
+
+merge896:                                         ; preds = %else899, %then897
+  %mat = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 0
+  %mat901 = load double*, double** %mat
+  %tmp902 = mul i32 %c_mat852, %i853
+  %index903 = add i32 %j877, %tmp902
+  %element_ptr904 = getelementptr double, double* %mat901, i32 %index903
+  store double %k848, double* %element_ptr904
+  %j905 = load i32, i32* %j700
+  %tmp906 = add i32 %j905, 1
+  %tmp907 = load i32, i32* %j700
+  store i32 %tmp906, i32* %j700
+  br label %while712
+
+then897:                                          ; preds = %merge890
+  %printf898 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @fmt_str.7, i32 0, i32 0))
+  call void @abort()
+  br label %merge896
+
+else899:                                          ; preds = %merge890
+  br label %merge896
+
+merge908:                                         ; preds = %while712
+  %i912 = load i32, i32* %i698
+  %tmp913 = add i32 %i912, 1
+  %tmp914 = load i32, i32* %i698
+  store i32 %tmp913, i32* %i698
+  br label %while706
+
+merge915:                                         ; preds = %while706
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i1** getelementptr (i1*, i1** null, i32 1) to i32))
+  %return = bitcast i8* %malloccall to %return_t.0*
+  %m_r919 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 1
+  %r_mat920 = load i32, i32* %m_r919
+  %m_c921 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 2
+  %c_mat922 = load i32, i32* %m_c921
+  %size923 = mul i32 %r_mat920, %c_mat922
+  %mallocsize = mul i32 %size923, ptrtoint (double* getelementptr (double, double* null, i32 1) to i32)
+  %malloccall924 = tail call i8* @malloc(i32 %mallocsize)
+  %system_mat925 = bitcast i8* %malloccall924 to double*
+  %malloccall926 = tail call i8* @malloc(i32 ptrtoint (%matrix_t* getelementptr (%matrix_t, %matrix_t* null, i32 1) to i32))
+  %m927 = bitcast i8* %malloccall926 to %matrix_t*
+  %m_mat928 = getelementptr inbounds %matrix_t, %matrix_t* %m927, i32 0, i32 0
+  store double* %system_mat925, double** %m_mat928
+  %m_r929 = getelementptr inbounds %matrix_t, %matrix_t* %m927, i32 0, i32 1
+  store i32 %r_mat920, i32* %m_r929
+  %m_c930 = getelementptr inbounds %matrix_t, %matrix_t* %m927, i32 0, i32 2
+  store i32 %c_mat922, i32* %m_c930
+  %tmp931 = sub i32 %r_mat920, 1
+  %tmp932 = sub i32 %c_mat922, 1
+  %i933 = alloca i32
+  store i32 0, i32* %i933
+  br label %while934
+
+while934:                                         ; preds = %merge946, %merge915
+  %i_v952 = load i32, i32* %i933
+  %bool_val953 = icmp sle i32 %i_v952, %tmp931
+  br i1 %bool_val953, label %while_body935, label %merge951
+
+while_body935:                                    ; preds = %while934
+  %j936 = alloca i32
+  store i32 0, i32* %j936
+  br label %while937
+
+while937:                                         ; preds = %while_body938, %while_body935
+  %j_v947 = load i32, i32* %j936
+  %bool_val948 = icmp sle i32 %j_v947, %tmp932
+  br i1 %bool_val948, label %while_body938, label %merge946
+
+while_body938:                                    ; preds = %while937
+  %j_v939 = load i32, i32* %j936
+  %i_v940 = load i32, i32* %i933
+  %tmp941 = mul i32 %c_mat922, %i_v940
+  %index942 = add i32 %j_v939, %tmp941
+  %element_ptr943 = getelementptr double, double* %system_mat925, i32 %index942
+  store double 0.000000e+00, double* %element_ptr943
+  %j_v944 = load i32, i32* %j936
+  %tmp945 = add i32 %j_v944, 1
+  store i32 %tmp945, i32* %j936
+  br label %while937
+
+merge946:                                         ; preds = %while937
+  %i_v949 = load i32, i32* %i933
+  %tmp950 = add i32 %i_v949, 1
+  store i32 %tmp950, i32* %i933
+  br label %while934
+
+merge951:                                         ; preds = %while934
+  %tmp954 = sub i32 %c_mat922, 1
+  %tmp955 = sub i32 %r_mat920, 1
+  %m_mat956 = getelementptr inbounds %matrix_t, %matrix_t* %m927, i32 0, i32 0
+  %mat_mat957 = load double*, double** %m_mat956
+  %m_r958 = getelementptr inbounds %matrix_t, %matrix_t* %m927, i32 0, i32 1
+  %r_mat959 = load i32, i32* %m_r958
+  %m_c960 = getelementptr inbounds %matrix_t, %matrix_t* %m927, i32 0, i32 2
+  %c_mat961 = load i32, i32* %m_c960
+  %m_mat962 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 0
+  %mat_v963 = load double*, double** %m_mat962
+  %m_r964 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 1
+  %r_v965 = load i32, i32* %m_r964
+  %m_c966 = getelementptr inbounds %matrix_t, %matrix_t* %m394, i32 0, i32 2
+  %c_v967 = load i32, i32* %m_c966
+  %i968 = alloca i32
+  store i32 0, i32* %i968
+  br label %while969
+
+while969:                                         ; preds = %merge991, %merge951
+  %i_v997 = load i32, i32* %i968
+  %bool_val998 = icmp sle i32 %i_v997, %tmp955
+  br i1 %bool_val998, label %while_body970, label %merge996
+
+while_body970:                                    ; preds = %while969
+  %j971 = alloca i32
+  store i32 0, i32* %j971
+  br label %while972
+
+while972:                                         ; preds = %while_body973, %while_body970
+  %j_v992 = load i32, i32* %j971
+  %bool_val993 = icmp sle i32 %j_v992, %tmp954
+  br i1 %bool_val993, label %while_body973, label %merge991
+
+while_body973:                                    ; preds = %while972
+  %j_v974 = load i32, i32* %j971
+  %i_v975 = load i32, i32* %i968
+  %tmp976 = mul i32 %c_mat961, %i_v975
+  %index977 = add i32 %j_v974, %tmp976
+  %element_ptr978 = getelementptr double, double* %mat_mat957, i32 %index977
+  %j_v979 = load i32, i32* %j971
+  %tmp980 = sub i32 %j_v979, 0
+  %tmp981 = add i32 %tmp980, 0
+  %i_v982 = load i32, i32* %i968
+  %tmp983 = sub i32 %i_v982, 0
+  %tmp984 = add i32 %tmp983, 0
+  %tmp985 = mul i32 %c_v967, %tmp984
+  %index986 = add i32 %tmp981, %tmp985
+  %element_ptr987 = getelementptr double, double* %mat_v963, i32 %index986
+  %tmp_element988 = load double, double* %element_ptr987
+  store double %tmp_element988, double* %element_ptr978
+  %j_v989 = load i32, i32* %j971
+  %tmp990 = add i32 %j_v989, 1
+  store i32 %tmp990, i32* %j971
+  br label %while972
+
+merge991:                                         ; preds = %while972
+  %i_v994 = load i32, i32* %i968
+  %tmp995 = add i32 %i_v994, 1
+  store i32 %tmp995, i32* %i968
+  br label %while969
+
+merge996:                                         ; preds = %while969
+  %return0 = getelementptr inbounds %return_t.0, %return_t.0* %return, i32 0, i32 0
+  store %matrix_t* %m927, %matrix_t** %return0
+  ret %return_t.0* %return
+  %tmp999 = alloca %return_t.0
+  ret %return_t.0* %tmp999
+}

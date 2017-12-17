@@ -1,0 +1,5 @@
+matrix m = [1.1,2.2;3.3,4.4];
+printf(m[0,0]);printend();
+printf(m[1,1]);printend();
+m[1,0] = 0.0; m[0,1] = 0.0;
+printf(m);

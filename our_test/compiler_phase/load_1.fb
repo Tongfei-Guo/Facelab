@@ -1,0 +1,9 @@
+matrix r; matrix g; matrix b;
+r,g,b = load("load_1.jpg");
+int i; int j;
+i,j = size(r);
+printf(i);
+printf(r);printend();
+printf(g);printend();
+printf(b);printend();
+

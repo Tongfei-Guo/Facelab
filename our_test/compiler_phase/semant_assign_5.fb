@@ -1,0 +1,7 @@
+func f() {return 1, 2.2, "str", [1.1;2.2];}
+int i; double d; string s; matrix m;
+i, s, m = f();
+printf(i);printend();
+printf(d);printend();
+printf(s);printend();
+printf(m);printend();

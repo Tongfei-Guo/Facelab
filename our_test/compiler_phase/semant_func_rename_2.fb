@@ -1,0 +1,2 @@
+func f() {return;}
+func f() {return 1;}

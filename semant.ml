@@ -34,6 +34,10 @@ let check (functions, _) =
     | "zeros" :: _ -> raise (Failure ("Semantic error : name zeros is reserved."))
     | "double2int" :: _ -> raise (Failure ("Semantic error : name double2int is reserved."))
     | "int2double" :: _ -> raise (Failure ("Semantic error : name int2double is reserved."))
+    | "load_cpp" :: _ -> raise (Failure ("Semantic error : name load_cpp is reserved."))
+    | "load" :: _ -> raise (Failure ("Semantic error : name load is reserved."))
+    | "save_cpp" :: _ -> raise (Failure ("Semantic error : name save_cpp is reserved."))
+    | "save" :: _ -> raise (Failure ("Semantic error : name save is reserved."))
     | _ :: t -> helper t
     | [] -> ()
     in helper list

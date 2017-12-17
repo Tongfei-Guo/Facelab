@@ -1,0 +1,7 @@
+func f(int i, double d, matrix m) 
+{
+    printf(i);printend();
+    printf(d);printend();
+    printf(m);printend();
+}
+f(2.2, 2.2, zeros(2,2));
