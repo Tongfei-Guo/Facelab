@@ -17,7 +17,7 @@
 using namespace cv;
 
 using namespace std;
-double* load(String imageName)
+extern "C" double* load_cpp(char imageName[])
 {
     Mat img = imread(imageName,CV_LOAD_IMAGE_COLOR);
     unsigned char* input = (unsigned char*)(img.data);

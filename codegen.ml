@@ -55,7 +55,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
 
 (* 1. Auxiliary definitions *)
   let context = L.global_context () in
-  let the_module = L.create_module context "MicroC" 
+  let the_module = L.create_module context "Facelab" 
   and double_t = L.double_type context
   and i32_t  = L.i32_type  context 
   and i8_t   = L.i8_type   context in
@@ -75,8 +75,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   let main_builder = ref (*  main_builder the "builder" equivalent of main function *) 
     (L.builder_at_end context (L.entry_block main_define)) in
 
-  let function_decls = H.create (List.length functions) in 
-  
+  let function_decls = H.create (List.length functions + 1000) in 
   
   
   (* AST.expr type to LLVM type conversion *)
@@ -188,6 +187,8 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   let mat_dim_err_str = L.build_global_stringptr "Semantic error : wrong dimension of operands of matrix operation." "fmt_str" !main_builder in
   let mat_bound_err_str = L.build_global_stringptr "Semantic error : matrix index out of bounds." "fmt_str" !main_builder in
   let mat_assign_err_str = L.build_global_stringptr "Semantic error : matrix block assignment must have agreeable dimension on both sides." "fmt_str" !main_builder in
+
+
   (* following function builds llvm control flow *)
   (* llvm if *)
   let llvm_if function_ptr builder (predicate, then_stmt, else_stmt) =
@@ -490,7 +491,77 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i)); result_mat
   in
 
+  (* rgb array to rgb matrix *)
+  let to_rgb_matrix mat_arr mat_r mat_g mat_b r c function_ptr builder =
+    let m_r = L.build_load (L.build_struct_gep mat_r 0 "mat_r" !builder) "mat_mat" !builder in
+    let m_g = L.build_load (L.build_struct_gep mat_g 0 "mat_g" !builder) "mat_mat" !builder in
+    let m_b = L.build_load (L.build_struct_gep mat_b 0 "mat_b" !builder) "mat_mat" !builder in
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    let counter = L.build_alloca i32_t "counter" !builder in
+    ignore(L.build_store (L.const_int i32_t 2) counter !builder);
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let m_r_element_ptr = access m_r r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m_g_element_ptr = access m_g r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m_b_element_ptr = access m_b r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        ignore(L.build_store (L.build_load (L.build_gep mat_arr [|(L.build_load counter "counter" !builder)|] "element_ptr" !builder) "tmp_element" !builder) m_b_element_ptr !builder);
+        let tmp = L.build_add (L.build_load counter "counter" !builder) (L.const_int i32_t 1) "tmp" !builder in
+        ignore(L.build_store tmp counter !builder);
+        ignore(L.build_store (L.build_load (L.build_gep mat_arr [|(L.build_load counter "counter" !builder)|] "element_ptr" !builder) "tmp_element" !builder) m_g_element_ptr !builder);
+        let tmp = L.build_add (L.build_load counter "counter" !builder) (L.const_int i32_t 1) "tmp" !builder in
+        ignore(L.build_store tmp counter !builder);
+        ignore(L.build_store (L.build_load (L.build_gep mat_arr [|(L.build_load counter "counter" !builder)|] "element_ptr" !builder) "tmp_element" !builder) m_r_element_ptr !builder);
+        let tmp = L.build_add (L.build_load counter "counter" !builder) (L.const_int i32_t 1) "tmp" !builder in
+        ignore(L.build_store tmp counter !builder) in
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i))
+  in
 
+(* rgb matrix to rgb array *)
+  let from_rgb_matrix mat_arr mat_r mat_g mat_b r c function_ptr builder =
+    let m_r = L.build_load (L.build_struct_gep mat_r 0 "mat_r" !builder) "mat_mat" !builder in
+    let m_g = L.build_load (L.build_struct_gep mat_g 0 "mat_g" !builder) "mat_mat" !builder in
+    let m_b = L.build_load (L.build_struct_gep mat_b 0 "mat_b" !builder) "mat_mat" !builder in
+    let r_high = L.build_sub r (L.const_int i32_t 1) "tmp" !builder in
+    let c_high = L.build_sub c (L.const_int i32_t 1) "tmp" !builder in
+    ignore(L.build_store (L.build_sitofp r double_t "tmp" !builder) (L.build_gep mat_arr [|(L.const_int i32_t 0)|] "element_ptr" !builder) !builder);
+    ignore(L.build_store (L.build_sitofp c double_t "tmp" !builder)  (L.build_gep mat_arr [|(L.const_int i32_t 1)|] "element_ptr" !builder) !builder);
+    let counter = L.build_alloca i32_t "counter" !builder in
+    ignore(L.build_store (L.const_int i32_t 2) counter !builder);
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) r_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) c_high "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let m_r_element_ptr = access m_r r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m_g_element_ptr = access m_g r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        let m_b_element_ptr = access m_b r c (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        ignore(L.build_store (L.build_load m_b_element_ptr "tmp_element" !builder) (L.build_gep mat_arr [|(L.build_load counter "counter" !builder)|] "element_ptr" !builder) !builder);
+        let tmp = L.build_add (L.build_load counter "counter" !builder) (L.const_int i32_t 1) "tmp" !builder in
+        ignore(L.build_store tmp counter !builder);
+        ignore(L.build_store (L.build_load m_g_element_ptr "tmp_element" !builder) (L.build_gep mat_arr [|(L.build_load counter "counter" !builder)|] "element_ptr" !builder) !builder);
+        let tmp = L.build_add (L.build_load counter "counter" !builder) (L.const_int i32_t 1) "tmp" !builder in
+        ignore(L.build_store tmp counter !builder);
+        ignore(L.build_store (L.build_load m_r_element_ptr "tmp_element" !builder) (L.build_gep mat_arr [|(L.build_load counter "counter" !builder)|] "element_ptr" !builder) !builder);
+        let tmp = L.build_add (L.build_load counter "counter" !builder) (L.const_int i32_t 1) "tmp" !builder in
+        ignore(L.build_store tmp counter !builder) in
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i))
+  in
 
 
 
@@ -1136,6 +1207,71 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     ignore(L.build_ret return !builder)
   in
   built_in_body_building "double2int" double_to_int_func_body;
+
+ (*v. load(filename) *)
+  let load_cpp_t = L.function_type (L.pointer_type double_t) [| str_t |] in
+  let load_cpp_func = L.declare_function "load_cpp" load_cpp_t the_module in
+  let load_func_decl = 
+    { A.typ = A.Mulret([A.Matrix; A.Matrix; A.Matrix]);
+      A.fname = "load";
+      A.formals = [(A.String, "filename")];
+      A.body = [] }
+  in
+  let load_t = L.named_struct_type context "load_t" in
+  L.struct_set_body load_t [| L.pointer_type matrix_t ; L.pointer_type matrix_t ; L.pointer_type matrix_t |] false;
+  let load_func = 
+    L.define_function "load" (L.function_type (L.pointer_type load_t) [| str_t |]) the_module
+  in
+  H.add function_decls "load" (load_func, load_func_decl);
+   (* double2int function body *)
+  let load_func_body function_ptr =
+    let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
+    let return = L.build_malloc load_t "return" !builder in
+    let path = List.hd (Array.to_list (L.params function_ptr)) in
+    let mat_arr = L.build_call load_cpp_func [| path |] "mat_arr" !builder in
+    let i = L.build_fptosi (L.build_load (L.build_gep mat_arr [|L.const_int i32_t 0|] "element_ptr" !builder) "tmp" !builder) i32_t "tmp" !builder in
+    let j = L.build_fptosi (L.build_load (L.build_gep mat_arr [|L.const_int i32_t 1|] "element_ptr" !builder) "tmp" !builder) i32_t "tmp" !builder in 
+    let return_mat_r = heap_build_mat_init i j function_ptr builder in
+    let return_mat_g = heap_build_mat_init i j function_ptr builder in
+    let return_mat_b = heap_build_mat_init i j function_ptr builder in
+    to_rgb_matrix mat_arr return_mat_r return_mat_g return_mat_b i j function_ptr builder;
+    ignore(L.build_store return_mat_r (L.build_struct_gep return 0 "mat_r" !builder) !builder);
+    ignore(L.build_store return_mat_g (L.build_struct_gep return 1 "mat_r" !builder) !builder);
+    ignore(L.build_store return_mat_b (L.build_struct_gep return 2 "mat_r" !builder) !builder);
+    ignore(L.build_ret return !builder)
+  in
+  built_in_body_building "load" load_func_body;
+
+(*v. save(mat_r, mat_g, mat_b, filename) *)
+  let save_cpp_t = L.function_type void_t [| L.pointer_type double_t; str_t |] in
+  let save_cpp_func = L.declare_function "save_cpp" save_cpp_t the_module in
+  let save_func_decl = 
+    { A.typ = A.Void;
+      A.fname = "save";
+      A.formals = [(A.Matrix, "r");(A.Matrix, "g");(A.Matrix, "b");(A.String, "filename")];
+      A.body = [] }
+  in
+  let save_func = 
+    L.define_function "save" (L.function_type void_t [| L.pointer_type matrix_t; L.pointer_type matrix_t; L.pointer_type matrix_t; str_t |]) the_module
+  in
+  H.add function_decls "save" (save_func, save_func_decl);
+   (* double2int function body *)
+  let save_func_body function_ptr =
+    let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
+    let act = Array.to_list (L.params function_ptr) in
+    let m_r = List.nth act 0 in
+    let m_g = List.nth act 1 in 
+    let m_b = List.nth act 2 in 
+    let path = List.nth act 3 in 
+    let i = L.build_load (L.build_struct_gep m_r 1 "m_r" !builder) "r_mat" !builder in
+    let j = L.build_load (L.build_struct_gep m_r 2 "m_c" !builder) "c_mat" !builder in
+    let size = L.build_add (L.build_mul (L.build_mul i j "tmp" !builder) (L.const_int i32_t 3) "tmp" !builder) (L.const_int i32_t 2) "tmp" !builder in
+    let return_arr = L.build_array_malloc double_t size "return_arr" !builder in 
+    from_rgb_matrix return_arr m_r m_g m_b i j function_ptr builder;
+    ignore(L.build_call save_cpp_func [| return_arr; path |] "" !builder);
+    ignore(L.build_ret_void !builder)
+  in
+  built_in_body_building "save" save_func_body;
 
 
   List.iter build_function_body functions; build_main main_stmt;
