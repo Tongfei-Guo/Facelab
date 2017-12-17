@@ -33,3 +33,7 @@ void faceDetect(char fileName[])
     waitKey(0);                   
     return;   
 }
+int main()
+{
+    faceDetect("b.jpg");
+}
