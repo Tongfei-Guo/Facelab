@@ -38,6 +38,9 @@ let translate (functions, main_stmt) =
       ii). zeros: syntax : zeros(i, j), return a zero matrix of size i by j.
       iii). int2double : syntax : int2double(i), convert an int to double.
       iv). double2int : syntax : double2int(d), convert a double to int.
+      v). save(m_r, m_g, m_b, path) : save image to path.
+      vi). m_r, m_g, m_b = load(path) : load image.
+      vii). m = face(path) : detect faces in the image at given path, return m is a 4 by n matrix, n is the number of faces, row 1 stores coordinates of the center of faces at which row, row 2 stores coordinates of the center of faces at which col, row 3 stores the height of the faces, row 4 stores the length of faces.
   4. std functions:
   5. error messages:
       i). Compiler error : used for debug purpose, it's very unlikely that user would see any of them.
