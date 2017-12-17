@@ -38,6 +38,8 @@ let check (functions, _) =
     | "load" :: _ -> raise (Failure ("Semantic error : name load is reserved."))
     | "save_cpp" :: _ -> raise (Failure ("Semantic error : name save_cpp is reserved."))
     | "save" :: _ -> raise (Failure ("Semantic error : name save is reserved."))
+    | "faceDetect" :: _ -> raise (Failure ("Semantic error : name faceDetect is reserved."))
+    | "face" :: _ -> raise (Failure ("Semantic error : name save is reserved."))
     | _ :: t -> helper t
     | [] -> ()
     in helper list

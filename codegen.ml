@@ -38,6 +38,9 @@ let translate (functions, main_stmt) =
       ii). zeros: syntax : zeros(i, j), return a zero matrix of size i by j.
       iii). int2double : syntax : int2double(i), convert an int to double.
       iv). double2int : syntax : double2int(d), convert a double to int.
+      v). save(m_r, m_g, m_b, path) : save image to path.
+      vi). m_r, m_g, m_b = load(path) : load image.
+      vii). m = face(path) : detect faces in the image at given path, return m is a 4 by n matrix, n is the number of faces, row 1 stores coordinates of the center of faces at which row, row 2 stores coordinates of the center of faces at which col, row 3 stores the height of the faces, row 4 stores the length of faces.
   4. std functions:
   5. error messages:
       i). Compiler error : used for debug purpose, it's very unlikely that user would see any of them.
@@ -563,6 +566,30 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i))
   in
 
+
+  (* face array to face matrix *)
+  let face_matrix mat_arr mat num function_ptr builder = 
+    let m = L.build_load (L.build_struct_gep mat 0 "mat_r" !builder) "mat_mat" !builder in
+    let counter = L.build_alloca i32_t "counter" !builder in
+    ignore(L.build_store (L.const_int i32_t 1) counter !builder);
+    let num_high = L.build_sub num (L.const_int i32_t 1) "tmp" !builder in
+    let i = L.build_alloca i32_t "i" !builder in
+    let init_i builder = L.build_store (L.const_int i32_t 0) i !builder in
+    let predicate_i builder = L.build_icmp L.Icmp.Sle (L.build_load i "i_v" !builder) num_high "bool_val" !builder in
+    let update_i builder = ignore(L.build_store (L.build_add (L.build_load i "i_v" !builder) (L.const_int i32_t 1) "tmp" !builder) i !builder);builder in
+    let body_stmt_i builder = 
+      let j = L.build_alloca i32_t "j" !builder in
+      let init_j builder = L.build_store (L.const_int i32_t 0) j !builder in
+      let predicate_j builder = L.build_icmp L.Icmp.Sle (L.build_load j "j_v" !builder) (L.const_int i32_t 3) "bool_val" !builder in
+      let update_j builder = ignore(L.build_store (L.build_add (L.build_load j "j_v" !builder) (L.const_int i32_t 1) "tmp" !builder) j !builder);builder in
+      let body_stmt_j builder = 
+        let m_element_ptr = access m (L.const_int i32_t 4) num (L.build_load i "i_v" !builder) (L.build_load j "j_v" !builder) builder in
+        ignore(L.build_store (L.build_load (L.build_gep mat_arr [|(L.build_load counter "counter" !builder)|] "element_ptr" !builder) "tmp_element" !builder) m_element_ptr !builder);
+        let tmp = L.build_add (L.build_load counter "counter" !builder) (L.const_int i32_t 1) "tmp" !builder in
+        ignore(L.build_store tmp counter !builder) in
+      ignore(llvm_for function_ptr builder (init_j, predicate_j, update_j, body_stmt_j)) in
+    ignore(llvm_for function_ptr builder (init_i, predicate_i, update_i, body_stmt_i))
+  in
 
 
 (* 2. Statement construction *)
@@ -1223,7 +1250,6 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     L.define_function "load" (L.function_type (L.pointer_type load_t) [| str_t |]) the_module
   in
   H.add function_decls "load" (load_func, load_func_decl);
-   (* double2int function body *)
   let load_func_body function_ptr =
     let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
     let return = L.build_malloc load_t "return" !builder in
@@ -1242,7 +1268,7 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   in
   built_in_body_building "load" load_func_body;
 
-(*v. save(mat_r, mat_g, mat_b, filename) *)
+(*vi. save(mat_r, mat_g, mat_b, filename) *)
   let save_cpp_t = L.function_type void_t [| L.pointer_type double_t; str_t |] in
   let save_cpp_func = L.declare_function "save_cpp" save_cpp_t the_module in
   let save_func_decl = 
@@ -1255,7 +1281,6 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
     L.define_function "save" (L.function_type void_t [| L.pointer_type matrix_t; L.pointer_type matrix_t; L.pointer_type matrix_t; str_t |]) the_module
   in
   H.add function_decls "save" (save_func, save_func_decl);
-   (* double2int function body *)
   let save_func_body function_ptr =
     let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
     let act = Array.to_list (L.params function_ptr) in
@@ -1273,6 +1298,34 @@ m1[1:,:], m2, d1, s = f2([1.0;3.0], 5, 2.3, "facelab");
   in
   built_in_body_building "save" save_func_body;
 
+
+(*vii. face(filename) *)
+  let faceDetect_t = L.function_type (L.pointer_type double_t) [| str_t |] in
+  let faceDetect_func = L.declare_function "faceDetect" faceDetect_t the_module in
+  let face_func_decl = 
+    { A.typ = A.Mulret([A.Matrix]);
+      A.fname = "face";
+      A.formals = [(A.String, "filename")];
+      A.body = [] }
+  in
+  let face_t = L.named_struct_type context "face_t" in
+  L.struct_set_body face_t [| L.pointer_type matrix_t|] false;
+  let face_func = 
+    L.define_function "face" (L.function_type (L.pointer_type face_t) [| str_t |]) the_module
+  in
+  H.add function_decls "face" (face_func, face_func_decl);
+  let face_func_body function_ptr =
+    let builder = ref (L.builder_at_end context (L.entry_block function_ptr)) in
+    let return = L.build_malloc face_t "return" !builder in
+    let path = List.hd (Array.to_list (L.params function_ptr)) in
+    let mat_arr = L.build_call faceDetect_func [| path |] "mat_arr" !builder in
+    let num = L.build_fptosi (L.build_load (L.build_gep mat_arr [|L.const_int i32_t 0|] "element_ptr" !builder) "tmp" !builder) i32_t "tmp" !builder in
+    let return_mat_r = heap_build_mat_init (L.const_int i32_t 4) num function_ptr builder in
+    face_matrix mat_arr return_mat_r  num function_ptr builder;
+    ignore(L.build_store return_mat_r (L.build_struct_gep return 0 "mat_r" !builder) !builder);
+    ignore(L.build_ret return !builder)
+  in
+  built_in_body_building "face" face_func_body;
 
   List.iter build_function_body functions; build_main main_stmt;
   the_module 
