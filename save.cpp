@@ -10,7 +10,7 @@ using namespace cv;
 
 using namespace std;
 
-void save(double* input, char* fileName) 
+void save(double* input, char fileName[]) 
 {
     int width = input[0];
     int height = input[1];
