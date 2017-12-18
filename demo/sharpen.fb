@@ -1,0 +1,15 @@
+matrix t_r; matrix t_g; matrix t_b;
+t_r,t_g,t_b = load("sbird2.jpg");
+matrix r_r; matrix r_g; matrix r_b;
+//printf(t_r);
+//printf(t_g);
+matrix s = [0.0, -1.0, 0.0;
+           -1.0, 5.0, -1.0;
+            0.0, -1.0, 0.0];
+//int i;int j;
+//i,j = size(t_r);
+//printf(i);printf(j);
+r_r = t_r $ s;
+r_g = t_g $ s; 
+r_b = t_b $ s; 
+save(r_r, r_g, r_b, "sbird_result.jpg");
