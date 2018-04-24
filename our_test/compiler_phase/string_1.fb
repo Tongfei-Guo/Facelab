@@ -1,0 +1,4 @@
+string a = "abcdedg";
+string b = "cd";
+b;
+printf(a);

@@ -1,0 +1,26 @@
+func f(string name, matrix m1, matrix m2, matrix m3, double d) 
+{
+    printf(name);printf(" : ");
+    printend();
+    printf((m1+m2).*m3*d*5.0);
+    printend();
+    return m1.*m3, m2.*m3, d*5.0;
+}
+func f2(matrix m1, matrix m2, double d)
+{
+    matrix m3; matrix m4; double d2;
+    m3, m4 ,d2 = f("m1", m1, m1, m2, d);
+    printend();
+    printf((m3+m4)*d2);
+    printend();
+    printf(m3*2.0*d2);
+    return 1, 2.0, "haha";
+}
+int i; double d; string s;
+i,d,s = f2([1.0,2.0;3.0,4.0], [8.2,163.4;924.6,99.9], 4.0);
+f("m2", [1.0,2.0;3.0,4.0], [1.0,2.0;3.0,4.0], [8.2,163.4;924.6,99.9], 4.0);
+printf(i); printend(); printf(d); printend(); printf(s);printend();
+printf([1.0,2.0;3.0,4.0]== [1.0,2.0;3.0,4.0]);printend();
+matrix m = [8.2,163.4;924.6,99.9];
+printf(m == [1.0,2.0;3.0,4.0]);printend();
+                                                                    

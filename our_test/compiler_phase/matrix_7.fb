@@ -1,0 +1,21 @@
+func f(matrix m) { printf(m); return;}
+matrix m = [1.0,2.0,3.0;4.0,5.0,6.0;7.0,8.0,9.0;10.0,11.0,12.0];
+printf(m == m);
+printf(m != m);
+printend();
+matrix m2 = m / 1.5;
+printf(m2 != m);
+printf(m2 == m);
+printend();
+matrix m3 = m / 1.0;
+printf(m3 == m);
+printf(m3 != m);
+printend();
+matrix m4 = m * 1.001;
+printf(m4 != m);
+printf(m4 == m);
+printend();
+matrix m5 = 0.0 + m;
+printf(m5 == m);
+printf(m5 != m);
+printend();

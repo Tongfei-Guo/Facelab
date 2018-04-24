@@ -1,0 +1,47 @@
+; ModuleID = 'MicroC'
+source_filename = "MicroC"
+
+@fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.1 = private unnamed_addr constant [2 x i8] c"\0A\00"
+@fmt_str.2 = private unnamed_addr constant [3 x i8] c"  \00"
+@fmt_str.3 = private unnamed_addr constant [1 x i8] zeroinitializer
+@fmt_str.4 = private unnamed_addr constant [5 x i8] c"true\00"
+@fmt_str.5 = private unnamed_addr constant [6 x i8] c"false\00"
+
+define i32 @main() {
+entry:
+  %i = alloca i32
+  store i32 0, i32* %i
+  %j = alloca i32
+  store i32 0, i32* %j
+  store i32 1, i32* %j
+  br label %while
+
+while:                                            ; preds = %while_body, %entry
+  %j5 = load i32, i32* %j
+  %tmp6 = icmp sle i32 %j5, 10
+  br i1 %tmp6, label %while_body, label %merge
+
+while_body:                                       ; preds = %while
+  %i1 = load i32, i32* %i
+  %j2 = load i32, i32* %j
+  %tmp = add i32 %i1, %j2
+  store i32 %tmp, i32* %i
+  %j3 = load i32, i32* %j
+  %tmp4 = add i32 %j3, 1
+  store i32 %tmp4, i32* %j
+  br label %while
+
+merge:                                            ; preds = %while
+  %i7 = load i32, i32* %i
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %i7)
+  %printf8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_str.1, i32 0, i32 0))
+  %j9 = load i32, i32* %j
+  %printf10 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int, i32 0, i32 0), i32 %j9)
+  %printf11 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_str, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @fmt_str.1, i32 0, i32 0))
+  ret i32 0
+}
+
+declare i32 @printf(i8*, ...)

@@ -1,0 +1,13 @@
+func gcd(int m, int n) {
+//calculate gcd of two integer number
+while(m!=0 && n!=0)
+{
+if(n > m) n = n % m;
+else m = m % n;
+}
+if(m ==0) return n;
+else return m;
+}
+
+int m = gcd(81,18);
+printf(m);

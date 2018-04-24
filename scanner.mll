@@ -21,7 +21,8 @@ rule token = parse
 | '%'      { REMAINDER }
 | '='      { ASSIGN }
 | '$'      { FILTER }
-| ".*"     { INNERPRODUCT }
+| ':'      { COLON }
+| ".*"     { MATPRODUCT }
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }

@@ -1,0 +1,52 @@
+; ModuleID = 'MicroC'
+source_filename = "MicroC"
+
+@fmt_str = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.1 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.2 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.3 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.4 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.5 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.6 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.7 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.8 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.9 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.10 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.11 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.12 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.13 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.14 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.15 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.16 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.17 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.18 = private unnamed_addr constant [3 x i8] c"%d\00"
+@fmt_str.19 = private unnamed_addr constant [3 x i8] c"%s\00"
+@fmt_double.20 = private unnamed_addr constant [3 x i8] c"%f\00"
+@fmt_int.21 = private unnamed_addr constant [3 x i8] c"%d\00"
+
+declare i32 @printf(i8*, ...)
+
+define i32 @try() {
+entry:
+  %i = alloca i32
+  store i32 3, i32* %i
+  %j = alloca i32
+  store i32 5, i32* %j
+  %i1 = load i32, i32* %i
+  %j2 = load i32, i32* %j
+  %tmp = add i32 %i1, %j2
+  ret i32 %tmp
+}
+
+define i32 @main() {
+entry:
+  %d = alloca i32
+  store i32 0, i32* %d
+  %try_result = call i32 @try()
+  store i32 %try_result, i32* %d
+  %d1 = load i32, i32* %d
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @fmt_int.21, i32 0, i32 0), i32 %d1)
+  ret i32 0
+}

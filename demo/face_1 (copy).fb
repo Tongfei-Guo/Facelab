@@ -1,0 +1,42 @@
+func draw_rec(matrix m_r, matrix m_g, matrix m_b, double x, double y, double l, double w)
+{
+    int i;
+    m_g[2,2] = 0.0;
+    //m_g[5:15, 5:15] = zeros(11,11);
+    /*for (i = double2int(x - l/2); i <= double2int(x +l/2); i = i+1)
+    {
+        m_g[i, double2int(y-w/2-2):double2int(y-w/2+2)] = (255.0-zeros(1,5));
+        m_b[i, double2int(y-w/2-2):double2int(y-w/2+2)] = (255.0-zeros(1,5));
+        m_r[i, double2int(y-w/2-2):double2int(y-w/2+2)] = zeros(1,5);
+        m_g[i, double2int(y+w/2-2):double2int(y+w/2+2)] = (255.0-zeros(1,5));
+        m_b[i, double2int(y+w/2-2):double2int(y+w/2+2)] = (255.0-zeros(1,5));
+        m_r[i, double2int(y+w/2-2):double2int(y+w/2+2)] = zeros(1,5);
+    }
+    for (i = double2int(y - w/2); i <= double2int(y +w/2); i = i+1)
+    {
+        m_g[double2int(x-l/2-2):double2int(x-l/2+2), i] = (255.0-zeros(1,5));
+        m_b[double2int(x-l/2-2):double2int(x-l/2+2), i] = (255.0-zeros(1,5));
+        m_r[double2int(x-l/2-2):double2int(x-l/2+2), i] = zeros(1,5);
+        m_g[double2int(x+l/2-2):double2int(x+l/2+2), i] = (255.0-zeros(1,5));
+        m_b[double2int(x+l/2-2):double2int(x+l/2+2), i] = (255.0-zeros(1,5));
+        m_r[double2int(x+l/2-2):double2int(x+l/2+2), i] = zeros(1,5);
+    }*/
+    return m_r, m_g, m_b;
+}
+func draw_face(matrix m_r, matrix m_g, matrix m_b, matrix m)
+{
+    int r; int c;
+    r, c = size(m);
+    int i; 
+    for (i=0; i!= c; i=i+1)
+    {
+        m_r,m_g,m_b = draw_rec(m_r, m_g, m_b, m[0,i], m[1,i], m[2,i], m[3,i]);
+    }
+    return m_r, m_g, m_b;
+}      
+matrix m;
+m = face("d.jpg");
+matrix m_r; matrix m_g; matrix m_b;
+m_r, m_g, m_b = load("d.jpg");
+m_r, m_g, m_b = draw_rec(m_r, m_g, m_b, 20.0, 20.0, 20.0 ,20.0);
+save(m_r, m_g, m_b, "face_1_result.jpg");

@@ -1,0 +1,7 @@
+matrix a = zeros(3,3);
+printf(a[:, :]);printend();
+printf(a[2:, :]);printend();
+printf(a[:, 2:]);printend();
+printf(a[1:2, 1:2]);printend();
+printf(a[:, 1:2]);printend();
+printf(a[-1:1,:]);

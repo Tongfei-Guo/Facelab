@@ -1,13 +1,13 @@
 	.text
-	.file	"main_2.ir"
-	.globl	main
-	.align	16, 0x90
+	.file	"MicroC"
+	.globl	main                    # -- Begin function main
+	.p2align	4, 0x90
 	.type	main,@function
 main:                                   # @main
 	.cfi_startproc
 # BB#0:                                 # %entry
 	pushq	%rax
-.Ltmp0:
+.Lcfi0:
 	.cfi_def_cfa_offset 16
 	movl	$.Lfmt_str.1, %edi
 	movl	$.Lsystem_string, %esi
@@ -17,7 +17,6 @@ main:                                   # @main
 	movl	$.Lfmt_int.4, %edi
 	xorl	%eax, %eax
 	callq	printf
-	movl	$0, i(%rip)
 	movl	$3, i(%rip)
 	movl	$.Lfmt_int.10, %edi
 	movl	$3, %esi
@@ -30,25 +29,25 @@ main:                                   # @main
 	xorl	%eax, %eax
 	callq	printf
 	movb	$1, b(%rip)
-	jmp	.LBB0_1
-	.align	16, 0x90
-.LBB0_3:                                # %then
-                                        #   in Loop: Header=BB0_1 Depth=1
-	decl	j(%rip)
-.LBB0_1:                                # %while
-                                        # =>This Inner Loop Header: Depth=1
-	movzbl	b(%rip), %eax
-	andl	$1, %eax
-	cmpl	$1, %eax
-	jne	.LBB0_4
-# BB#2:                                 # %while_body
-                                        #   in Loop: Header=BB0_1 Depth=1
+	cmpb	$1, b(%rip)
+	je	.LBB0_2
+	jmp	.LBB0_5
+	.p2align	4, 0x90
+.LBB0_3:                                # %merge
+                                        #   in Loop: Header=BB0_2 Depth=1
 	cmpl	$3, j(%rip)
 	setne	b(%rip)
-	cmpl	$4, j(%rip)
-	jl	.LBB0_1
+	cmpb	$1, b(%rip)
+	jne	.LBB0_5
+.LBB0_2:                                # %while_body
+                                        # =>This Inner Loop Header: Depth=1
+	cmpl	$3, j(%rip)
+	jle	.LBB0_3
+# BB#4:                                 # %then
+                                        #   in Loop: Header=BB0_2 Depth=1
+	decl	j(%rip)
 	jmp	.LBB0_3
-.LBB0_4:                                # %merge13
+.LBB0_5:                                # %merge13
 	movl	j(%rip), %esi
 	movl	$.Lfmt_int.32, %edi
 	xorl	%eax, %eax
@@ -64,27 +63,27 @@ main:                                   # @main
 .Lfunc_end0:
 	.size	main, .Lfunc_end0-main
 	.cfi_endproc
-
-	.type	b,@object               # @b
+                                        # -- End function
+	.type	i,@object               # @i
 	.bss
-	.globl	b
-b:
-	.byte	0                       # 0x0
-	.size	b, 1
+	.globl	i
+	.p2align	2
+i:
+	.long	0                       # 0x0
+	.size	i, 4
 
 	.type	j,@object               # @j
 	.globl	j
-	.align	4
+	.p2align	2
 j:
 	.long	0                       # 0x0
 	.size	j, 4
 
-	.type	i,@object               # @i
-	.globl	i
-	.align	4
-i:
-	.long	0                       # 0x0
-	.size	i, 4
+	.type	b,@object               # @b
+	.globl	b
+b:
+	.byte	0                       # 0x0
+	.size	b, 1
 
 	.type	.Lfmt_str,@object       # @fmt_str
 	.section	.rodata.str1.1,"aMS",@progbits,1
@@ -109,7 +108,7 @@ i:
 
 	.type	.Lsystem_string,@object # @system_string
 	.section	.rodata.str1.16,"aMS",@progbits,1
-	.align	16
+	.p2align	4
 .Lsystem_string:
 	.asciz	"hello, this is the 2nd test program for remove int main restriction.\\n"
 	.size	.Lsystem_string, 71

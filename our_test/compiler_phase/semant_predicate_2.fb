@@ -1,0 +1,2 @@
+bool i = true;
+while (1) {printf(1);i=false;}

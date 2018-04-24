@@ -4,10 +4,10 @@
 
 # Easiest way to build: using ocamlbuild, which in turn uses ocamlfind
 
-all : facelab.native printbig.o
+all : facelab.native
 
 facelab.native :
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis,str -cflags -w,+a-4 \
 		facelab.native
 
 # "make clean" removes all generated files
@@ -16,7 +16,6 @@ facelab.native :
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff facelab scanner.ml parser.ml parser.mli
-	rm -rf printbig
 	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM

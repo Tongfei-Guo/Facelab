@@ -1,0 +1,14 @@
+<<<<<<< HEAD
+
+func multiply(matrix m) {
+	matrix m2 = [0.0, 0.1; 1.0, 1.1; 2.1, 2.2];
+	printf(m .* m2);
+}
+matrix m = [0.0, 0.1, 0.2; 1.0, 1.1, 1.2; 2.0, 2.1, 2.2];
+printf(m);
+printend();
+multiply(m);
+=======
+matrix m = [-1.1,-2.2;3.3,-4.4];
+printf(m);
+>>>>>>> 4667ed0b5742d3adfc4ba0aa43a8fa7ef07bbc52

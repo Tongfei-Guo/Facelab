@@ -1,0 +1,8 @@
+func addDouble() {
+	double i = 3;
+	double j = 5;
+	return i + j;
+}
+double d;
+d = addDouble();
+printf(d);

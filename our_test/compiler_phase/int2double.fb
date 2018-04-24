@@ -1,0 +1,12 @@
+matrix m = zeros(3,3);
+int i; int j;
+for (i = 0; i != 3; i = i+1)
+{
+    for (j=0; j!= 3; j = j+1)
+    {
+        m[i,j] = i*3+j+int2double(i*3+j)/10;
+    }
+}
+printf(m);printend();
+
+

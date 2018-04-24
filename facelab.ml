@@ -14,15 +14,20 @@ let _ =
     ("-c", Arg.Unit (set_action Compile),
       "Check and print the generated LLVM IR (default)");
   ] in  
-  let usage_msg = "usage: ./microc.native [-a|-l|-c] [file.mc]" in
+  let usage_msg = "usage: ./facelab.native [-a|-l|-c] [file.fb]" in
   let channel = ref stdin in
   Arg.parse speclist (fun filename -> channel := open_in filename) usage_msg;
   let lexbuf = Lexing.from_channel !channel in
-  let ast = Parser.program Scanner.token lexbuf in
-  (*Semant.check ast;*)
+  let (fdecl2, stmt2) = Parser.program Scanner.token lexbuf in
+  (*let lexbuf2 = Lexing.from_string (process.process_file Sys.argv.(1))in
+  let (global2, fdecl2, stmt2) = Parser.program Scanner.token lexbuf2 in *)
+  let lexbuf1 = Lexing.from_string (Preprocess.process_file "std.fb")in
+  let (fdecl1, _) = Parser.program Scanner.token lexbuf1 in
+  let ast = (fdecl1@fdecl2, stmt2) in
+  Semant.check ast;
   match !action with
     Ast -> () (*print_string (Ast.string_of_program ast)*)
   | LLVM_IR -> print_string (Llvm.string_of_llmodule (Codegen.translate ast))
   | Compile -> let m = Codegen.translate ast in
-    Llvm_analysis.assert_valid_module m;
+    (*Llvm_analysis.assert_valid_module m;*)
     print_string (Llvm.string_of_llmodule m)
