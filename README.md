@@ -23,3 +23,4 @@ Use Compiler:
 4. use command "./compile filename" to compile exe, for example, in the demo/ folder, there is a Facelab source code "tshirt.fb", then you can do "./compile tshirt" to compile and get executable "tshirt"
 
 **demo:**
+Some simply plot function write in Facelab plotting a cubic function:
