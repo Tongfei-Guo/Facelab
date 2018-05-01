@@ -1,11 +1,23 @@
 # Facelab
 
-Run test cases:
-1. eval `opam config env`
-2. export PATH=$PATH:/usr/local/opt/llvm/bin
-3. make clean
-4. make
-5. ./facelab.native our_test/compiler_phase/gcd.fb >> our_test/compiler_phase/gcd.ir
-6. cd our_test/compiler_phase
-7. llc gcd.ir
-8. gcc gcd.ir.s -o gcd
+A simple compiler with a hybrid of C-like and Matlab-like syntax.
+(a course project done in class Programming Languages&Translators, offered by Columbia University Fall 2017)
+
+Authors:
+Kejia Chen
+Tongfei Guo
+Weiman Sun
+Xin Chen
+
+Documentations & Tutorials:
+There is currently no official documentations or tutorials. Syntax, semantics and sample codes are described in detail in documentations/report. There are plenty of test codes in test/ if interested.
+
+How to use:
+
+You need to install LLVM and openCV first.
+
+Use Compiler:
+1. Download source folder.
+2. make
+3. modify "compile" as following: (i). change llc-5.0 to your corresponding llc (ii) change clang++-4.0 to your corresponding c++ compiler
+4. use command "./compile filename" to compile exe, for example, in the demo/ folder, there is a Facelab source code "tshirt.fb", then you can do "./compile tshirt" to compile and get executable "tshirt"
